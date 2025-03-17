@@ -31,20 +31,20 @@ public class VacancyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Vacancy>> getAllVacancies() {
+    public ResponseEntity<List<VacancyDto>> getAllVacancies() {
         //TODO Логика получения всех активных вакансий
-        return ResponseEntity.ok(List.of(new Vacancy()));
+        return ResponseEntity.ok(List.of(new VacancyDto()));
     }
 
     @GetMapping("/category/{categoryId}")
-    public ResponseEntity<List<Vacancy>> getVacanciesByCategory(@PathVariable Integer categoryId) {
+    public ResponseEntity<List<VacancyDto>> getVacanciesByCategory(@PathVariable Integer categoryId) {
         //TODO Логика получения вакансий по категории
-        return ResponseEntity.ok(List.of(new Vacancy()));
+        return ResponseEntity.ok(List.of(new VacancyDto()));
     }
 
     @GetMapping("/{vacancyId}")
-    public ResponseEntity<Vacancy> getVacancy(@PathVariable Integer vacancyId) {
+    public ResponseEntity<VacancyDto> getVacancy(@PathVariable Integer vacancyId) {
         //TODO Логика получения вакансии по id
-        return ResponseEntity.ok(new Vacancy());
+        return ResponseEntity.ok(new VacancyDto());
     }
 }

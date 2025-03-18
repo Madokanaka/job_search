@@ -12,12 +12,12 @@ import java.util.Optional;
 public class VacancyServiceImpl implements VacancyService {
 
     @Override
-    public Vacancy createVacancy(VacancyDto vacancyDto, Integer employerId) {
+    public VacancyDto createVacancy(VacancyDto vacancyDto, Integer employerId) {
         // TODO: Создать новую вакансию на основе данных из vacancyDto
         // TODO: Связать вакансию с работодателем через employerId
         // TODO: Сохранить вакансию в хранилище
 
-        return new Vacancy();
+        return new VacancyDto();
     }
 
     @Override

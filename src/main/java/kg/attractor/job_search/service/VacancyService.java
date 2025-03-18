@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface VacancyService {
-    Vacancy createVacancy(VacancyDto vacancyDto, Integer employerId);
+    VacancyDto createVacancy(VacancyDto vacancyDto, Integer employerId);
 
     VacancyDto editVacancy(Integer vacancyId, VacancyDto vacancyDto);
 

@@ -31,14 +31,14 @@ public class ResumeController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Resume>> getAllResumes() {
+    public ResponseEntity<List<ResumeDto>> getAllResumes() {
         //TODO Логика получения всех резюме
-        return ResponseEntity.ok(List.of(new Resume()));
+        return ResponseEntity.ok(List.of(new ResumeDto()));
     }
 
     @GetMapping("/{resumeId}")
-    public ResponseEntity<Resume> getResume(@PathVariable Integer resumeId) {
+    public ResponseEntity<?> getResume(@PathVariable Integer resumeId) {
         //TODO Логика получения резюме по id
-        return ResponseEntity.ok(new Resume());
+        return ResponseEntity.ok().body("Resume found");
     }
 }

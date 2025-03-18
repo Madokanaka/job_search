@@ -1,4 +1,4 @@
-package kg.attractor.job_search.model;
+package kg.attractor.job_search.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    private Integer id;
+public class UserDto {
+    Integer id;
     private String name;
     private String surname;
     private Integer age;

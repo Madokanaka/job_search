@@ -3,6 +3,7 @@ package kg.attractor.job_search.service.impl;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.service.UserService;
+import kg.attractor.job_search.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,10 +27,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String uploadAvatar(Integer userId, MultipartFile file) {
-        // TODO: Сохранить изображение в файловую систему или базу данных
-        // TODO: Сохранить путь к аватару в данные пользователя
-
-        return "Avatar uploaded successfully";
+    public String uploadAvatar(MultipartFile file) {
+        // TODO логика привязки аватара к пользователю
+        FileUtil fu = new FileUtil();
+        String fileName = fu.saveUploadFile(file, "images/");
+        return fileName;
     }
 }

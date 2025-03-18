@@ -2,6 +2,7 @@ package kg.attractor.job_search.controller;
 
 
 import kg.attractor.job_search.dto.UserDto;
+import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @RequestMapping("/users")
 public class UserController {
+    private final UserService userService;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDto userDTO) {
         //TODO Логика регистрации пользователя
@@ -23,8 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/upload-avatar")
-    public ResponseEntity<?> uploadAvatar(@RequestParam("file") MultipartFile file) {
-
-        return ResponseEntity.ok("Avatar uploaded successfully");
+    public String uploadAvatar(@RequestParam("file") MultipartFile file) {
+        return userService.uploadAvatar(file);
     }
 }

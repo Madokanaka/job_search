@@ -11,5 +11,5 @@ public interface UserService {
 
     Optional<User> login(String email, String password);
 
-    String uploadAvatar(Integer userId, MultipartFile file);
+    String uploadAvatar(MultipartFile file);
 }

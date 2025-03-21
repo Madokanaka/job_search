@@ -1,5 +1,6 @@
 package kg.attractor.job_search.controller;
 
+import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,12 @@ public class VacancyController {
     public ResponseEntity<List<VacancyDto>> getVacanciesUserRespondedTo(@PathVariable Integer userId) {
         Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesUserRespondedTo(userId);
         return vacancies.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    @GetMapping("/{vacancyId}/applicants")
+    public ResponseEntity<List<UserDto>> getApplicantsForVacancy(@PathVariable Integer vacancyId) {
+        Optional<List<UserDto>> applicants = vacancyService.getApplicantsForVacancy(vacancyId);
+        return applicants.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 }

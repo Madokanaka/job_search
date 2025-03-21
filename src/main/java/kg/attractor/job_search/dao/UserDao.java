@@ -25,7 +25,7 @@ public class UserDao {
             user.setPhoneNumber(rs.getString("phone_number"));
             user.setAvatar(rs.getString("avatar"));
             user.setAccountType(rs.getString("account_type"));
-            user.setPassword(rs.getString("password")); // Добавляем пароля
+            user.setPassword(rs.getString("password"));
             return user;
         });
     }
@@ -48,7 +48,7 @@ public class UserDao {
             user.setPhoneNumber(rs.getString("phone_number"));
             user.setAvatar(rs.getString("avatar"));
             user.setAccountType(rs.getString("account_type"));
-            user.setPassword(rs.getString("password")); // Добавляем пароля
+            user.setPassword(rs.getString("password"));
             return user;
         });
     }

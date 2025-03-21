@@ -48,4 +48,10 @@ public class VacancyServiceImpl implements VacancyService {
         List<VacancyDto> vacancies = vacancyDao.getVacanciesByCategory(categoryId);
         return vacancies.isEmpty() ? Optional.empty() : Optional.of(vacancies);
     }
+
+    @Override
+    public Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId) {
+        List<VacancyDto> vacancies = vacancyDao.getVacanciesUserRespondedTo(userId);
+        return vacancies.isEmpty() ? Optional.empty() : Optional.of(vacancies);
+    }
 }

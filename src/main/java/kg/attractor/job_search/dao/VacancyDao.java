@@ -94,4 +94,25 @@ public class VacancyDao {
                 rs.getInt("author_id")
         ));
     }
+
+    public List<VacancyDto> getVacanciesUserRespondedTo(Integer userId) {
+        String sql = """
+        SELECT v.* FROM vacancies v
+        JOIN responded_applicants ra ON v.id = ra.vacancy_id
+        JOIN resumes r ON ra.resume_id = r.id
+        WHERE r.applicant_id = ? AND v.is_active = true
+    """;
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> new VacancyDto(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getInt("category_id"),
+                rs.getDouble("salary"),
+                rs.getInt("exp_from"),
+                rs.getInt("exp_to"),
+                rs.getBoolean("is_active"),
+                rs.getInt("author_id")
+        ));
+    }
+
 }

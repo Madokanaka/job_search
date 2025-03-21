@@ -1,27 +1,22 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.model.RespondedApplicant;
+import kg.attractor.job_search.dao.ApplicationDao;
+import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.service.ApplicationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ApplicationServiceImpl implements ApplicationService {
 
-    @Override
-    public RespondedApplicant respondToVacancy(Integer vacancyId, Integer resumeId) {
-        // TODO: Проверить, существует ли вакансия и резюме
-        // TODO: Создать отклик на вакансию (связать резюме с вакансией)
-        // TODO: Сохранить отклик в хранилище
-
-        return new RespondedApplicant();
-    }
+    private final ApplicationDao applicationDao;
 
     @Override
-    public List<RespondedApplicant> getRespondedApplicants(Integer vacancyId) {
-        // TODO: Получить список откликнувшихся соискателей на вакансию
-        return List.of(new RespondedApplicant());
+    public RespondenApplicantDto respondToVacancy(Integer resumeId, Integer vacancyId) {
+        return applicationDao.saveResponse(resumeId, vacancyId);
     }
-
 }

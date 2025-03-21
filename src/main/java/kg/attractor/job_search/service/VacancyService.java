@@ -18,4 +18,6 @@ public interface VacancyService {
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
 
     Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId);
+
+    Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
 }

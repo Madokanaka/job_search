@@ -52,4 +52,10 @@ public class VacancyController {
         Optional<VacancyDto> vacancy = vacancyService.getVacancyById(vacancyId);
         return vacancy.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    @GetMapping("/user/{userId}/responded")
+    public ResponseEntity<List<VacancyDto>> getVacanciesUserRespondedTo(@PathVariable Integer userId) {
+        Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesUserRespondedTo(userId);
+        return vacancies.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
 }

@@ -7,9 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
-
 @RestController
 @RequestMapping("/applications")
 @RequiredArgsConstructor
@@ -21,8 +18,11 @@ public class ApplicationController {
     public ResponseEntity<RespondenApplicantDto> respondToVacancy(
             @PathVariable Integer vacancyId,
             @RequestParam Integer resumeId) {
-        RespondenApplicantDto response = applicationService.respondToVacancy(resumeId, vacancyId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        try {
+            RespondenApplicantDto response = applicationService.respondToVacancy(resumeId, vacancyId);
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
-
 }

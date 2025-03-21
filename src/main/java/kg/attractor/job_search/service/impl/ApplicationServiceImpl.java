@@ -6,9 +6,6 @@ import kg.attractor.job_search.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @RequiredArgsConstructor
 public class ApplicationServiceImpl implements ApplicationService {
@@ -17,6 +14,10 @@ public class ApplicationServiceImpl implements ApplicationService {
 
     @Override
     public RespondenApplicantDto respondToVacancy(Integer resumeId, Integer vacancyId) {
-        return applicationDao.saveResponse(resumeId, vacancyId);
+        RespondenApplicantDto response = applicationDao.saveResponse(resumeId, vacancyId);
+        if (response == null) {
+            throw new RuntimeException("Failed to save response or response is null");
+        }
+        return response;
     }
 }

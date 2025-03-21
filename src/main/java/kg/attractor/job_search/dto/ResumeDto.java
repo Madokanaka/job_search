@@ -17,4 +17,5 @@ public class ResumeDto {
     private Integer categoryId;
     private Double salary;
     private Boolean isActive;
+    private Integer applicantId;
 }

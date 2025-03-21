@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String uploadAvatar(MultipartFile file) {
-        // Простой метод загрузки файла
+
         try {
             FileUtil fileUtil = new FileUtil();
             return fileUtil.saveUploadFile(file, "images/");

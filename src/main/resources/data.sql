@@ -53,6 +53,11 @@ CREATE TABLE IF NOT EXISTS responded_applicants (
                                                     FOREIGN KEY (vacancy_id) REFERENCES vacancies(id)
 );
 
+CREATE TABLE IF NOT EXISTS contact_types (
+                                             id INT AUTO_INCREMENT PRIMARY KEY,
+                                             type VARCHAR(50) NOT NULL
+);
+
 
 INSERT INTO users (name, surname, age, email, password, phone_number, avatar, account_type)
 SELECT 'Иван', 'Петров', 30, 'ivan.petrov@example.com', 'password123', '+77001112233', NULL, 'applicant'
@@ -94,8 +99,11 @@ INSERT INTO responded_applicants (resume_id, vacancy_id, confirmation)
 SELECT 2, 2, FALSE
 WHERE NOT EXISTS (SELECT 1 FROM responded_applicants WHERE resume_id = 2 AND vacancy_id = 2);
 
-SELECT * FROM users;
-SELECT * FROM categories;
-SELECT * FROM resumes;
-SELECT * FROM vacancies;
-SELECT * FROM responded_applicants;
+INSERT INTO contact_types (type)
+SELECT 'Телефон'
+WHERE NOT EXISTS (SELECT 1 FROM contact_types WHERE type = 'Телефон');
+
+INSERT INTO contact_types (type)
+SELECT 'Email'
+WHERE NOT EXISTS (SELECT 1 FROM contact_types WHERE type = 'Email');
+

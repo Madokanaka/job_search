@@ -5,16 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResumeDto {
+public class RespondenApplicantDto {
     private Integer id;
-    private String name;
-    private Integer categoryId;
-    private Double salary;
-    private Boolean isActive;
+    private Integer resumeId;
+    private Integer vacancyId;
+    private Boolean confirmation;
 }

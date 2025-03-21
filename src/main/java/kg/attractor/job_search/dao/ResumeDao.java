@@ -4,6 +4,7 @@ import kg.attractor.job_search.model.Resume;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,9 +24,9 @@ public class ResumeDao {
     }
 
     public boolean updateResume(Resume resume) {
-        String sql = "UPDATE resumes SET name = ?, category_id = ?, salary = ?, is_active = ? update_time = ? WHERE id = ?";
+        String sql = "UPDATE resumes SET name = ?, category_id = ?, salary = ?, is_active = ?, update_time = ? WHERE id = ?";
         int rowsAffected = jdbcTemplate.update(sql, resume.getName(), resume.getCategoryId(), resume.getSalary(),
-                resume.getIsActive(), resume.getId(), resume.getUpdate_time());
+                resume.getIsActive(), LocalDateTime.now(), resume.getId());
 
         return rowsAffected > 0;
     }

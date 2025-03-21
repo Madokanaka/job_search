@@ -1,15 +1,19 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.UserDto;
-import kg.attractor.job_search.model.User;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface UserService {
-    UserDto registerUser(UserDto userDto);
-
-    Optional<User> login(String email, String password);
+    void registerUser(UserDto userDto);
 
     String uploadAvatar(MultipartFile file);
+
+    Optional<UserDto> findUserByEmail(String email);
+
+    boolean existsByEmail(String email);
+
+    List<UserDto> findAllUsers();
 }

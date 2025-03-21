@@ -1,23 +1,28 @@
 package kg.attractor.job_search.controller;
 
-import kg.attractor.job_search.model.RespondedApplicant;
+import kg.attractor.job_search.dto.RespondenApplicantDto;
+import kg.attractor.job_search.service.ApplicationService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.Optional;
+
 @RestController
 @RequestMapping("/applications")
+@RequiredArgsConstructor
 public class ApplicationController {
 
+    private final ApplicationService applicationService;
+
     @PostMapping("/{vacancyId}/respond")
-    public ResponseEntity<?> respondToVacancy(@PathVariable Integer vacancyId, @RequestParam Integer resumeId) {
-        //TODO Логика отклика на вакансию
-        return ResponseEntity.status(HttpStatus.CREATED).body("Successfully responded to vacancy");
+    public ResponseEntity<RespondenApplicantDto> respondToVacancy(
+            @PathVariable Integer vacancyId,
+            @RequestParam Integer resumeId) {
+        RespondenApplicantDto response = applicationService.respondToVacancy(resumeId, vacancyId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/{vacancyId}/responses")
-    public ResponseEntity<String> getRespondedApplicants(@PathVariable Integer vacancyId) {
-        //TODO Логика получения откликнувшихся соискателей
-        return ResponseEntity.ok("List of responded applicants");
-    }
 }

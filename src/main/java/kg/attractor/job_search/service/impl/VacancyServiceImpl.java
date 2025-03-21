@@ -1,55 +1,51 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.model.Vacancy;
+import kg.attractor.job_search.dao.VacancyDao;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.service.VacancyService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class VacancyServiceImpl implements VacancyService {
 
-    @Override
-    public VacancyDto createVacancy(VacancyDto vacancyDto, Integer employerId) {
-        // TODO: Создать новую вакансию на основе данных из vacancyDto
-        // TODO: Связать вакансию с работодателем через employerId
-        // TODO: Сохранить вакансию в хранилище
+    private final VacancyDao vacancyDao;
 
-        return new VacancyDto();
+
+    @Override
+    public VacancyDto createVacancy(VacancyDto vacancyDto) {
+        vacancyDao.createVacancy(vacancyDto);
+        return vacancyDto;
     }
 
     @Override
     public VacancyDto editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
-        // TODO: Найти вакансию по ID
-        // TODO: Обновить её на основе данных из vacancyDto
-        // TODO: Сохранить обновлённую вакансию
-
-        return new VacancyDto();
+        vacancyDao.updateVacancy(vacancyId, vacancyDto);
+        return vacancyDto;
     }
 
     @Override
     public void deleteVacancy(Integer vacancyId) {
-        // TODO: Найти вакансию по ID
-        // TODO: Удалить вакансию из хранилища
+        vacancyDao.deleteVacancy(vacancyId);
     }
 
     @Override
-    public List<Vacancy> getAllVacancies() {
-        // TODO: Получить список всех активных вакансий
-        return List.of(new Vacancy());
-    }
-
-    @Override
-    public List<VacancyDto> getVacanciesByCategory(Integer categoryId) {
-        // TODO: Найти вакансии по категории
-        return List.of(new VacancyDto());
+    public List<VacancyDto> getAllVacancies() {
+        return vacancyDao.getAllVacancies();
     }
 
     @Override
     public Optional<VacancyDto> getVacancyById(Integer vacancyId) {
-        // TODO: Найти вакансию по ID
-        return Optional.empty();
+        return vacancyDao.getVacancyById(vacancyId);
+    }
+
+    @Override
+    public Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId) {
+        List<VacancyDto> vacancies = vacancyDao.getVacanciesByCategory(categoryId);
+        return vacancies.isEmpty() ? Optional.empty() : Optional.of(vacancies);
     }
 }

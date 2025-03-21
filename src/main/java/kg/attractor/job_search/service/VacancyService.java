@@ -1,21 +1,21 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.VacancyDto;
-import kg.attractor.job_search.model.Vacancy;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface VacancyService {
-    VacancyDto createVacancy(VacancyDto vacancyDto, Integer employerId);
+
+    VacancyDto createVacancy(VacancyDto vacancyDto);
 
     VacancyDto editVacancy(Integer vacancyId, VacancyDto vacancyDto);
 
     void deleteVacancy(Integer vacancyId);
 
-    List<Vacancy> getAllVacancies();
-
-    List<VacancyDto> getVacanciesByCategory(Integer categoryId);
+    List<VacancyDto> getAllVacancies();
 
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
+
+    Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId);
 }

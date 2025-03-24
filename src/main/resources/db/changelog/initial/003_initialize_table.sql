@@ -39,3 +39,9 @@ VALUES (1, 5, 'Tech Corp', 'Senior Java Developer', 'Разработка и п�
 
 INSERT INTO education_info (resume_id, institution, program, start_date, end_date, degree)
 VALUES (1, 'КТМУ Манас', 'Программная инженерия', '2010-09-01', '2014-06-30', 'Бакалавр');
+
+insert into CONTACT_INFO (TYPE_ID, RESUME_ID, "VALUE")
+values (1, 1, '+77001112233');
+
+insert into CONTACT_INFO (TYPE_ID, RESUME_ID, "VALUE")
+values (2, 1, 'ivan.petrov@example.com');

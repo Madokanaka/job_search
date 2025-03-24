@@ -59,3 +59,16 @@ databaseChangeLog:
             referencedTableName: resumes
             referencedColumnNames: id
             constraintName: fk_education_resume
+        - addForeignKeyConstraint:
+              baseTableName: contact_info
+              baseColumnNames: resume_id
+              referencedTableName: resumes
+              referencedColumnNames: id
+              constraintName: fk_contact_resume
+        - addForeignKeyConstraint:
+              baseTableName: contact_info
+              baseColumnNames: type_id
+              referencedTableName: contact_types
+              referencedColumnNames: id
+              constraintName: fk_contact_type
+

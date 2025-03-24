@@ -25,8 +25,8 @@ public class ResumeDao {
     }
 
     public boolean updateResume(Resume resume) {
-        String sql = "UPDATE resumes SET name = ?, category_id = ?, salary = ?, is_active = ?, update_time = ? WHERE id = ?";
-        int rowsAffected = jdbcTemplate.update(sql, resume.getName(), resume.getCategoryId(), resume.getSalary(),
+        String sql = "UPDATE resumes SET name = ?, salary = ?, is_active = ?, update_time = ? WHERE id = ?";
+        int rowsAffected = jdbcTemplate.update(sql, resume.getName(), resume.getSalary(),
                 resume.getIsActive(), LocalDateTime.now(), resume.getId());
 
         return rowsAffected > 0;
@@ -160,5 +160,23 @@ public class ResumeDao {
             workExperienceInfo.setResponsibilities(rs.getString("responsibilities"));
             return workExperienceInfo;
         });
+    }
+
+    public boolean existsApplicantById(Integer userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        return count != null && count > 0;
+    }
+
+    public boolean existsCategoryById(Integer categoryId) {
+        String sql = "SELECT COUNT(*) FROM categories WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, categoryId);
+        return count != null && count > 0;
+    }
+
+    public boolean existsTypeById(Integer typeId) {
+        String sql = "SELECT COUNT(*) FROM contact_types WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, typeId);
+        return count != null && count > 0;
     }
 }

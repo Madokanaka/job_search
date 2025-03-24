@@ -12,10 +12,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResumeDto {
-    private Integer id;
     private String name;
     private Integer categoryId;
     private Double salary;
     private Boolean isActive;
-    private Integer applicantId;
+
+    private List<EducationInfoDto> educationInfoList;
+    private List<WorkExperienceInfoDto> workExperienceInfoList;
+    private List<ContactInfoDto> contactInfoList;
 }

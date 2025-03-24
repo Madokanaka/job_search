@@ -14,6 +14,5 @@ public interface ResumeService {
 
     List<ResumeDto> getAllResumes();
 
-
     Optional<List<ResumeDto>> getResumesByUserId(Integer userId);
 }

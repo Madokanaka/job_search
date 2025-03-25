@@ -21,12 +21,10 @@ public class ResumeController {
 
     @PostMapping
     public ResponseEntity<?> createResume(@RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
-        boolean success = resumeService.createResume(resumeDto, userId);
+        resumeService.createResume(resumeDto, userId);
 
-        if (success) {
-            return ResponseEntity.status(HttpStatus.CREATED).body("Resume created");
-        }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to create resume");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Resume created");
+
     }
 
     @PutMapping("/{resumeId}")

@@ -5,6 +5,8 @@ import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
+import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
@@ -29,17 +31,17 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     @Transactional
-    public boolean createResume(ResumeDto resumeDto, Integer userId) {
+    public void createResume(ResumeDto resumeDto, Integer userId) {
         if (resumeDto == null || userId == null || userId <= 0) {
-            return false;
+            throw new ResourceNotFoundException("User ID or resume have invalid values");
         }
 
         if (!resumeDao.existsApplicantById(userId)) {
-            return false;
+            throw new ResourceNotFoundException("User ID not found in database");
         }
 
         if (!resumeDao.existsCategoryById(resumeDto.getCategoryId())) {
-            return false;
+            throw new ResourceNotFoundException("Category ID not found in database");
         }
 
         Resume resume = new Resume();
@@ -54,11 +56,10 @@ public class ResumeServiceImpl implements ResumeService {
         int rowsAffected = resumeDao.createResume(resume);
 
         if (rowsAffected != 1) {
-            return false;
+            throw new DatabaseOperationException("Could not create resume");
         }
 
         saveResumeDetails(resume.getId(), resumeDto);
-        return true;
     }
 
 
@@ -118,7 +119,7 @@ public class ResumeServiceImpl implements ResumeService {
         if (resumeDto.getContactInfoList() != null) {
             resumeDto.getContactInfoList().forEach(contactInfoDto -> {
                 if (!resumeDao.existsTypeById(contactInfoDto.getTypeId())) {
-                    throw new IllegalArgumentException("Contact type ID not found in database");
+                    throw new ResourceNotFoundException("Contact type ID not found in database");
                 }
                 ContactInfo contactInfo = new ContactInfo();
                 contactInfo.setResumeId(resumeId);

@@ -60,10 +60,4 @@ public class VacancyController {
         return vacancies.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    @GetMapping("/{vacancyId}/applicants")
-    public ResponseEntity<List<UserDto>> getApplicantsForVacancy(@PathVariable Integer vacancyId) {
-        Optional<List<UserDto>> applicants = vacancyService.getApplicantsForVacancy(vacancyId);
-        return applicants.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
-    }
 }

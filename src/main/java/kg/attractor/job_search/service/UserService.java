@@ -20,4 +20,10 @@ public interface UserService {
     Optional<UserDto> getApplicantById(Integer userId);
 
     Optional<UserDto> getEmployeeById(Integer userId);
+
+    Optional<UserDto> getUserById(Integer userId);
+
+    void editUserProfile(Integer userId, UserDto userDto);
+
+    Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
 }

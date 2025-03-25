@@ -31,7 +31,7 @@ public class VacancyServiceImpl implements VacancyService {
             throw new ResourceNotFoundException("User with id " + userId + " is not employer");
         }
 
-        if (vacancyDao.existsCategoryById(vacancyDto.getCategoryId())) {
+        if (!vacancyDao.existsCategoryById(vacancyDto.getCategoryId())) {
             throw new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found");
         }
         Vacancy vacancy = new Vacancy().builder()
@@ -50,7 +50,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     @Override
     public void editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
-        if (vacancyDao.getVacancyById(vacancyId).isPresent()) {
+        if (!vacancyDao.getVacancyById(vacancyId).isPresent()) {
             throw new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found");
         }
         Optional<Vacancy> optionalVacancy= vacancyDao.getVacancyById(vacancyId);
@@ -114,27 +114,6 @@ public class VacancyServiceImpl implements VacancyService {
         return vacancies.isEmpty() ? Optional.empty() : Optional.of(vacancies);
     }
 
-
-    @Override
-    public Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId) {
-        List<User> applicants = vacancyDao.getApplicantsForVacancy(vacancyId);
-
-        List<UserDto> userDtos = applicants.stream()
-                .map(user -> new UserDto(
-                        user.getId(),
-                        user.getName(),
-                        user.getSurname(),
-                        user.getAge(),
-                        user.getEmail(),
-                        user.getPassword(),
-                        user.getPhoneNumber(),
-                        user.getAvatar(),
-                        user.getAccountType()
-                ))
-                .collect(Collectors.toList());
-
-        return userDtos.isEmpty() ? Optional.empty() : Optional.of(userDtos);
-    }
 
     @Override
     public Optional<VacancyDto> getVacancyById(Integer vacancyId) {

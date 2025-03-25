@@ -20,7 +20,5 @@ public interface VacancyService {
 
     Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
 
-    Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
-
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
 }

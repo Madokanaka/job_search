@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-tables
+      author: Seitek
+      changes:
+        - createTable:
+            tableName: user_pictures
+            columns:
+              - column:
+                  name: id
+                  type: long
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: long
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_user_image_id
+                    references: users(id)
+              - column:
+                  name: file_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

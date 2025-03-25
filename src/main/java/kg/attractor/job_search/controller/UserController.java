@@ -72,4 +72,28 @@ public class UserController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getUserById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<String> editProfile(@PathVariable Integer userId, @RequestBody UserDto userDto) {
+        try {
+            userService.editUserProfile(userId, userDto);
+            return ResponseEntity.ok("User profile updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating profile: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/users/responded/{vacancyId}")
+    public ResponseEntity<List<UserDto>> getApplicantsForVacancy(@PathVariable Integer vacancyId) {
+        Optional<List<UserDto>> applicants = userService.getApplicantsForVacancy(vacancyId);
+        return applicants.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
 }

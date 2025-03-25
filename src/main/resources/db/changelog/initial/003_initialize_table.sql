@@ -17,7 +17,7 @@ INSERT INTO resumes (applicant_id, name, category_id, salary, is_active)
 VALUES (1, 'Frontend Developer', (SELECT id FROM categories WHERE name = 'Frontend Developer'), 220000, TRUE);
 
 INSERT INTO vacancies (name, description, category_id, salary, exp_from, exp_to, is_active, author_id)
-VALUES ('Backend Developer', 'Ищем Java-разработчика с опытом 3+ лет', (SELECT id FROM categories WHERE name = 'Backend Developer'), 300000, 3, 5, TRUE, 2);
+VALUES ('Backend Developer', 'Ищем Java-разработчика с опытом 3+ лет', (SELECT id FROM categories WHERE name = 'Java Developer'), 300000, 3, 5, TRUE, 2);
 
 INSERT INTO vacancies (name, description, category_id, salary, exp_from, exp_to, is_active, author_id)
 VALUES ('Frontend Developer', 'Ищем React-разработчика', (SELECT id FROM categories WHERE name = 'Frontend Developer'), 280000, 2, 4, TRUE, 2);

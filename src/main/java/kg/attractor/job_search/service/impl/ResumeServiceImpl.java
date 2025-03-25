@@ -67,7 +67,7 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public boolean deleteResume(Integer resumeId) {
         if (resumeDao.findById(resumeId).isEmpty()) {
-            return false;
+            throw new ResourceNotFoundException("Resume with id " + resumeId + " not found");
         }
 
         resumeDao.deleteContactInfoByResumeId(resumeId);
@@ -83,7 +83,7 @@ public class ResumeServiceImpl implements ResumeService {
 
 
         if (optionalResume.isEmpty()) {
-            return null;
+            throw new ResourceNotFoundException("Resume not found in database");
         }
 
         Resume resume = optionalResume.get();
@@ -110,6 +110,13 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public Optional<List<ResumeDto>> getResumesByUserId(Integer userId) {
+        if (userId == null || userId <= 0) {
+            throw new ResourceNotFoundException("User ID has invalid value");
+        }
+
+        if (!resumeDao.existsApplicantById(userId)) {
+            throw new ResourceNotFoundException("User ID not found in database");
+        }
         return resumeDao.findByUserId(userId).map(resumes -> resumes.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList()));

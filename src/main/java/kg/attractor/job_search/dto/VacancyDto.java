@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VacancyDto {
-    private Integer id;
     private String name;
     private String description;
     private Integer categoryId;
@@ -20,5 +19,4 @@ public class VacancyDto {
     private Integer expFrom;
     private Integer expTo;
     private Boolean isActive;
-    private Integer authorId;
 }

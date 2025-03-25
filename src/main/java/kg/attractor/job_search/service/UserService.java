@@ -9,11 +9,19 @@ import java.util.Optional;
 public interface UserService {
     void registerUser(UserDto userDto);
 
-    String uploadAvatar(MultipartFile file);
-
     Optional<UserDto> findUserByEmail(String email);
 
     boolean existsByEmail(String email);
 
     List<UserDto> findAllUsers();
+
+    Optional<UserDto> getApplicantById(Integer userId);
+
+    Optional<UserDto> getEmployeeById(Integer userId);
+
+    Optional<UserDto> getUserById(Integer userId);
+
+    void editUserProfile(Integer userId, UserDto userDto);
+
+    Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
 }

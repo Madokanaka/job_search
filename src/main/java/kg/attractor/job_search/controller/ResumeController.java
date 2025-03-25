@@ -22,27 +22,22 @@ public class ResumeController {
     @PostMapping
     public ResponseEntity<?> createResume(@RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
         resumeService.createResume(resumeDto, userId);
+
         return ResponseEntity.status(HttpStatus.CREATED).body("Resume created");
+
     }
 
     @PutMapping("/{resumeId}")
     public ResponseEntity<?> editResume(@PathVariable Integer resumeId, @RequestBody ResumeDto resumeDto) {
-        ResumeDto updatedResume = resumeService.editResume(resumeId, resumeDto);
-
-        if (updatedResume != null) {
-            return ResponseEntity.ok(updatedResume);
-        }
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resume not found");
+        resumeService.editResume(resumeId, resumeDto);
+        return ResponseEntity.status(HttpStatus.OK).body("Resume was edited");
     }
 
     @DeleteMapping("/{resumeId}")
-    public ResponseEntity<Void> deleteResume(@PathVariable Integer resumeId) {
-        boolean isDeleted = resumeService.deleteResume(resumeId);
-        if (isDeleted) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    public ResponseEntity<?> deleteResume(@PathVariable Integer resumeId) {
+        resumeService.deleteResume(resumeId);
+
+        return ResponseEntity.status(HttpStatus.OK).body("Resume was deleted");
     }
 
     @GetMapping

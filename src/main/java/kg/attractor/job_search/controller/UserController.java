@@ -29,16 +29,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/upload-avatar")
-    public ResponseEntity<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
-        try {
-            String fileName = userService.uploadAvatar(file);
-            return ResponseEntity.ok("Avatar uploaded successfully: " + fileName);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading avatar: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/find-by-email")
     public ResponseEntity<UserDto> findUserByEmail(@RequestParam("email") String email) {
         Optional<UserDto> userDto = userService.findUserByEmail(email);
@@ -57,4 +47,43 @@ public class UserController {
         List<UserDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/user/{userId}/applicant")
+    public ResponseEntity<UserDto> getApplicantById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getApplicantById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @GetMapping("/user/{userId}/employee")
+    public ResponseEntity<UserDto> getEmployeeById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getEmployeeById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @GetMapping("/profile/{userId}")
+    public ResponseEntity<UserDto> getUserById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getUserById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @PutMapping("/profile/{userId}")
+    public ResponseEntity<String> editProfile(@PathVariable Integer userId, @RequestBody UserDto userDto) {
+        try {
+            userService.editUserProfile(userId, userDto);
+            return ResponseEntity.ok("User profile updated successfully");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error updating profile: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/users/responded/{vacancyId}")
+    public ResponseEntity<List<UserDto>> getApplicantsForVacancy(@PathVariable Integer vacancyId) {
+        Optional<List<UserDto>> applicants = userService.getApplicantsForVacancy(vacancyId);
+        return applicants.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
 }

@@ -9,8 +9,6 @@ import java.util.Optional;
 public interface UserService {
     void registerUser(UserDto userDto);
 
-    String uploadAvatar(MultipartFile file);
-
     Optional<UserDto> findUserByEmail(String email);
 
     boolean existsByEmail(String email);

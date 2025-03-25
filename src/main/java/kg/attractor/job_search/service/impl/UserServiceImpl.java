@@ -49,17 +49,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String uploadAvatar(MultipartFile file) {
-
-        try {
-            FileUtil fileUtil = new FileUtil();
-            return fileUtil.saveUploadFile(file, "images/");
-        } catch (Exception e) {
-            throw new RuntimeException("Error uploading avatar: " + e.getMessage());
-        }
-    }
-
-    @Override
     public Optional<UserDto> findUserByEmail(String email) {
         return Optional.ofNullable(userDao.findByEmail(email))
                 .map(user -> UserDto.builder()

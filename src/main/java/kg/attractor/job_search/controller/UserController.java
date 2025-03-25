@@ -29,16 +29,6 @@ public class UserController {
         }
     }
 
-    @PostMapping("/upload-avatar")
-    public ResponseEntity<String> uploadAvatar(@RequestParam("file") MultipartFile file) {
-        try {
-            String fileName = userService.uploadAvatar(file);
-            return ResponseEntity.ok("Avatar uploaded successfully: " + fileName);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading avatar: " + e.getMessage());
-        }
-    }
-
     @GetMapping("/find-by-email")
     public ResponseEntity<UserDto> findUserByEmail(@RequestParam("email") String email) {
         Optional<UserDto> userDto = userService.findUserByEmail(email);

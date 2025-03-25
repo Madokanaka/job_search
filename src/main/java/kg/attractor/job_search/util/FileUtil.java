@@ -1,8 +1,5 @@
 package kg.attractor.job_search.util;
 
-import kg.attractor.job_search.dao.UserImageDao;
-import kg.attractor.job_search.model.UserImage;
-import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 
 import org.springframework.core.io.ByteArrayResource;

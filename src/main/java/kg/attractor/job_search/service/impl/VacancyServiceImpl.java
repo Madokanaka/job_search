@@ -49,7 +49,7 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public VacancyDto editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
+    public void editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
         if (vacancyDao.getVacancyById(vacancyId).isPresent()) {
             throw new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found");
         }
@@ -64,7 +64,6 @@ public class VacancyServiceImpl implements VacancyService {
         vacancy.setIsActive(vacancyDto.getIsActive());
 
         vacancyDao.updateVacancy(vacancyId, vacancy);
-        return vacancyDto;
         }
 
     @Override

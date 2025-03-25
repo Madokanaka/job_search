@@ -25,9 +25,9 @@ public class VacancyController {
     }
 
     @PutMapping("/{vacancyId}")
-    public ResponseEntity<VacancyDto> editVacancy(@PathVariable Integer vacancyId, @RequestBody VacancyDto vacancyDto) {
-        VacancyDto updatedVacancy = vacancyService.editVacancy(vacancyId, vacancyDto);
-        return ResponseEntity.ok(updatedVacancy);
+    public ResponseEntity<?> editVacancy(@PathVariable Integer vacancyId, @RequestBody VacancyDto vacancyDto) {
+        vacancyService.editVacancy(vacancyId, vacancyDto);
+        return ResponseEntity.ok("Vacancy was edited");
     }
 
     @DeleteMapping("/{vacancyId}")

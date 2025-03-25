@@ -19,9 +19,9 @@ public class VacancyController {
     private final VacancyService vacancyService;
 
     @PostMapping
-    public ResponseEntity<VacancyDto> createVacancy(@RequestBody VacancyDto vacancyDto) {
-        VacancyDto createdVacancy = vacancyService.createVacancy(vacancyDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdVacancy);
+    public ResponseEntity<?> createVacancy(@RequestBody VacancyDto vacancyDto, @RequestParam Integer userId) {
+        vacancyService.createVacancy(vacancyDto, userId);
+        return ResponseEntity.status(HttpStatus.CREATED).body("Vacancy was created");
     }
 
     @PutMapping("/{vacancyId}")

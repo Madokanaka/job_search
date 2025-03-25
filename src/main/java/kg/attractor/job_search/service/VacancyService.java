@@ -2,13 +2,14 @@ package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.VacancyDto;
+import kg.attractor.job_search.model.Vacancy;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface VacancyService {
 
-    VacancyDto createVacancy(VacancyDto vacancyDto);
+    void createVacancy(VacancyDto vacancyDto, Integer userId);
 
     VacancyDto editVacancy(Integer vacancyId, VacancyDto vacancyDto);
 
@@ -16,11 +17,11 @@ public interface VacancyService {
 
     List<VacancyDto> getAllVacancies();
 
-    Optional<VacancyDto> getVacancyById(Integer vacancyId);
-
     Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId);
 
     Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
 
     Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
+
+    Optional<VacancyDto> getVacancyById(Integer vacancyId);
 }

@@ -8,9 +8,9 @@ import java.util.Optional;
 public interface ResumeService {
     void createResume(ResumeDto resumeDto, Integer userId);
 
-    ResumeDto editResume(Integer resumeId, ResumeDto resumeDto);
+    void editResume(Integer resumeId, ResumeDto resumeDto);
 
-    boolean deleteResume(Integer resumeId);
+    void deleteResume(Integer resumeId);
 
     List<ResumeDto> getAllResumes();
 

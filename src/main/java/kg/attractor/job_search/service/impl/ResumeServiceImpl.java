@@ -65,7 +65,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     @Transactional
-    public boolean deleteResume(Integer resumeId) {
+    public void deleteResume(Integer resumeId) {
         if (resumeDao.findById(resumeId).isEmpty()) {
             throw new ResourceNotFoundException("Resume with id " + resumeId + " not found");
         }
@@ -73,12 +73,14 @@ public class ResumeServiceImpl implements ResumeService {
         resumeDao.deleteContactInfoByResumeId(resumeId);
         resumeDao.deleteEducationInfoByResumeId(resumeId);
         resumeDao.deleteWorkExperienceInfoByResumeId(resumeId);
-        return resumeDao.deleteResume(resumeId);
+        if (! resumeDao.deleteResume(resumeId)) {
+            throw new DatabaseOperationException("Could not delete resume");
+        }
     }
 
     @Override
     @Transactional
-    public ResumeDto editResume(Integer resumeId, ResumeDto resumeDto) {
+    public void editResume(Integer resumeId, ResumeDto resumeDto) {
         Optional<Resume> optionalResume = resumeDao.findById(resumeId);
 
 
@@ -98,9 +100,10 @@ public class ResumeServiceImpl implements ResumeService {
             resumeDao.deleteWorkExperienceInfoByResumeId(resume.getId());
 
             saveResumeDetails(resume.getId(), resumeDto);
+        } else {
+            throw new DatabaseOperationException("Could not update resume");
         }
 
-        return resumeDto;
     }
 
     @Override
@@ -117,6 +120,7 @@ public class ResumeServiceImpl implements ResumeService {
         if (!resumeDao.existsApplicantById(userId)) {
             throw new ResourceNotFoundException("User ID not found in database");
         }
+
         return resumeDao.findByUserId(userId).map(resumes -> resumes.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList()));

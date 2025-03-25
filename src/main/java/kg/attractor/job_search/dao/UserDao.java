@@ -59,4 +59,28 @@ public class UserDao {
         return jdbcTemplate.update(sql, user.getName(), user.getSurname(), user.getAge(), user.getEmail(),
                 user.getPhoneNumber(), user.getAvatar(), user.getAccountType(), user.getPassword());
     }
+
+    public User findById(Integer userId) {
+        String sql = "SELECT * FROM users WHERE id = ?";
+        try {
+            return jdbcTemplate.queryForObject(sql, new Object[]{userId}, (rs, rowNum) -> {
+                User user = new User();
+                user.setId(rs.getInt("id"));
+                user.setName(rs.getString("name"));
+                user.setSurname(rs.getString("surname"));
+                user.setAge(rs.getInt("age"));
+                user.setEmail(rs.getString("email"));
+                user.setPhoneNumber(rs.getString("phone_number"));
+                user.setAvatar(rs.getString("avatar"));
+                user.setAccountType(rs.getString("account_type"));
+                user.setPassword(rs.getString("password"));
+                return user;
+            });
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+
+
 }

@@ -16,4 +16,8 @@ public interface UserService {
     boolean existsByEmail(String email);
 
     List<UserDto> findAllUsers();
+
+    Optional<UserDto> getApplicantById(Integer userId);
+
+    Optional<UserDto> getEmployeeById(Integer userId);
 }

@@ -57,4 +57,19 @@ public class UserController {
         List<UserDto> users = userService.findAllUsers();
         return ResponseEntity.ok(users);
     }
+
+    @GetMapping("/user/{userId}/applicant")
+    public ResponseEntity<UserDto> getApplicantById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getApplicantById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
+    @GetMapping("/user/{userId}/employee")
+    public ResponseEntity<UserDto> getEmployeeById(@PathVariable Integer userId) {
+        Optional<UserDto> userDto = userService.getEmployeeById(userId);
+        return userDto.map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+    }
+
 }

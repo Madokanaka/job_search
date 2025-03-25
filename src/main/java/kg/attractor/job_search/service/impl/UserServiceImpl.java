@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dao.UserDao;
+import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.service.UserService;
@@ -57,7 +58,6 @@ public class UserServiceImpl implements UserService {
     public Optional<UserDto> findUserByEmail(String email) {
         return Optional.ofNullable(userDao.findByEmail(email))
                 .map(user -> UserDto.builder()
-                        .id(user.getId())
                         .name(user.getName())
                         .surname(user.getSurname())
                         .email(user.getEmail())
@@ -79,7 +79,6 @@ public class UserServiceImpl implements UserService {
 
         return users.stream()
                 .map(user -> UserDto.builder()
-                        .id(user.getId())
                         .name(user.getName())
                         .surname(user.getSurname())
                         .email(user.getEmail())
@@ -90,5 +89,44 @@ public class UserServiceImpl implements UserService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public Optional<UserDto> getApplicantById(Integer userId) {
+        User user = userDao.findById(userId);
+
+        if (user == null || !"APPLICANT".equals(user.getAccountType())) {
+            throw new ResourceNotFoundException("Could not find applicant with id " + userId);
+        }
+
+        return Optional.of(UserDto.builder()
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .phoneNumber(user.getPhoneNumber())
+                .avatar(user.getAvatar())
+                .accountType(user.getAccountType())
+                .build());
+    }
+
+    @Override
+    public Optional<UserDto> getEmployeeById(Integer userId) {
+        User user = userDao.findById(userId);
+
+        if (user == null || !"EMPLOYEE".equals(user.getAccountType())) {
+            throw new ResourceNotFoundException("Could not find employee with id " + userId);
+        }
+
+        return Optional.of(UserDto.builder()
+                .name(user.getName())
+                .surname(user.getSurname())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .phoneNumber(user.getPhoneNumber())
+                .avatar(user.getAvatar())
+                .accountType(user.getAccountType())
+                .build());
+    }
+
 
 }

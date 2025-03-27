@@ -45,7 +45,6 @@ public class UserDto {
 
     private String avatar;
 
-    @Min(value = 1, message = "Account type must be a positive integer")
-    private Integer accountType;
+    private String accountType;
 
 }

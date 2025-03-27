@@ -50,6 +50,10 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> findUserByEmail(String email) {
+        User userTemp = userDao.findByEmail(email);
+        if (userTemp == null) {
+            throw new UserNotFoundException("User with this email does not exist");
+        }
         return Optional.ofNullable(userDao.findByEmail(email))
                 .map(user -> UserDto.builder()
                         .name(user.getName())
@@ -170,6 +174,10 @@ public class UserServiceImpl implements UserService {
 
         if (!("employer".equals(userDto.getAccountType()) || "applicant".equals(userDto.getAccountType()))) {
             throw new BadRequestException("User should be either employer or applicant");
+        }
+
+        if(userDao.existsByEmail(userDto.getEmail())){
+            throw new BadRequestException("User with the email already exists");
         }
 
         existingUser.setName(userDto.getName());

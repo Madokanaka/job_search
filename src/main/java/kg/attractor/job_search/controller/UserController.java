@@ -35,7 +35,7 @@ public class UserController {
     public ResponseEntity<UserDto> findUserByEmail(@Email @RequestParam("email") String email) {
         Optional<UserDto> userDto = userService.findUserByEmail(email);
         return userDto.map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     @GetMapping("/exists-by-email")

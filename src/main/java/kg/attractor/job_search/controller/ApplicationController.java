@@ -18,11 +18,7 @@ public class ApplicationController {
     public ResponseEntity<?> respondToVacancy(
             @PathVariable Integer vacancyId,
             @RequestParam Integer resumeId) {
-        try {
-            RespondenApplicantDto response = applicationService.respondToVacancy(resumeId, vacancyId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
+        RespondenApplicantDto response = applicationService.respondToVacancy(resumeId, vacancyId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

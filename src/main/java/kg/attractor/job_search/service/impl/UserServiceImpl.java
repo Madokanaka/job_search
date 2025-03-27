@@ -1,16 +1,16 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dao.UserDao;
+import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
-import kg.attractor.job_search.exception.TypeException;
+import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.service.UserService;
-import kg.attractor.job_search.util.FileUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void registerUser(UserDto userDto) {
         if (userDao.existsByEmail(userDto.getEmail())) {
-            throw new RuntimeException("User with this email already exists");
+            throw new RecordAlreadyExistsException("User with this email already exists");
         }
 
         User user = new User();
@@ -37,19 +37,23 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setAvatar(userDto.getAvatar());
         if (!("employer".equals(userDto.getAccountType()) || "applicant".equals(userDto.getAccountType()))) {
-            throw new TypeException("User should be either employer or applicant");
+            throw new BadRequestException("User role should be either employer or applicant");
         }
-        user.setAccountType(userDto.getAccountType());
+        user.setAccountType(userDto.getAccountType().toLowerCase());
         user.setPassword(userDto.getPassword());
 
         int rowsAffected = userDao.createUser(user);
         if (rowsAffected == 0) {
-            throw new RuntimeException("Error creating user");
+            throw new DatabaseOperationException("Error creating user");
         }
     }
 
     @Override
     public Optional<UserDto> findUserByEmail(String email) {
+        User userTemp = userDao.findByEmail(email);
+        if (userTemp == null) {
+            throw new UserNotFoundException("User with this email does not exist");
+        }
         return Optional.ofNullable(userDao.findByEmail(email))
                 .map(user -> UserDto.builder()
                         .name(user.getName())
@@ -89,7 +93,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId);
 
         if (user == null || !"APPLICANT".equalsIgnoreCase(user.getAccountType())) {
-            throw new ResourceNotFoundException("Could not find applicant with id " + userId);
+            throw new UserNotFoundException("Could not find applicant with id " + userId);
         }
 
         return Optional.of(UserDto.builder()
@@ -108,7 +112,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId);
 
         if (user == null || !"EMPLOYER".equalsIgnoreCase(user.getAccountType())) {
-            throw new ResourceNotFoundException("Could not find employee with id " + userId);
+            throw new UserNotFoundException("Could not find employee with id " + userId);
         }
 
         return Optional.of(UserDto.builder()
@@ -127,7 +131,7 @@ public class UserServiceImpl implements UserService {
         User user = userDao.findById(userId);
 
         if (user == null) {
-            throw new ResourceNotFoundException("Could not find user with id " + userId);
+            throw new UserNotFoundException("Could not find user with id " + userId);
         }
 
         return Optional.of(UserDto.builder()
@@ -145,31 +149,35 @@ public class UserServiceImpl implements UserService {
     public void editUserProfile(Integer userId, UserDto userDto) {
         User existingUser = userDao.findById(userId);
         if (existingUser == null) {
-            throw new ResourceNotFoundException("User not found");
+            throw new UserNotFoundException("User not found");
         }
 
         if (userDto.getName() == null || userDto.getName().trim().isEmpty()) {
-            throw new RuntimeException("Name cannot be empty");
+            throw new BadRequestException("Name cannot be empty");
         }
 
         if (userDto.getSurname() == null || userDto.getSurname().trim().isEmpty()) {
-            throw new RuntimeException("Surname cannot be empty");
+            throw new BadRequestException("Surname cannot be empty");
         }
 
         if (userDto.getEmail() == null || userDto.getEmail().trim().isEmpty()) {
-            throw new RuntimeException("Email cannot be empty");
+            throw new BadRequestException("Email cannot be empty");
         }
 
         if (userDto.getPhoneNumber() == null || userDto.getPhoneNumber().trim().isEmpty()) {
-            throw new RuntimeException("Phone number cannot be empty");
+            throw new BadRequestException("Phone number cannot be empty");
         }
 
         if (userDto.getAccountType() == null || userDto.getAccountType().trim().isEmpty()) {
-            throw new RuntimeException("Account type cannot be empty");
+            throw new BadRequestException("Account type cannot be empty");
         }
 
         if (!("employer".equals(userDto.getAccountType()) || "applicant".equals(userDto.getAccountType()))) {
-            throw new TypeException("User should be either employer or applicant");
+            throw new BadRequestException("User should be either employer or applicant");
+        }
+
+        if(userDao.existsByEmail(userDto.getEmail())){
+            throw new BadRequestException("User with the email already exists");
         }
 
         existingUser.setName(userDto.getName());
@@ -178,7 +186,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setEmail(userDto.getEmail());
         existingUser.setPhoneNumber(userDto.getPhoneNumber());
         existingUser.setAvatar(userDto.getAvatar());
-        existingUser.setAccountType(userDto.getAccountType());
+        existingUser.setAccountType(userDto.getAccountType().toLowerCase());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
             existingUser.setPassword(userDto.getPassword());

@@ -1,5 +1,6 @@
 package kg.attractor.job_search.controller;
 
+import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.service.ResumeService;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,7 @@ public class ResumeController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createResume(@RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
+    public ResponseEntity<?> createResume(@Valid @RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
         resumeService.createResume(resumeDto, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Resume created");
@@ -28,7 +29,7 @@ public class ResumeController {
     }
 
     @PutMapping("/{resumeId}")
-    public ResponseEntity<?> editResume(@PathVariable Integer resumeId, @RequestBody ResumeDto resumeDto) {
+    public ResponseEntity<?> editResume(@PathVariable Integer resumeId, @Valid @RequestBody ResumeDto resumeDto) {
         resumeService.editResume(resumeId, resumeDto);
         return ResponseEntity.status(HttpStatus.OK).body("Resume was edited");
     }

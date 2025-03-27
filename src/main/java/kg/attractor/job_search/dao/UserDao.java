@@ -15,7 +15,7 @@ public class UserDao {
 
     public User findByEmail(String email) {
         String sql = "SELECT * FROM users WHERE email = ?";
-        return jdbcTemplate.queryForObject(sql, new Object[]{email}, (rs, rowNum) -> {
+        List<User> users = jdbcTemplate.query(sql, new Object[]{email}, (rs, rowNum) -> {
             User user = new User();
             user.setId(rs.getInt("id"));
             user.setName(rs.getString("name"));
@@ -28,7 +28,10 @@ public class UserDao {
             user.setPassword(rs.getString("password"));
             return user;
         });
+
+        return users.isEmpty() ? null : users.get(0);
     }
+
 
     public boolean existsByEmail(String email) {
         String sql = "SELECT COUNT(*) FROM users WHERE email = ?";

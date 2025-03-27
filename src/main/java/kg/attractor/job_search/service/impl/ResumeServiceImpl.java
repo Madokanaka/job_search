@@ -5,8 +5,11 @@ import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
+import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
+import kg.attractor.job_search.exception.ResumeNotFoundException;
+import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
@@ -33,11 +36,11 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public void createResume(ResumeDto resumeDto, Integer userId) {
         if (resumeDto == null || userId == null || userId <= 0) {
-            throw new ResourceNotFoundException("User ID or resume have invalid values");
+            throw new BadRequestException("User ID or resume have invalid values");
         }
 
         if (!resumeDao.existsApplicantById(userId)) {
-            throw new ResourceNotFoundException("User ID not found in database");
+            throw new UserNotFoundException("User with ID " + userId + " not found in database");
         }
 
         if (!resumeDao.existsCategoryById(resumeDto.getCategoryId())) {
@@ -49,7 +52,7 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setName(resumeDto.getName());
         resume.setCategoryId(resumeDto.getCategoryId());
         resume.setSalary(resumeDto.getSalary());
-        resume.setIsActive(resumeDto.getIsActive());
+        resume.setIsActive(true);
         resume.setCreated_date(LocalDateTime.now());
         resume.setUpdate_time(LocalDateTime.now());
 
@@ -67,13 +70,13 @@ public class ResumeServiceImpl implements ResumeService {
     @Transactional
     public void deleteResume(Integer resumeId) {
         if (resumeDao.findById(resumeId).isEmpty()) {
-            throw new ResourceNotFoundException("Resume with id " + resumeId + " not found");
+            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
         resumeDao.deleteContactInfoByResumeId(resumeId);
         resumeDao.deleteEducationInfoByResumeId(resumeId);
         resumeDao.deleteWorkExperienceInfoByResumeId(resumeId);
-        if (! resumeDao.deleteResume(resumeId)) {
+        if (!resumeDao.deleteResume(resumeId)) {
             throw new DatabaseOperationException("Could not delete resume");
         }
     }
@@ -83,9 +86,8 @@ public class ResumeServiceImpl implements ResumeService {
     public void editResume(Integer resumeId, ResumeDto resumeDto) {
         Optional<Resume> optionalResume = resumeDao.findById(resumeId);
 
-
         if (optionalResume.isEmpty()) {
-            throw new ResourceNotFoundException("Resume not found in database");
+            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
         Resume resume = optionalResume.get();
@@ -114,11 +116,11 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public Optional<List<ResumeDto>> getResumesByUserId(Integer userId) {
         if (userId == null || userId <= 0) {
-            throw new ResourceNotFoundException("User ID has invalid value");
+            throw new BadRequestException("User ID has invalid value");
         }
 
         if (!resumeDao.existsApplicantById(userId)) {
-            throw new ResourceNotFoundException("User ID not found in database");
+            throw new UserNotFoundException("User with ID " + userId + " not found in database");
         }
 
         return resumeDao.findByUserId(userId).map(resumes -> resumes.stream()
@@ -142,6 +144,9 @@ public class ResumeServiceImpl implements ResumeService {
 
         if (resumeDto.getEducationInfoList() != null) {
             resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
+                if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
+                    throw new BadRequestException("Start date cannot be after end date");
+                }
                 EducationInfo educationInfo = new EducationInfo();
                 educationInfo.setResumeId(resumeId);
                 educationInfo.setInstitution(educationInfoDto.getInstitution());

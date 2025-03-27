@@ -3,7 +3,10 @@ package kg.attractor.job_search.service.impl;
 import kg.attractor.job_search.dao.VacancyDao;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.VacancyDto;
+import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
+import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.exception.VacancyNotFoundException;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.service.VacancyService;
@@ -24,16 +27,21 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
         if (!vacancyDao.existsUserById(userId)) {
-            throw new ResourceNotFoundException("User with id " + userId + " not found");
+            throw new UserNotFoundException("User with id " + userId + " not found");
         }
 
         if (!vacancyDao.isUserEmployer(userId)) {
-            throw new ResourceNotFoundException("User with id " + userId + " is not employer");
+            throw new BadRequestException("User with id " + userId + " is not employer");
         }
 
         if (!vacancyDao.existsCategoryById(vacancyDto.getCategoryId())) {
             throw new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found");
         }
+
+        if(vacancyDto.getExpFrom() >= vacancyDto.getExpTo() && vacancyDto.getExpFrom() != 0) {
+            throw new BadRequestException("Exp to should be greater than experience from");
+        }
+
         Vacancy vacancy = new Vacancy().builder()
                 .authorId(userId)
                 .categoryId(vacancyDto.getCategoryId())
@@ -54,6 +62,10 @@ public class VacancyServiceImpl implements VacancyService {
             throw new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found");
         }
         Optional<Vacancy> optionalVacancy= vacancyDao.getVacancyById(vacancyId);
+
+        if(vacancyDto.getExpFrom() >= vacancyDto.getExpTo() && vacancyDto.getExpFrom() != 0) {
+            throw new BadRequestException("Exp to should be greater than experience from");
+        }
 
         Vacancy vacancy = optionalVacancy.get();
         vacancy.setDescription(vacancyDto.getDescription());
@@ -83,7 +95,7 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     public Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId) {
         if (categoryId == null || categoryId <= 0) {
-            throw new IllegalArgumentException("Invalid category ID");
+            throw new BadRequestException("Invalid category ID");
         }
 
         if (!vacancyDao.existsCategoryById(categoryId)) {
@@ -94,17 +106,20 @@ public class VacancyServiceImpl implements VacancyService {
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
-        return vacancies.isEmpty() ? Optional.empty() : Optional.of(vacancies);
+        if (vacancies.isEmpty()) {
+            throw new VacancyNotFoundException("Vacancies with category " + categoryId + "were not found");
+        }
+        return Optional.of(vacancies);
     }
 
     @Override
     public Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId) {
         if (userId == null || userId <= 0) {
-            throw new IllegalArgumentException("Invalid user ID");
+            throw new BadRequestException("Invalid user ID");
         }
 
         if (!vacancyDao.existsUserById(userId)) {
-            throw new ResourceNotFoundException("User not found in database");
+            throw new UserNotFoundException("User not found in database");
         }
 
         List<VacancyDto> vacancies = vacancyDao.getVacanciesUserRespondedTo(userId).stream()
@@ -118,13 +133,13 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     public Optional<VacancyDto> getVacancyById(Integer vacancyId) {
         if (vacancyId == null || vacancyId <= 0) {
-            throw new IllegalArgumentException("Invalid vacancy ID: " + vacancyId);
+            throw new BadRequestException("Invalid vacancy ID: " + vacancyId);
         }
 
         Optional<Vacancy> vacancy = vacancyDao.getVacancyById(vacancyId);
 
         if (vacancy.isEmpty()) {
-            throw new ResourceNotFoundException("Vacancy with ID " + vacancyId + " not found");
+            throw new VacancyNotFoundException("Vacancy with ID " + vacancyId + " not found");
         }
 
         return vacancy.map(this::convertToDto);

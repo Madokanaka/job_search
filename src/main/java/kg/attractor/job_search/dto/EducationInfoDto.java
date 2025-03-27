@@ -20,10 +20,10 @@ public class EducationInfoDto {
     @NotBlank(message = "Program name is required")
     private String program;
 
-    @NotBlank(message = "Start date is required")
+    @NotNull(message = "Start date is required")
     private LocalDate startDate;
 
-    @NotBlank(message = "End date is required")
+    @NotNull(message = "End date is required")
     private LocalDate endDate;
 
     @NotBlank(message = "Degree is required")

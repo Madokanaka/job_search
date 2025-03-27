@@ -25,7 +25,7 @@ public class UserDto {
     @Size(max = 50, message = "Surname must not exceed 50 characters")
     private String surname;
 
-    @NotBlank(message = "Age cannot be empty")
+    @NotNull(message = "Age cannot be empty")
     @Min(value = 18, message = "Age must be at least 18")
     @Max(value = 100, message = "Age cannot exceed 100")
     private Integer age;
@@ -45,6 +45,7 @@ public class UserDto {
 
     private String avatar;
 
+    @NotBlank(message = "Account Type is required (applicant, employer)")
     private String accountType;
 
 }

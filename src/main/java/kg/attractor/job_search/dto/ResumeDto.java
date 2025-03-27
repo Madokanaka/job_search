@@ -22,10 +22,11 @@ public class ResumeDto {
     private String name;
 
     @Min(value = 1, message = "Category must be a positive number")
+    @NotNull(message = "Category ID is required")
     private Integer categoryId;
 
     @Positive(message = "Salary must be a positive number")
-    @NotBlank(message = "Salary amount is required")
+    @NotNull(message = "Salary amount is required")
     private Double salary;
 
     private Boolean isActive;

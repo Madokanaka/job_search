@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class RespondenApplicantDto {
-    private Integer id;
 
     @NotBlank(message = "Resume ID is required")
     @Positive(message = "Resume ID must be positive")

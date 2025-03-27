@@ -20,13 +20,14 @@ import java.util.NoSuchElementException;
 public class GlobalExceptionHandler {
     private final ErrorService errorService;
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler(NoSuchElementException.class)
     public ErrorResponse handleNotFoundException(NoSuchElementException ex) {
         return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
     }
+
     @ExceptionHandler(DatabaseOperationException.class)
     public ResponseEntity<String> handleDatabaseOperationException(DatabaseOperationException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

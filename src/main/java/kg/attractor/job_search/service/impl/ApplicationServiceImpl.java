@@ -2,6 +2,7 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dao.ApplicationDao;
 import kg.attractor.job_search.dto.RespondenApplicantDto;
+import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.service.ApplicationService;
@@ -21,7 +22,7 @@ public class ApplicationServiceImpl implements ApplicationService {
         int vacancyCategory = applicationDao.getCategoryByVacancyId(vacancyId);
         int resumeCategory = applicationDao.getCategoryByResumeId(resumeId);
         if (vacancyCategory != resumeCategory) {
-            throw new DatabaseOperationException("Vacancy's and resume's category are not the same");
+            throw new BadRequestException("Vacancy's and resume's category are not the same");
         }
         if (applicationDao.findResponseByResumeAndVacancy(resumeId, vacancyId) != null) {
             throw new RecordAlreadyExistsException("Application already exists");

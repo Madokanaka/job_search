@@ -52,7 +52,7 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setName(resumeDto.getName());
         resume.setCategoryId(resumeDto.getCategoryId());
         resume.setSalary(resumeDto.getSalary());
-        resume.setIsActive(resumeDto.getIsActive());
+        resume.setIsActive(true);
         resume.setCreated_date(LocalDateTime.now());
         resume.setUpdate_time(LocalDateTime.now());
 
@@ -144,6 +144,9 @@ public class ResumeServiceImpl implements ResumeService {
 
         if (resumeDto.getEducationInfoList() != null) {
             resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
+                if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
+                    throw new BadRequestException("Start date cannot be after end date");
+                }
                 EducationInfo educationInfo = new EducationInfo();
                 educationInfo.setResumeId(resumeId);
                 educationInfo.setInstitution(educationInfoDto.getInstitution());

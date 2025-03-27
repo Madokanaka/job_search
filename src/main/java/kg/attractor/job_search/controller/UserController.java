@@ -1,5 +1,7 @@
 package kg.attractor.job_search.controller;
 
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody UserDto userDto) {
+    public ResponseEntity<String> register(@Valid @RequestBody UserDto userDto) {
         try {
             userService.registerUser(userDto);
             return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
@@ -30,7 +32,7 @@ public class UserController {
     }
 
     @GetMapping("/find-by-email")
-    public ResponseEntity<UserDto> findUserByEmail(@RequestParam("email") String email) {
+    public ResponseEntity<UserDto> findUserByEmail(@Email @RequestParam("email") String email) {
         Optional<UserDto> userDto = userService.findUserByEmail(email);
         return userDto.map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
@@ -70,7 +72,7 @@ public class UserController {
     }
 
     @PutMapping("/profile/{userId}")
-    public ResponseEntity<String> editProfile(@PathVariable Integer userId, @RequestBody UserDto userDto) {
+    public ResponseEntity<String> editProfile(@PathVariable Integer userId, @Valid @RequestBody UserDto userDto) {
         try {
             userService.editUserProfile(userId, userDto);
             return ResponseEntity.ok("User profile updated successfully");

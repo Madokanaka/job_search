@@ -20,7 +20,6 @@ public class ApplicationDao {
             String selectSql = "SELECT id, resume_id, vacancy_id, confirmation FROM responded_applicants WHERE resume_id = ? AND vacancy_id = ?";
             return jdbcTemplate.queryForObject(selectSql, (rs, rowNum) -> {
                 RespondenApplicantDto dto = new RespondenApplicantDto();
-                dto.setId(rs.getInt("id"));
                 dto.setResumeId(rs.getInt("resume_id"));
                 dto.setVacancyId(rs.getInt("vacancy_id"));
                 dto.setConfirmation(rs.getBoolean("confirmation"));

@@ -3,6 +3,7 @@ package kg.attractor.job_search.service.impl;
 import kg.attractor.job_search.dao.ApplicationDao;
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.service.ApplicationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class ApplicationServiceImpl implements ApplicationService {
             throw new DatabaseOperationException("Vacancy's and resume's category are not the same");
         }
         if (applicationDao.findResponseByResumeAndVacancy(resumeId, vacancyId) != null) {
-            throw new DatabaseOperationException("Application already exists");
+            throw new RecordAlreadyExistsException("Application already exists");
         }
         RespondenApplicantDto response = applicationDao.saveResponse(resumeId, vacancyId);
         if (response == null) {

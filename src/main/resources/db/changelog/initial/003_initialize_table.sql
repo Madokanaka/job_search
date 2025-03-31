@@ -1,8 +1,8 @@
 INSERT INTO users (name, surname, age, email, password, phone_number, avatar, account_type)
-VALUES ('Иван', 'Петров', 30, 'ivan.petrov@example.com', 'password123', '+77001112233', NULL, 'applicant');
+VALUES ('Иван', 'Петров', 30, 'ivan.petrov@example.com', '$2a$10$xtbfLFAiI7MuP3W8zuPgvOb7mCN40OeZ0nDvVCe2zQiVYwi3QUWNu', '+77001112233', NULL, 'applicant');
 
 INSERT INTO users (name, surname, age, email, password, phone_number, avatar, account_type)
-VALUES ('Мария', 'Сидорова', 40, 'maria.sidorova@example.com', 'password123', '+77009998877', NULL, 'employer');
+VALUES ('Мария', 'Сидорова', 40, 'maria.sidorova@example.com', '$2a$10$xtbfLFAiI7MuP3W8zuPgvOb7mCN40OeZ0nDvVCe2zQiVYwi3QUWNu', '+77009998877', NULL, 'employer');
 
 INSERT INTO categories (name, parent_id)
 VALUES ('Java Developer', NULL);

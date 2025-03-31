@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: 008 add column to users table
+      author: Seitek
+      changes:
+        - addColumn:
+            tableName: USERS
+            columns:
+              - column:
+                  name: enabled
+                  type: boolean
+                  constraints:
+                    nullable: false
+                  defaultValue: true
+              - column:
+                  name: role_id
+                  type: long
+                  constraints:
+                    foreignKeyName: fk_role_id
+                    references: roles(id)

@@ -110,6 +110,11 @@ public class ResumeDao {
         return resumes.isEmpty() ? Optional.empty() : Optional.of(resumes);
     }
 
+    public void createContactInfo(ContactInfo contactInfo) {
+        String sql = "INSERT INTO contact_info (resume_id, type_id, `value`) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, contactInfo.getResumeId(), contactInfo.getTypeId(), contactInfo.getValue());
+    }
+
     public void deleteContactInfoByResumeId(Integer resumeId) {
         String sql = "DELETE FROM contact_info WHERE resume_id = ?";
         jdbcTemplate.update(sql, resumeId);
@@ -125,6 +130,12 @@ public class ResumeDao {
             contactInfo.setValue(rs.getString("value"));
             return contactInfo;
         });
+    }
+
+    public void createEducationInfo(EducationInfo educationInfo) {
+        String sql = "INSERT INTO education_info (resume_id, institution, program, start_date, end_date, degree) VALUES (?, ?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, educationInfo.getResumeId(), educationInfo.getInstitution(), educationInfo.getProgram(),
+                educationInfo.getStartDate(), educationInfo.getEndDate(), educationInfo.getDegree());
     }
 
     public void deleteEducationInfoByResumeId(Integer resumeId) {
@@ -145,6 +156,12 @@ public class ResumeDao {
             educationInfo.setDegree(rs.getString("degree"));
             return educationInfo;
         });
+    }
+
+    public void createWorkExperienceInfo(WorkExperienceInfo workExperienceInfo) {
+        String sql = "INSERT INTO work_experience (resume_id, years, company_name, position, responsibilities) VALUES (?, ?, ?, ?, ?)";
+        jdbcTemplate.update(sql, workExperienceInfo.getResumeId(), workExperienceInfo.getYears(),
+                workExperienceInfo.getCompanyName(), workExperienceInfo.getPosition(), workExperienceInfo.getResponsibilities());
     }
 
     public void deleteWorkExperienceInfoByResumeId(Integer resumeId) {

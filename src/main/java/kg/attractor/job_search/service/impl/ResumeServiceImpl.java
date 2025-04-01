@@ -10,7 +10,10 @@ import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.exception.ResumeNotFoundException;
 import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.model.ContactInfo;
+import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
+import kg.attractor.job_search.model.WorkExperienceInfo;
 import kg.attractor.job_search.service.ResumeService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +34,7 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     @Transactional
-    public Integer createResume(ResumeDto resumeDto, Integer userId) {
+    public void createResume(ResumeDto resumeDto, Integer userId) {
         if (resumeDto == null || userId == null || userId <= 0) {
             throw new BadRequestException("User ID or resume have invalid values");
         }
@@ -59,7 +62,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new DatabaseOperationException("Could not create resume");
         }
 
-        return resumeId;
+        saveResumeDetails(resumeId, resumeDto);
     }
 
 
@@ -70,6 +73,9 @@ public class ResumeServiceImpl implements ResumeService {
             throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
+        resumeDao.deleteContactInfoByResumeId(resumeId);
+        resumeDao.deleteEducationInfoByResumeId(resumeId);
+        resumeDao.deleteWorkExperienceInfoByResumeId(resumeId);
         if (!resumeDao.deleteResume(resumeId)) {
             throw new DatabaseOperationException("Could not delete resume");
         }
@@ -95,6 +101,7 @@ public class ResumeServiceImpl implements ResumeService {
             resumeDao.deleteEducationInfoByResumeId(resume.getId());
             resumeDao.deleteWorkExperienceInfoByResumeId(resume.getId());
 
+            saveResumeDetails(resume.getId(), resumeDto);
         } else {
             throw new DatabaseOperationException("Could not update resume");
         }
@@ -121,48 +128,48 @@ public class ResumeServiceImpl implements ResumeService {
                 .collect(Collectors.toList()));
     }
 
-//    private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto) {
-//        if (resumeDto.getContactInfoList() != null) {
-//            resumeDto.getContactInfoList().forEach(contactInfoDto -> {
-//                if (!resumeDao.existsTypeById(contactInfoDto.getTypeId())) {
-//                    throw new ResourceNotFoundException("Contact type ID not found in database");
-//                }
-//                ContactInfo contactInfo = new ContactInfo();
-//                contactInfo.setResumeId(resumeId);
-//                contactInfo.setTypeId(contactInfoDto.getTypeId());
-//                contactInfo.setValue(contactInfoDto.getValue());
-//                resumeDao.createContactInfo(contactInfo);
-//            });
-//        }
-//
-//        if (resumeDto.getEducationInfoList() != null) {
-//            resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
-//                if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
-//                    throw new BadRequestException("Start date cannot be after end date");
-//                }
-//                EducationInfo educationInfo = new EducationInfo();
-//                educationInfo.setResumeId(resumeId);
-//                educationInfo.setInstitution(educationInfoDto.getInstitution());
-//                educationInfo.setProgram(educationInfoDto.getProgram());
-//                educationInfo.setStartDate(educationInfoDto.getStartDate());
-//                educationInfo.setEndDate(educationInfoDto.getEndDate());
-//                educationInfo.setDegree(educationInfoDto.getDegree());
-//                resumeDao.createEducationInfo(educationInfo);
-//            });
-//        }
-//
-//        if (resumeDto.getWorkExperienceInfoList() != null) {
-//            resumeDto.getWorkExperienceInfoList().forEach(workExperienceInfoDto -> {
-//                WorkExperienceInfo workExperienceInfo = new WorkExperienceInfo();
-//                workExperienceInfo.setResumeId(resumeId);
-//                workExperienceInfo.setYears(workExperienceInfoDto.getYears());
-//                workExperienceInfo.setCompanyName(workExperienceInfoDto.getCompanyName());
-//                workExperienceInfo.setPosition(workExperienceInfoDto.getPosition());
-//                workExperienceInfo.setResponsibilities(workExperienceInfoDto.getResponsibilities());
-//                resumeDao.createWorkExperienceInfo(workExperienceInfo);
-//            });
-//        }
-//    }
+    private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto) {
+        if (resumeDto.getContactInfoList() != null) {
+            resumeDto.getContactInfoList().forEach(contactInfoDto -> {
+                if (!resumeDao.existsTypeById(contactInfoDto.getTypeId())) {
+                    throw new ResourceNotFoundException("Contact type ID not found in database");
+                }
+                ContactInfo contactInfo = new ContactInfo();
+                contactInfo.setResumeId(resumeId);
+                contactInfo.setTypeId(contactInfoDto.getTypeId());
+                contactInfo.setValue(contactInfoDto.getValue());
+                resumeDao.createContactInfo(contactInfo);
+            });
+        }
+
+        if (resumeDto.getEducationInfoList() != null) {
+            resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
+                if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
+                    throw new BadRequestException("Start date cannot be after end date");
+                }
+                EducationInfo educationInfo = new EducationInfo();
+                educationInfo.setResumeId(resumeId);
+                educationInfo.setInstitution(educationInfoDto.getInstitution());
+                educationInfo.setProgram(educationInfoDto.getProgram());
+                educationInfo.setStartDate(educationInfoDto.getStartDate());
+                educationInfo.setEndDate(educationInfoDto.getEndDate());
+                educationInfo.setDegree(educationInfoDto.getDegree());
+                resumeDao.createEducationInfo(educationInfo);
+            });
+        }
+
+        if (resumeDto.getWorkExperienceInfoList() != null) {
+            resumeDto.getWorkExperienceInfoList().forEach(workExperienceInfoDto -> {
+                WorkExperienceInfo workExperienceInfo = new WorkExperienceInfo();
+                workExperienceInfo.setResumeId(resumeId);
+                workExperienceInfo.setYears(workExperienceInfoDto.getYears());
+                workExperienceInfo.setCompanyName(workExperienceInfoDto.getCompanyName());
+                workExperienceInfo.setPosition(workExperienceInfoDto.getPosition());
+                workExperienceInfo.setResponsibilities(workExperienceInfoDto.getResponsibilities());
+                resumeDao.createWorkExperienceInfo(workExperienceInfo);
+            });
+        }
+    }
 
     private ResumeDto convertToDto(Resume resume) {
         return ResumeDto.builder()

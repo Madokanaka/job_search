@@ -3,6 +3,7 @@ package kg.attractor.job_search.service.impl;
 import kg.attractor.job_search.dao.ContactInfoDao;
 import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
+import kg.attractor.job_search.exception.ResumeNotFoundException;
 import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.service.ContactInfoService;
 import lombok.RequiredArgsConstructor;
@@ -20,27 +21,35 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     @Override
     @Transactional
     public void createContactInfo(List<ContactInfoDto> contactInfoDtoList, Integer resumeId) {
-        if (contactInfoDtoList != null || !contactInfoDtoList.isEmpty()) {
-            contactInfoDtoList.forEach(contactInfoDto -> {
-                if (!contactInfoDao.existsTypeById(contactInfoDto.getTypeId())) {
-                    throw new ResourceNotFoundException("Contact type ID not found in database");
-                }
-                ContactInfo contactInfo = new ContactInfo();
-                contactInfo.setResumeId(resumeId);
-                contactInfo.setTypeId(contactInfoDto.getTypeId());
-                contactInfo.setValue(contactInfoDto.getValue());
-                contactInfoDao.createContactInfo(contactInfo);
-            });
+        if (contactInfoDtoList != null) {
+            if (!contactInfoDtoList.isEmpty()) {
+                contactInfoDtoList.forEach(contactInfoDto -> {
+                    if (!contactInfoDao.existsTypeById(contactInfoDto.getTypeId())) {
+                        throw new ResourceNotFoundException("Contact type ID not found in database");
+                    }
+                    ContactInfo contactInfo = new ContactInfo();
+                    contactInfo.setResumeId(resumeId);
+                    contactInfo.setTypeId(contactInfoDto.getTypeId());
+                    contactInfo.setValue(contactInfoDto.getValue());
+                    contactInfoDao.createContactInfo(contactInfo);
+                });
+            }
         }
     }
 
     @Override
     public void deleteContactInfoByResumeId(Integer resumeId) {
+        if (contactInfoDao.findById(resumeId).isEmpty()) {
+            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
+        }
         contactInfoDao.deleteContactInfoByResumeId(resumeId);
     }
 
     @Override
     public List<ContactInfoDto> getContactInfoByResumeId(Integer resumeId) {
+        if (contactInfoDao.findById(resumeId).isEmpty()) {
+            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
+        }
         List<ContactInfo> contactInfoList = contactInfoDao.findContactInfoByResumeId(resumeId);
 
         return contactInfoList.stream()

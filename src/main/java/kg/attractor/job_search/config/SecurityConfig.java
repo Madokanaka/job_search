@@ -33,7 +33,7 @@ public class SecurityConfig {
                 "from USERS " +
                 "where email = ?";
         String fetchRoles = "select email, role " +
-                "from USERS u, roles, r " +
+                "from USERS u, roles r " +
                 "where u.email = ? " +
                 "and u.role_id = r.id ";
         auth.jdbcAuthentication()
@@ -52,9 +52,17 @@ public class SecurityConfig {
                 .formLogin(AbstractHttpConfigurer::disable)
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorize -> {
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/register", "/vacancies", "vacancies/category/{categoryId}", "vacancies/{vacancyId}").permitAll()
 
-                });
+                        .requestMatchers("/applications/**", "/resumes", "/resumes/create", "/resumes/{resumeId}/edit", "/profile/**").hasAnyRole("APPLICANT", "ADMIN")
+
+                        .requestMatchers("/vacancies/", "vacancies/{vacancyId}/edit", "vacancies/{vacancyId}/delete", "/user/{userId}/employee", "users/responded/{vacancyId}", "/profile/**").hasAnyRole("EMPLOYER", "ADMIN")
+
+                        .requestMatchers("/users/**").hasRole("ADMIN")
+
+                        .anyRequest().authenticated()
+                );
                 return http.build();
     }
 

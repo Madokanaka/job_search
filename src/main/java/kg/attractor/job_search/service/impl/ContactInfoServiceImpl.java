@@ -7,6 +7,7 @@ import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.service.ContactInfoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ public class ContactInfoServiceImpl implements ContactInfoService {
     private final ContactInfoDao contactInfoDao;
 
     @Override
+    @Transactional
     public void createContactInfo(List<ContactInfoDto> contactInfoDtoList, Integer resumeId) {
         if (contactInfoDtoList != null || !contactInfoDtoList.isEmpty()) {
             contactInfoDtoList.forEach(contactInfoDto -> {

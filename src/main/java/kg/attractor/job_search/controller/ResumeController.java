@@ -20,7 +20,7 @@ public class ResumeController {
         this.resumeService = resumeService;
     }
 
-    @PostMapping("create")
+    @PostMapping("/create")
     public ResponseEntity<?> createResume(@Valid @RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
         resumeService.createResume(resumeDto, userId);
 
@@ -47,7 +47,7 @@ public class ResumeController {
         return ResponseEntity.ok(resumes);
     }
 
-    @GetMapping("user/{userId}")
+    @GetMapping("/user/{userId}")
     public ResponseEntity<?> getResumesByUserId(@PathVariable Integer userId) {
         Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
 

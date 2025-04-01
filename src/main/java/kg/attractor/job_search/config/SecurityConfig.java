@@ -53,13 +53,14 @@ public class SecurityConfig {
                 .logout(AbstractHttpConfigurer::disable)
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/register", "/vacancies", "vacancies/category/{categoryId}", "vacancies/{vacancyId}").permitAll()
+                        .requestMatchers("/register", "/vacancies", "/vacancies/{vacancyId}").permitAll()
+                        .requestMatchers("/applications/**", "/resumes/create", "/resumes/{resumeId}/edit", "/resumes/{resumeId}/delete", "/profile/**").hasAuthority("APPLICANT")
 
-                        .requestMatchers("/applications/**", "/resumes", "/resumes/create", "/resumes/{resumeId}/edit", "/profile/**").hasAnyRole("APPLICANT", "ADMIN")
+                        .requestMatchers("/vacancies/create", "/vacancies/{vacancyId}/edit", "/vacancies/{vacancyId}/delete", "/vacancies/category/{categoryId}","/user/{userId}/employee", "/profile/**").hasAuthority("EMPLOYER")
 
-                        .requestMatchers("/vacancies/", "vacancies/{vacancyId}/edit", "vacancies/{vacancyId}/delete", "/user/{userId}/employee", "users/responded/{vacancyId}", "/profile/**").hasAnyRole("EMPLOYER", "ADMIN")
+                        .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
 
-                        .requestMatchers("/users/**").hasRole("ADMIN")
+                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**").hasAuthority("ADMIN")
 
                         .anyRequest().authenticated()
                 );

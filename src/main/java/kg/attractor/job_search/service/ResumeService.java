@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ResumeService {
-    void createResume(ResumeDto resumeDto, Integer userId);
+    Integer createResume(ResumeDto resumeDto, Integer userId);
 
     void editResume(Integer resumeId, ResumeDto resumeDto);
 

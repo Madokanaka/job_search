@@ -56,13 +56,13 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setCreated_date(LocalDateTime.now());
         resume.setUpdate_time(LocalDateTime.now());
 
-        int rowsAffected = resumeDao.createResume(resume);
+        int resumeId = resumeDao.createResume(resume);
 
-        if (rowsAffected != 1) {
+        if (resumeId == -1) {
             throw new DatabaseOperationException("Could not create resume");
         }
 
-        saveResumeDetails(resume.getId(), resumeDto);
+        saveResumeDetails(resumeId, resumeDto);
     }
 
 

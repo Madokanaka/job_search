@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 010 insert authorities
+      author: Seitek
+      changes:
+        - sql:
+            comment: Insert data into authority table
+            sql: |
+              insert into authorities(authority)
+              values ('FULL'), ('READ_ONLY'), ('APPLICANT_ACCESS'), ('EMPLOYER_ACCESS')

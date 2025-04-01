@@ -6,8 +6,13 @@ import kg.attractor.job_search.model.Resume;
 import kg.attractor.job_search.model.WorkExperienceInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -19,9 +24,25 @@ public class ResumeDao {
     private final JdbcTemplate jdbcTemplate;
 
     public int createResume(Resume resume) {
-        String sql = "INSERT INTO resumes (applicant_id, name, category_id, salary, is_active, created_date, update_time) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        return jdbcTemplate.update(sql, resume.getApplicantId(), resume.getName(), resume.getCategoryId(),
-                resume.getSalary(), resume.getIsActive(), resume.getCreated_date(), resume.getUpdate_time());
+        String sql = "INSERT INTO resumes (applicant_id, name, category_id, salary, is_active, created_date, update_time) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+
+        jdbcTemplate.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+            ps.setInt(1, resume.getApplicantId());
+            ps.setString(2, resume.getName());
+            ps.setInt(3, resume.getCategoryId());
+            ps.setDouble(4, resume.getSalary());
+            ps.setBoolean(5, resume.getIsActive());
+            ps.setTimestamp(6, Timestamp.valueOf(resume.getCreated_date()));
+            ps.setTimestamp(7, Timestamp.valueOf(resume.getUpdate_time()));
+            return ps;
+        }, keyHolder);
+
+        Number generatedId = (Number) keyHolder.getKeys().get("ID");
+        return generatedId != null ? generatedId.intValue() : -1;
     }
 
     public boolean updateResume(Resume resume) {

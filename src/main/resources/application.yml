@@ -17,8 +17,11 @@ management:
         include: "*"
 logging:
   level:
-    org.springframework.web: DEBUG
-    org.springframework.jdbc: DEBUG
+    root: info
+    org:
+      springframework:
+        security: debug
+
 springdoc:
   api-docs:
     path: /v3/api-docs

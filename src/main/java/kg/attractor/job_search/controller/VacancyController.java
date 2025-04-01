@@ -19,19 +19,19 @@ public class VacancyController {
 
     private final VacancyService vacancyService;
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<?> createVacancy(@Valid @RequestBody VacancyDto vacancyDto, @RequestParam Integer userId) {
         vacancyService.createVacancy(vacancyDto, userId);
         return ResponseEntity.status(HttpStatus.CREATED).body("Vacancy was created");
     }
 
-    @PutMapping("/{vacancyId}")
+    @PutMapping("/{vacancyId}/edit")
     public ResponseEntity<?> editVacancy(@PathVariable Integer vacancyId, @Valid @RequestBody VacancyDto vacancyDto) {
         vacancyService.editVacancy(vacancyId, vacancyDto);
         return ResponseEntity.ok("Vacancy was edited");
     }
 
-    @DeleteMapping("/{vacancyId}")
+    @DeleteMapping("/{vacancyId}/delete")
     public ResponseEntity<Void> deleteVacancy(@PathVariable Integer vacancyId) {
         vacancyService.deleteVacancy(vacancyId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();

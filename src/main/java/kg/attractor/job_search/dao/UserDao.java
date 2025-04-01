@@ -57,10 +57,10 @@ public class UserDao {
     }
 
     public int createUser(User user) {
-        String sql = "INSERT INTO users (name, surname, age, email, phone_number, avatar, account_type, password) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (name, surname, age, email, phone_number, avatar, account_type, password, role_id) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT id FROM roles WHERE UPPER(role) = UPPER(?)))";
         return jdbcTemplate.update(sql, user.getName(), user.getSurname(), user.getAge(), user.getEmail(),
-                user.getPhoneNumber(), user.getAvatar(), user.getAccountType(), user.getPassword());
+                user.getPhoneNumber(), user.getAvatar(), user.getAccountType(), user.getPassword(), user.getAccountType());
     }
 
     public User findById(Integer userId) {

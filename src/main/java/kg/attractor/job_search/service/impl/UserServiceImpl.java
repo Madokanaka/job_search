@@ -10,6 +10,7 @@ import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class UserServiceImpl implements UserService {
 
     private final UserDao userDao;
+    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -40,7 +42,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("User role should be either employer or applicant");
         }
         user.setAccountType(userDto.getAccountType().toLowerCase());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         int rowsAffected = userDao.createUser(user);
         if (rowsAffected == 0) {
@@ -58,6 +60,7 @@ public class UserServiceImpl implements UserService {
                 .map(user -> UserDto.builder()
                         .name(user.getName())
                         .surname(user.getSurname())
+                        .age(user.getAge())
                         .email(user.getEmail())
                         .password(user.getPassword())
                         .phoneNumber(user.getPhoneNumber())
@@ -79,6 +82,7 @@ public class UserServiceImpl implements UserService {
                 .map(user -> UserDto.builder()
                         .name(user.getName())
                         .surname(user.getSurname())
+                        .age(user.getAge())
                         .email(user.getEmail())
                         .password(user.getPassword())
                         .phoneNumber(user.getPhoneNumber())
@@ -99,6 +103,7 @@ public class UserServiceImpl implements UserService {
         return Optional.of(UserDto.builder()
                 .name(user.getName())
                 .surname(user.getSurname())
+                .age(user.getAge())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
@@ -118,6 +123,7 @@ public class UserServiceImpl implements UserService {
         return Optional.of(UserDto.builder()
                 .name(user.getName())
                 .surname(user.getSurname())
+                .age(user.getAge())
                 .email(user.getEmail())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
@@ -138,6 +144,7 @@ public class UserServiceImpl implements UserService {
                 .name(user.getName())
                 .surname(user.getSurname())
                 .email(user.getEmail())
+                .age(user.getAge())
                 .password(user.getPassword())
                 .phoneNumber(user.getPhoneNumber())
                 .avatar(user.getAvatar())
@@ -189,7 +196,7 @@ public class UserServiceImpl implements UserService {
         existingUser.setAccountType(userDto.getAccountType().toLowerCase());
 
         if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            existingUser.setPassword(userDto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
         }
 
         int rowsAffected = userDao.updateUser(existingUser);

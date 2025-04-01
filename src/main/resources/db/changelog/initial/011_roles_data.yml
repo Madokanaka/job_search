@@ -8,4 +8,5 @@ databaseChangeLog:
             sql: |
               insert into roles(role, authority_id)
               values('ADMIN', (select id from authorities where authority = 'FULL')),
-              ('GUEST', (select id from authorities where authority = 'READ_ONLY'));
+                    ('APPLICANT', (select id from authorities where authority = 'APPLICANT_ACCESS')),
+                    ('EMPLOYER', (select id from authorities where authority = 'EMPLOYER_ACCESS'));

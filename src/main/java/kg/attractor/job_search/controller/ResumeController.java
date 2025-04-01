@@ -24,12 +24,10 @@ public class ResumeController {
     private final EducationInfoService educationInfoService;
     private final WorkExperienceInfoService workExperienceInfoService;
 
+    //TODO придумать как использовать сервисы так, чтобы не было проблем при создании contact_info с несуществующим типом
     @PostMapping("/create")
     public ResponseEntity<?> createResume(@Valid @RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
-        int resumeId = resumeService.createResume(resumeDto, userId);
-        contactInfoService.createContactInfo(resumeDto.getContactInfoList(), resumeId);
-        educationInfoService.createEducationInfo(resumeDto.getEducationInfoList(), resumeId);
-        workExperienceInfoService.createWorkExperienceInfo(resumeDto.getWorkExperienceInfoList(), resumeId);
+        resumeService.createResume(resumeDto, userId);
 
         return ResponseEntity.status(HttpStatus.CREATED).body("Resume created");
 
@@ -38,23 +36,11 @@ public class ResumeController {
     @PutMapping("/{resumeId}/edit")
     public ResponseEntity<?> editResume(@PathVariable Integer resumeId, @Valid @RequestBody ResumeDto resumeDto) {
         resumeService.editResume(resumeId, resumeDto);
-        contactInfoService.deleteContactInfoByResumeId(resumeId);
-        educationInfoService.deleteEducationInfoByResumeId(resumeId);
-        workExperienceInfoService.deleteWorkExperienceInfoByResumeId(resumeId);
-
-        contactInfoService.createContactInfo(resumeDto.getContactInfoList(), resumeId);
-        educationInfoService.createEducationInfo(resumeDto.getEducationInfoList(), resumeId);
-        workExperienceInfoService.createWorkExperienceInfo(resumeDto.getWorkExperienceInfoList(), resumeId);
-
         return ResponseEntity.status(HttpStatus.OK).body("Resume was edited");
     }
 
     @DeleteMapping("/{resumeId}/delete")
     public ResponseEntity<?> deleteResume(@PathVariable Integer resumeId) {
-        contactInfoService.deleteContactInfoByResumeId(resumeId);
-        educationInfoService.deleteEducationInfoByResumeId(resumeId);
-        workExperienceInfoService.deleteWorkExperienceInfoByResumeId(resumeId);
-
         resumeService.deleteResume(resumeId);
 
         return ResponseEntity.status(HttpStatus.OK).body("Resume was deleted");

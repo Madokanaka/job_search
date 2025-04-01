@@ -20,7 +20,7 @@ public class ResumeController {
         this.resumeService = resumeService;
     }
 
-    @PostMapping
+    @PostMapping("create")
     public ResponseEntity<?> createResume(@Valid @RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
         resumeService.createResume(resumeDto, userId);
 
@@ -28,13 +28,13 @@ public class ResumeController {
 
     }
 
-    @PutMapping("/{resumeId}")
+    @PutMapping("/{resumeId}/edit")
     public ResponseEntity<?> editResume(@PathVariable Integer resumeId, @Valid @RequestBody ResumeDto resumeDto) {
         resumeService.editResume(resumeId, resumeDto);
         return ResponseEntity.status(HttpStatus.OK).body("Resume was edited");
     }
 
-    @DeleteMapping("/{resumeId}")
+    @DeleteMapping("/{resumeId}/delete")
     public ResponseEntity<?> deleteResume(@PathVariable Integer resumeId) {
         resumeService.deleteResume(resumeId);
 
@@ -47,7 +47,7 @@ public class ResumeController {
         return ResponseEntity.ok(resumes);
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("user/{userId}")
     public ResponseEntity<?> getResumesByUserId(@PathVariable Integer userId) {
         Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
 

@@ -1,6 +1,9 @@
 package kg.attractor.job_search.service.impl;
 
+import kg.attractor.job_search.dao.ContactInfoDao;
+import kg.attractor.job_search.dao.EducationInfoDao;
 import kg.attractor.job_search.dao.ResumeDao;
+import kg.attractor.job_search.dao.WorkExperienceInfoDao;
 import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
@@ -11,6 +14,7 @@ import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
 import kg.attractor.job_search.model.WorkExperienceInfo;
 import kg.attractor.job_search.service.ResumeService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,13 +26,13 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeDao resumeDao;
-
-    public ResumeServiceImpl(ResumeDao resumeDao) {
-        this.resumeDao = resumeDao;
-    }
+    private final WorkExperienceInfoDao workExperienceInfoDao;
+    private final EducationInfoDao educationInfoDao;
+    private final ContactInfoDao contactInfoDao;
 
     @Override
     @Transactional
@@ -80,9 +84,9 @@ public class ResumeServiceImpl implements ResumeService {
             throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
-        resumeDao.deleteContactInfoByResumeId(resumeId);
-        resumeDao.deleteEducationInfoByResumeId(resumeId);
-        resumeDao.deleteWorkExperienceInfoByResumeId(resumeId);
+        contactInfoDao.deleteContactInfoByResumeId(resumeId);
+        educationInfoDao.deleteEducationInfoByResumeId(resumeId);
+        workExperienceInfoDao.deleteWorkExperienceInfoByResumeId(resumeId);
 
         if (!resumeDao.deleteResume(resumeId)) {
             log.error("Could not delete resume with id={}", resumeId);
@@ -112,9 +116,9 @@ public class ResumeServiceImpl implements ResumeService {
         if (resumeDao.updateResume(resume)) {
             log.debug("Resume with id={} updated", resume.getId());
 
-            resumeDao.deleteContactInfoByResumeId(resume.getId());
-            resumeDao.deleteEducationInfoByResumeId(resume.getId());
-            resumeDao.deleteWorkExperienceInfoByResumeId(resume.getId());
+            contactInfoDao.deleteContactInfoByResumeId(resume.getId());
+            educationInfoDao.deleteEducationInfoByResumeId(resume.getId());
+            workExperienceInfoDao.deleteWorkExperienceInfoByResumeId(resume.getId());
 
             saveResumeDetails(resume.getId(), resumeDto);
         } else {
@@ -161,7 +165,7 @@ public class ResumeServiceImpl implements ResumeService {
                 contactInfo.setResumeId(resumeId);
                 contactInfo.setTypeId(contactInfoDto.getTypeId());
                 contactInfo.setValue(contactInfoDto.getValue());
-                resumeDao.createContactInfo(contactInfo);
+                contactInfoDao.createContactInfo(contactInfo);
             });
         }
 
@@ -178,7 +182,7 @@ public class ResumeServiceImpl implements ResumeService {
                 educationInfo.setStartDate(educationInfoDto.getStartDate());
                 educationInfo.setEndDate(educationInfoDto.getEndDate());
                 educationInfo.setDegree(educationInfoDto.getDegree());
-                resumeDao.createEducationInfo(educationInfo);
+                educationInfoDao.createEducationInfo(educationInfo);
             });
         }
 
@@ -190,7 +194,7 @@ public class ResumeServiceImpl implements ResumeService {
                 workExperienceInfo.setCompanyName(workExperienceInfoDto.getCompanyName());
                 workExperienceInfo.setPosition(workExperienceInfoDto.getPosition());
                 workExperienceInfo.setResponsibilities(workExperienceInfoDto.getResponsibilities());
-                resumeDao.createWorkExperienceInfo(workExperienceInfo);
+                workExperienceInfoDao.createWorkExperienceInfo(workExperienceInfo);
             });
         }
 
@@ -203,13 +207,13 @@ public class ResumeServiceImpl implements ResumeService {
                 .categoryId(resume.getCategoryId())
                 .salary(resume.getSalary())
                 .isActive(resume.getIsActive())
-                .contactInfoList(resumeDao.findContactInfoByResumeId(resume.getId()).stream()
+                .contactInfoList(contactInfoDao.findContactInfoByResumeId(resume.getId()).stream()
                         .map(ci -> ContactInfoDto.builder()
                                 .typeId(ci.getTypeId())
                                 .value(ci.getValue())
                                 .build())
                         .collect(Collectors.toList()))
-                .educationInfoList(resumeDao.findEducationInfoByResumeId(resume.getId()).stream()
+                .educationInfoList(educationInfoDao.findEducationInfoByResumeId(resume.getId()).stream()
                         .map(ei -> EducationInfoDto.builder()
                                 .institution(ei.getInstitution())
                                 .program(ei.getProgram())
@@ -218,7 +222,7 @@ public class ResumeServiceImpl implements ResumeService {
                                 .degree(ei.getDegree())
                                 .build())
                         .collect(Collectors.toList()))
-                .workExperienceInfoList(resumeDao.findWorkExperienceInfoByResumeId(resume.getId()).stream()
+                .workExperienceInfoList(workExperienceInfoDao.findWorkExperienceInfoByResumeId(resume.getId()).stream()
                         .map(wei -> WorkExperienceInfoDto.builder()
                                 .companyName(wei.getCompanyName())
                                 .position(wei.getPosition())

@@ -1,7 +1,6 @@
 package kg.attractor.job_search.controller;
 
 import jakarta.validation.Valid;
-import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;

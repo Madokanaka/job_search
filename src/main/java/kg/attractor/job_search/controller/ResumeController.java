@@ -20,11 +20,7 @@ import java.util.Optional;
 public class ResumeController {
 
     private final ResumeService resumeService;
-    private final ContactInfoService contactInfoService;
-    private final EducationInfoService educationInfoService;
-    private final WorkExperienceInfoService workExperienceInfoService;
 
-    //TODO придумать как использовать сервисы так, чтобы не было проблем при создании contact_info с несуществующим типом
     @PostMapping("/create")
     public ResponseEntity<?> createResume(@Valid @RequestBody ResumeDto resumeDto, @RequestParam Integer userId) {
         resumeService.createResume(resumeDto, userId);

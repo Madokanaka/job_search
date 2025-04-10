@@ -46,31 +46,30 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
-                )
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(login -> login
-                        .loginPage("auth/login")
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .formLogin(form -> form
+                        .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/")
+                        .defaultSuccessUrl("/auth/hello")
                         .failureUrl("/auth/login?error=true")
                         .permitAll())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .permitAll())
+                .httpBasic(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/register", "/vacancies", "/vacancies/{vacancyId}").permitAll()
-                        .requestMatchers("/applications/**", "/resumes/create", "/resumes/{resumeId}/edit", "/resumes/{resumeId}/delete", "/profile/**", "/user/{userId}/employee").hasAnyAuthority("APPLICANT", "ADMIN")
+//                        .requestMatchers("/register", "/vacancies", "/vacancies/{vacancyId}", "/", "/auth/**").permitAll()
+//                        .requestMatchers("/applications/**", "/resumes/create", "/resumes/{resumeId}/edit", "/resumes/{resumeId}/delete", "/profile/**", "/user/{userId}/employee").hasAnyAuthority("APPLICANT", "ADMIN")
+//
+//                        .requestMatchers("/vacancies/create", "/vacancies/{vacancyId}/edit", "/vacancies/{vacancyId}/delete", "/vacancies/category/{categoryId}","/user/{userId}/applicant", "/profile/**").hasAnyAuthority("EMPLOYER", "ADMIN")
+//
+//                        .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
+//
+//                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
+                                .anyRequest().permitAll()
 
-                        .requestMatchers("/vacancies/create", "/vacancies/{vacancyId}/edit", "/vacancies/{vacancyId}/delete", "/vacancies/category/{categoryId}","/user/{userId}/applicant", "/profile/**").hasAnyAuthority("EMPLOYER", "ADMIN")
-
-                        .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
-
-                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
-
-                        .anyRequest().authenticated()
+//                        .anyRequest().authenticated()
                 );
                 return http.build();
     }

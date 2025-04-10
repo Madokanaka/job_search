@@ -170,6 +170,7 @@ public class UserServiceImpl implements UserService {
 
     private UserDto convertToDto(User user) {
         return UserDto.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .surname(user.getSurname())
                 .age(user.getAge())

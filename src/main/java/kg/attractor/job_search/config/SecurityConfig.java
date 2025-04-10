@@ -60,7 +60,7 @@ public class SecurityConfig {
 
                         .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
 
-                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**").hasAuthority("ADMIN")
+                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
 
                         .anyRequest().authenticated()
                 );

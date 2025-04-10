@@ -21,7 +21,11 @@ logging:
     org:
       springframework:
         security: debug
-
+    kg:
+      attractor:
+        quiz_platform: debug
+  logback:
+    file: logs/application.log
 springdoc:
   api-docs:
     path: /v3/api-docs

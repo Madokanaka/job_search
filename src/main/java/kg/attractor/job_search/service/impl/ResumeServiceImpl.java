@@ -5,16 +5,13 @@ import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
-import kg.attractor.job_search.exception.BadRequestException;
-import kg.attractor.job_search.exception.DatabaseOperationException;
-import kg.attractor.job_search.exception.ResourceNotFoundException;
-import kg.attractor.job_search.exception.ResumeNotFoundException;
-import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.exception.*;
 import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
 import kg.attractor.job_search.model.WorkExperienceInfo;
 import kg.attractor.job_search.service.ResumeService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeDao resumeDao;
@@ -35,15 +33,20 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     @Transactional
     public void createResume(ResumeDto resumeDto, Integer userId) {
+        log.info("Creating resume for userId={}", userId);
+
         if (resumeDto == null || userId == null || userId <= 0) {
+            log.warn("Invalid resumeDto or userId");
             throw new BadRequestException("User ID or resume have invalid values");
         }
 
         if (!resumeDao.existsApplicantById(userId)) {
+            log.warn("Applicant with ID={} not found", userId);
             throw new UserNotFoundException("User with ID " + userId + " not found in database");
         }
 
         if (!resumeDao.existsCategoryById(resumeDto.getCategoryId())) {
+            log.warn("Category ID={} not found", resumeDto.getCategoryId());
             throw new ResourceNotFoundException("Category ID not found in database");
         }
 
@@ -59,34 +62,44 @@ public class ResumeServiceImpl implements ResumeService {
         int resumeId = resumeDao.createResume(resume);
 
         if (resumeId == -1) {
+            log.error("Failed to create resume");
             throw new DatabaseOperationException("Could not create resume");
         }
 
+        log.debug("Resume created with id={}", resumeId);
         saveResumeDetails(resumeId, resumeDto);
     }
-
 
     @Override
     @Transactional
     public void deleteResume(Integer resumeId) {
+        log.info("Deleting resume with id={}", resumeId);
+
         if (resumeDao.findById(resumeId).isEmpty()) {
+            log.warn("Resume with id={} not found", resumeId);
             throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
         resumeDao.deleteContactInfoByResumeId(resumeId);
         resumeDao.deleteEducationInfoByResumeId(resumeId);
         resumeDao.deleteWorkExperienceInfoByResumeId(resumeId);
+
         if (!resumeDao.deleteResume(resumeId)) {
+            log.error("Could not delete resume with id={}", resumeId);
             throw new DatabaseOperationException("Could not delete resume");
         }
+
+        log.debug("Resume with id={} deleted successfully", resumeId);
     }
 
     @Override
     @Transactional
     public void editResume(Integer resumeId, ResumeDto resumeDto) {
-        Optional<Resume> optionalResume = resumeDao.findById(resumeId);
+        log.info("Editing resume with id={}", resumeId);
 
+        Optional<Resume> optionalResume = resumeDao.findById(resumeId);
         if (optionalResume.isEmpty()) {
+            log.warn("Resume with id={} not found", resumeId);
             throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
         }
 
@@ -97,29 +110,36 @@ public class ResumeServiceImpl implements ResumeService {
         resume.setUpdate_time(LocalDateTime.now());
 
         if (resumeDao.updateResume(resume)) {
+            log.debug("Resume with id={} updated", resume.getId());
+
             resumeDao.deleteContactInfoByResumeId(resume.getId());
             resumeDao.deleteEducationInfoByResumeId(resume.getId());
             resumeDao.deleteWorkExperienceInfoByResumeId(resume.getId());
 
             saveResumeDetails(resume.getId(), resumeDto);
         } else {
+            log.error("Could not update resume with id={}", resume.getId());
             throw new DatabaseOperationException("Could not update resume");
         }
-
     }
 
     @Override
     public List<ResumeDto> getAllResumes() {
+        log.info("Fetching all resumes");
         return resumeDao.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
     }
 
     @Override
     public Optional<List<ResumeDto>> getResumesByUserId(Integer userId) {
+        log.info("Fetching resumes for userId={}", userId);
+
         if (userId == null || userId <= 0) {
+            log.warn("Invalid userId={}", userId);
             throw new BadRequestException("User ID has invalid value");
         }
 
         if (!resumeDao.existsApplicantById(userId)) {
+            log.warn("Applicant with id={} not found", userId);
             throw new UserNotFoundException("User with ID " + userId + " not found in database");
         }
 
@@ -129,9 +149,12 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto) {
+        log.info("Saving resume details for resumeId={}", resumeId);
+
         if (resumeDto.getContactInfoList() != null) {
             resumeDto.getContactInfoList().forEach(contactInfoDto -> {
                 if (!resumeDao.existsTypeById(contactInfoDto.getTypeId())) {
+                    log.warn("Contact type ID={} not found", contactInfoDto.getTypeId());
                     throw new ResourceNotFoundException("Contact type ID not found in database");
                 }
                 ContactInfo contactInfo = new ContactInfo();
@@ -145,6 +168,7 @@ public class ResumeServiceImpl implements ResumeService {
         if (resumeDto.getEducationInfoList() != null) {
             resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
                 if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
+                    log.warn("Invalid education dates: startDate={} > endDate={}", educationInfoDto.getStartDate(), educationInfoDto.getEndDate());
                     throw new BadRequestException("Start date cannot be after end date");
                 }
                 EducationInfo educationInfo = new EducationInfo();
@@ -169,6 +193,8 @@ public class ResumeServiceImpl implements ResumeService {
                 resumeDao.createWorkExperienceInfo(workExperienceInfo);
             });
         }
+
+        log.debug("Resume details saved for resumeId={}", resumeId);
     }
 
     private ResumeDto convertToDto(Resume resume) {

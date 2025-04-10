@@ -102,6 +102,23 @@ public class VacancyDao {
         ));
     }
 
+    public List<Vacancy> getVacanciesByUserId(Integer userId) {
+        String sql = "SELECT * FROM vacancies WHERE author_id = ? AND is_active = true";
+        return jdbcTemplate.query(sql, new Object[]{userId}, (rs, rowNum) -> new Vacancy(
+                rs.getInt("id"),
+                rs.getString("name"),
+                rs.getString("description"),
+                rs.getInt("category_id"),
+                rs.getDouble("salary"),
+                rs.getInt("exp_from"),
+                rs.getInt("exp_to"),
+                rs.getBoolean("is_active"),
+                rs.getInt("author_id"),
+                rs.getTimestamp("created_date").toLocalDateTime(),
+                rs.getTimestamp("update_time").toLocalDateTime()
+        ));
+    }
+
     public List<Vacancy> getVacanciesUserRespondedTo(Integer userId) {
         String sql = """
                     SELECT v.* FROM vacancies v

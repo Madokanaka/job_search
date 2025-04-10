@@ -14,7 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/resumes")
 @RequiredArgsConstructor
-public class ResumeController {
+public class ResumeApiController {
 
     private final ResumeService resumeService;
 

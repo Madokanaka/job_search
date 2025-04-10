@@ -1,14 +1,17 @@
 package kg.attractor.job_search.service.impl;
 
+import kg.attractor.job_search.dao.CategoryDao;
 import kg.attractor.job_search.dao.VacancyDao;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.exception.VacancyNotFoundException;
+import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -19,10 +22,11 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class VacancyServiceImpl implements VacancyService {
 
     private final VacancyDao vacancyDao;
-    private static final Logger log = LoggerFactory.getLogger(VacancyServiceImpl.class);
+    private final CategoryDao categoryDao;
 
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
@@ -113,6 +117,20 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
+    public Optional<List<VacancyDto>> getVacanciesByUserId(Integer userId) {
+        log.info("Retrieving all vacancies");
+        List<Vacancy> vacancies = vacancyDao.getVacanciesByUserId(userId);
+
+        if (vacancies.isEmpty()) {
+            log.warn("No vacancies found");
+            throw new ResourceNotFoundException("No vacancies found");
+        }
+
+        log.info("Retrieved {} vacancies", vacancies.size());
+        return Optional.of(vacancies.stream().map(this::convertToDto).collect(Collectors.toList()));
+    }
+
+    @Override
     public Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId) {
         log.info("Retrieving vacancies by category ID {}", categoryId);
 
@@ -191,5 +209,13 @@ public class VacancyServiceImpl implements VacancyService {
                 .expTo(vacancy.getExpTo())
                 .isActive(vacancy.getIsActive())
                 .build();
+    }
+
+    public String getCategoryName(Integer categoryId) {
+        return categoryDao.getCategoryById(categoryId).getName();
+    }
+
+    public List<Category> getCategories() {
+        return categoryDao.getAllCategories();
     }
 }

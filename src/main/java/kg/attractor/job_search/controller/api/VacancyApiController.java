@@ -14,7 +14,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/vacancies")
 @RequiredArgsConstructor
-public class VacancyController {
+public class VacancyApiController {
 
     private final VacancyService vacancyService;
 

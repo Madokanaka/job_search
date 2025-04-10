@@ -24,4 +24,6 @@ public interface UserService {
     void editUserProfile(Integer userId, UserDto userDto);
 
     Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
+
+    boolean authenticateUser(String email, String password);
 }

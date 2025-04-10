@@ -180,4 +180,25 @@ public class UserServiceImpl implements UserService {
                 .accountType(user.getAccountType())
                 .build();
     }
+
+    @Override
+    public boolean authenticateUser(String email, String password) {
+        log.debug("Authenticating user with email: {}", email);
+
+        if (!userDao.existsByEmail(email)) {
+            log.warn("User not found for email: {}", email);
+            return false;
+        }
+        User user = userDao.findByEmail(email);
+
+        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
+        if (!passwordMatches) {
+            log.warn("Incorrect password for email: {}", email);
+            return false;
+        }
+
+        log.info("User authenticated successfully: {}", email);
+        return true;
+    }
+
 }

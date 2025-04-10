@@ -1,4 +1,4 @@
-package kg.attractor.job_search.controller;
+package kg.attractor.job_search.controller.api;
 
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.service.ApplicationService;

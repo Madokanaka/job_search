@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Регистрация</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container">
+<#import "../layout.ftlh" as main>
+<@main.layout>
     <h2 class="my-5">Регистрация</h2>
     <form action="/auth/register" method="post" enctype="multipart/form-data">
         <div class="form-group">
@@ -69,6 +61,5 @@
         </div>
         <button type="submit" class="btn btn-primary">Зарегистрироваться</button>
     </form>
-</div>
-</body>
-</html>
+</@main.layout>
+

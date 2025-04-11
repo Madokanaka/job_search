@@ -1,13 +1,5 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Активные резюме</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-<div class="container py-4">
+<#import "../layout.ftlh" as main>
+<@main.layout>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="mb-0">Активные резюме</h1>
         <span class="badge bg-primary fs-6">
@@ -64,9 +56,4 @@
             <i class="bi bi-exclamation-triangle"></i> Данные о резюме временно недоступны
         </div>
     </#if>
-</div>
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+</@main.layout>

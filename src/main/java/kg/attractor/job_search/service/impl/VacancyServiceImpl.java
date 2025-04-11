@@ -121,11 +121,6 @@ public class VacancyServiceImpl implements VacancyService {
         log.info("Retrieving all vacancies");
         List<Vacancy> vacancies = vacancyDao.getVacanciesByUserId(userId);
 
-        if (vacancies.isEmpty()) {
-            log.warn("No vacancies found");
-            throw new ResourceNotFoundException("No vacancies found");
-        }
-
         log.info("Retrieved {} vacancies", vacancies.size());
         return Optional.of(vacancies.stream().map(this::convertToDto).collect(Collectors.toList()));
     }

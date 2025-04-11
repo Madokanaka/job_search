@@ -86,10 +86,7 @@ public class ProfileController {
             return "editProfile";
         }
 
-        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
-        userDto.setId(userId);
-        userDto.setAccountType(userService.getUserById(userId).get().getAccountType());
-        userService.editUserProfile(userId, userDto);
+        userService.updateUserProfile(principal.getUsername(), userDto);
 
         model.addAttribute("user", userDto);
         return "redirect:/profile";

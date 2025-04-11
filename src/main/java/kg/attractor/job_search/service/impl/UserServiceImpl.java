@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -200,6 +201,16 @@ public class UserServiceImpl implements UserService {
 
         log.info("User authenticated successfully: {}", email);
         return true;
+    }
+
+    @Override
+    public void updateUserProfile(String email, UserDto userDto) {
+        if (!userDao.existsByEmail(email)) {
+            throw new UserNotFoundException("User not found");
+        }
+        User user = userDao.findByEmail(email);
+        userDto.setAccountType(user.getAccountType());
+        editUserProfile(user.getId(), userDto);
     }
 
 }

@@ -17,6 +17,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserDto {
+    private Integer id;
+
     @NotBlank(message = "Name cannot be empty")
     @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
@@ -45,7 +47,6 @@ public class UserDto {
 
     private String avatar;
 
-    @NotBlank(message = "Account Type is required (applicant, employer)")
     private String accountType;
 
 }

@@ -28,7 +28,7 @@ public class VacancyDto {
     @NotNull(message = "Salary amount is required")
     private Double salary;
 
-    @NotNull(message = "Experience to is required")
+    @NotNull(message = "Experience from is required")
     @Min(value = 0, message = "Experience from must be at least 0")
     private Integer expFrom;
 

@@ -3,6 +3,13 @@ server:
 spring:
   application:
     name: "job_search"
+  mvc:
+    static-path-pattern: /static/**
+    hiddenmethod:
+      filter:
+        enabled: true
+  freemarker:
+    expose-request-attributes: true
   datasource:
     url: jdbc:h2:./db/test;AUTO_SERVER=TRUE
     username: root
@@ -21,7 +28,11 @@ logging:
     org:
       springframework:
         security: debug
-
+    kg:
+      attractor:
+        quiz_platform: debug
+  logback:
+    file: logs/application.log
 springdoc:
   api-docs:
     path: /v3/api-docs

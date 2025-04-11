@@ -1,4 +1,4 @@
-package kg.attractor.job_search.controller;
+package kg.attractor.job_search.controller.api;
 
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.service.ApplicationService;
@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/applications")
+@RequestMapping("/api/applications")
 @RequiredArgsConstructor
 public class ApplicationController {
 

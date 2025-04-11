@@ -1,80 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
+    <title>Вход в систему</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-<section class=" text-center text-lg-start">
-
-    <style>
-        .rounded-t-5 {
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
-        }
-
-        @media (min-width: 992px) {
-            .rounded-tr-lg-0 {
-                border-top-right-radius: 0;
-            }
-
-            .rounded-bl-lg-5 {
-                border-bottom-left-radius: 0.5rem;
-            }
-        }
-    </style>
-
-    <div class="card m-3">
-
-        <div class="row g-0 d-flex align-items-center">
-
-            <div class="col-lg-4 d-none d-lg-flex">
-                <img src="https://mdbootstrap.com/img/new/ecommerce/vertical/004.jpg" alt="Trendy Pants and Shoes"
-                     class="w-100 rounded-t-5 rounded-tr-lg-0 rounded-bl-lg-5"/>
-            </div>
-
-            <div class="col-lg-8">
-
-                <div class="card-body py-5 px-md-5">
+<body class="bg-light">
+<div class="container-fluid min-vh-100 d-flex align-items-center justify-content-center">
+    <div class="row justify-content-center w-100">
+        <div class="col-md-6 col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="card-title text-center mb-4">Вход</h2>
 
                     <form id="login-form" action="/auth/login" method="post">
-
-                        <!-- Email input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="email" id="form2Example1" class="form-control" name="username" required/>
-                            <label class="form-label" for="form2Example1">Email address</label>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="username" required>
                         </div>
 
-                        <!-- Password input -->
-                        <div data-mdb-input-init class="form-outline mb-4">
-                            <input type="password" id="form2Example2" class="form-control" name="password" required/>
-                            <label class="form-label" for="form2Example2">Password</label>
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Пароль</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
                         </div>
 
-                        <!-- Error message if error=true in URL -->
                         <#if error??>
                             <div class="text-danger mb-4">
                                 Неверная почта или пароль
                             </div>
                         </#if>
 
-                        <!-- Submit button -->
-                        <button type="submit" data-mdb-button-init data-mdb-ripple-init
-                                class="btn btn-primary btn-block mb-4">Sign in
-                        </button>
-
+                        <button type="submit" class="btn btn-primary w-100 mb-3">Войти</button>
                     </form>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
+</div>
 
-</section>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -47,7 +47,6 @@ public class UserDto {
 
     private String avatar;
 
-    @NotBlank(message = "Account Type is required (applicant, employer)")
     private String accountType;
 
 }

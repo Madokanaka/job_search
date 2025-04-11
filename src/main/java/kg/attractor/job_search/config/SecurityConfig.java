@@ -1,6 +1,7 @@
 package kg.attractor.job_search.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +21,7 @@ import javax.sql.DataSource;
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
     private final DataSource dataSource;
 
@@ -37,6 +39,8 @@ public class SecurityConfig {
                 "from USERS u, roles r " +
                 "where u.email = ? " +
                 "and u.role_id = r.id ";
+        log.info("Fetching user with query: {}", fetchUser);
+        log.info("Fetching roles with query: {}", fetchRoles);
         auth.jdbcAuthentication()
                 .dataSource(dataSource)
                 .usersByUsernameQuery(fetchUser)
@@ -67,6 +71,7 @@ public class SecurityConfig {
 //                        .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
 //
 //                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
+                                .requestMatchers("/profile", "/profile/edit").authenticated()
                                 .anyRequest().permitAll()
 
 //                        .anyRequest().authenticated()

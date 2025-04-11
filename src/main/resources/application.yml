@@ -5,6 +5,9 @@ spring:
     name: "job_search"
   mvc:
     static-path-pattern: /static/**
+    hiddenmethod:
+      filter:
+        enabled: true
   freemarker:
     expose-request-attributes: true
   datasource:

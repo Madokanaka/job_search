@@ -55,16 +55,5 @@ public class AuthController {
             return "auth/registration";
         }
     }
-
-    @PostMapping("/login")
-    public String loginUser(@RequestParam String email, @RequestParam String password, Model model) {
-        boolean isAuthenticated = userService.authenticateUser(email, password);
-
-        if (isAuthenticated) {
-            return "redirect:/auth/profile";
-        } else {
-            return "auth/login";
-        }
-    }
 }
 

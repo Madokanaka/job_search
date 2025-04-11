@@ -1,6 +1,5 @@
 <#import "spring.ftl" as spring>
 <#macro layout>
-
     <!doctype html>
     <html lang="en">
     <head>
@@ -46,26 +45,20 @@
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
                 </ul>
-                <form class="d-flex">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/profile">Профиль</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/logout">logout</a>
-                    </li>
-                </form>
+                <div class="d-flex align-items-center">
+                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>
+                    <form action="/logout" method="post" class="m-0">
+                        <button type="submit" class="btn btn-danger">Выйти</button>
+                    </form>
+                </div>
             </div>
         </div>
     </nav>
 
-
     <div class="container min-vh-100 align-items-center justify-content-center">
-
         <#nested spring>
-
     </div>
 
     </body>
     </html>
-
 </#macro>

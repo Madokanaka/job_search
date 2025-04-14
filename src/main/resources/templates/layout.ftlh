@@ -25,6 +25,14 @@
         }
     </style>
 
+    <#assign known = SPRING_SECURITY_CONTEXT?? >
+    <#if known>
+        <#assign
+        user = SPRING_SECURITY_CONTEXT.authentication.principal
+        name = user.getUsername()
+        >
+    </#if>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5">
         <div class="container-fluid">
             <a class="navbar-brand" href="/">Navbar</a>
@@ -45,12 +53,28 @@
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>
-                    <form action="/logout" method="post" class="m-0">
-                        <button type="submit" class="btn btn-danger">Выйти</button>
-                    </form>
-                </div>
+
+                <#if user??>
+                    <a href = "/profile" class="text-light m-2 m-sm-0">
+                        Профиль
+                    </a>
+                    <a href="/logout" class="btn btn-outline-info m-2"
+                       id="logout">Logout
+                    </a>
+                <#else>
+                    <a href="/auth/login"
+                       class="btn btn-outline-info m-2">Login
+                    </a>
+                    <a href="/auth/register"
+                       class="btn btn-outline-info m-2">Register
+                    </a>
+                </#if>
+<#--                <div class="d-flex align-items-center">-->
+<#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->
+<#--                    <form action="/logout" method="post" class="m-0">-->
+<#--                        <button type="submit" class="btn btn-danger">Выйти</button>-->
+<#--                    </form>-->
+<#--                </div>-->
             </div>
         </div>
     </nav>

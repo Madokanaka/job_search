@@ -347,7 +347,7 @@
                         <#--            <#if service_name>-->
                         <#--                <li><span><span data-l10n>Service name</span>:</span> <code>{{ service_name></code></li></#if>-->
                         <#if details.serverPort??>
-                            <li><span><span data-l10n>Service port</span>:</span> <code>${details.serverPort}</code>
+                            <li><span><span data-l10n>Service port</span>:</span> <code>${details.serverPort?c}</code>
                             </li>
                         </#if>
                         <#if details.requestId??>

@@ -1,7 +1,7 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.UserDto;
-import org.springframework.web.multipart.MultipartFile;
+import kg.attractor.job_search.dto.UserEditDto;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,5 +27,7 @@ public interface UserService {
 
     boolean authenticateUser(String email, String password);
 
-    void updateUserProfile(String email, UserDto userDto);
+    UserDto updateUserProfile(String email, UserEditDto userDto);
+
+    UserEditDto fromDtoToUserEditDto(UserDto userDto);
 }

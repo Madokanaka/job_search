@@ -1,5 +1,6 @@
 package kg.attractor.job_search.service.impl;
 
+import kg.attractor.job_search.dao.UserDao;
 import kg.attractor.job_search.dao.UserPictureDao;
 import kg.attractor.job_search.dto.UserPictureDto;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
@@ -11,6 +12,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.security.core.userdetails.User;
+
 
 @Service
 @RequiredArgsConstructor
@@ -19,6 +23,7 @@ public class ImageServiceImpl implements ImageService {
 
     private final UserPictureDao userPictureDao;
     private final FileUtil fileUtil;
+    private final UserDao userDao;
 
     @Override
     public String saveImage(UserPictureDto dto) {
@@ -26,6 +31,7 @@ public class ImageServiceImpl implements ImageService {
 
         String fileName = fileUtil.saveUploadFile(dto.getFile(), "images/");
         userPictureDao.save(dto.getUserId(), fileName);
+        userDao.saveAvatar(dto.getUserId(), fileName);
 
         log.debug("Image saved with fileName={}", fileName);
         return fileName;
@@ -51,5 +57,18 @@ public class ImageServiceImpl implements ImageService {
         log.debug("Found image fileName={} for imageId={}", fileName, imageId);
 
         return fileUtil.getOutputFile(fileName, "images/", MediaType.IMAGE_JPEG);
+    }
+
+    @Override
+    public void uploadImage(User principal, MultipartFile file) {
+        Long userId = Integer.toUnsignedLong(userDao.findByEmail(principal.getUsername()).getId());
+        log.info("Saving image for userId={}", userId);
+
+        String fileName = fileUtil.saveUploadFile(file, "images/");
+
+        userPictureDao.save(userId, fileName);
+        userDao.saveAvatar(userId, fileName);
+
+        log.debug("Image saved with fileName={}", fileName);
     }
 }

@@ -15,8 +15,26 @@
 
     <div class="row mb-5">
         <div class="col-md-7 d-flex align-items-center">
-            <img src="${user.avatar?has_content?then('/api/images/' + user.avatar, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')}"
-                 alt="Фото профиля" class="me-5  border" style="width: 100px; height: 100px; object-fit: cover;">
+            <div class="position-relative d-inline-block me-4">
+                <form action="/profile/avatar" method="post" enctype="multipart/form-data" id="avatarForm">
+                    <input type="hidden" name="userId" value="${user.id}"/>
+
+                    <input type="file" name="file" id="avatarInput" accept="image/*" style="display: none;" onchange="this.form.submit()"/>
+
+                    <label for="avatarInput" class="d-inline-block position-relative" style="cursor: pointer;">
+                        <img src="${user.avatar?has_content?then('/api/images/' + user.avatar, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')}"
+                             alt="Фото профиля"
+                             class="border rounded-circle"
+                             style="width: 100px; height: 100px; object-fit: cover;"/>
+
+                        <span class="btn btn-sm btn-primary position-absolute top-0 end-0 rounded-circle"
+                              style="transform: translate(50%, -50%);">
+                            <i class="bi bi-pencil"></i>
+                        </span>
+                    </label>
+                </form>
+            </div>
+
 
             <div class="ms-4">
                 <h3 class="mb-2">${user.getName()} ${user.getSurname()}</h3>

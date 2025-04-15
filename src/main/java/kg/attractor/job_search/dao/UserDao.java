@@ -114,4 +114,9 @@ public class UserDao {
         });
     }
 
+    public void saveAvatar(Long id, String filename) {
+        String sql = "update users set avatar = ? where id = ?";
+        jdbcTemplate.update(sql, filename, id);
+    }
+
 }

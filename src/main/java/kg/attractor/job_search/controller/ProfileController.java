@@ -5,6 +5,7 @@ import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.dto.VacancyDto;
+import kg.attractor.job_search.service.ImageService;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -34,6 +37,7 @@ public class ProfileController {
     private final UserService userService;
     private final VacancyService vacancyService;
     private final ResumeService resumeService;
+    private final ImageService imageService;
 
     @GetMapping("")
     public String getUserProfile(@AuthenticationPrincipal User principal, Model model) {
@@ -90,5 +94,23 @@ public class ProfileController {
             }
         }
         return "profile";
+    }
+
+    @PostMapping("/avatar")
+    public String updateAvatar(@AuthenticationPrincipal User principal,
+                               @RequestParam("file") MultipartFile file,
+                               Model model)  {
+
+        if (!file.isEmpty()) {
+            String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
+
+            imageService.uploadImage(principal, file);
+        }
+
+        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+
+        Optional<UserDto> userDto = userService.getUserById(userId);
+        model.addAttribute("user", userDto.get());
+        return "redirect:/profile";
     }
 }

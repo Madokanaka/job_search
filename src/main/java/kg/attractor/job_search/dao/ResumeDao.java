@@ -110,9 +110,14 @@ public class ResumeDao {
         return resumes.isEmpty() ? Optional.empty() : Optional.of(resumes);
     }
 
-    public void createContactInfo(ContactInfo contactInfo) {
+    public void createContactInfoByDto(ContactInfo contactInfo) {
         String sql = "INSERT INTO contact_info (resume_id, type_id, `value`) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, contactInfo.getResumeId(), contactInfo.getTypeId(), contactInfo.getValue());
+    }
+
+    public void createContactInfo(Integer resumeId, Integer type, String value) {
+        String sql = "INSERT INTO contact_info (resume_id, type_id, `value`) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, resumeId, type, value);
     }
 
     public void deleteContactInfoByResumeId(Integer resumeId) {

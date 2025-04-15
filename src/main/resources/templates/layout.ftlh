@@ -55,7 +55,7 @@
                 </ul>
 
                 <#if user??>
-                    <a href = "/profile" class="text-light m-2 m-sm-0">
+                    <a href = "/profile" class="btn btn-outline-info m-2">
                         Профиль
                     </a>
                     <a href="/logout" class="btn btn-outline-info m-2"

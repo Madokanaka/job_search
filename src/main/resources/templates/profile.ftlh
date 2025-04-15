@@ -71,7 +71,7 @@
         <div class="row g-3">
             <#if resumes?? && resumes?size gt 0>
                 <#list resumes as resume>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-5">
                         <div class="card vacancy-card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>

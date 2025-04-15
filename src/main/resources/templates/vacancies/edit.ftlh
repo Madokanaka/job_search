@@ -1,7 +1,7 @@
 <#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="container mt-4">
-        <h2 class="mb-4">Создание вакансии</h2>
+        <h2 class="mb-4">Редактирование вакансии</h2>
 
         <form action="/vacancies/${vacancyDto.id}/edit" method="post" class="needs-validation" novalidate>
             <input type="hidden" name="_method" value="PUT" />

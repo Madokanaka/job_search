@@ -108,7 +108,7 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <button class="btn btn-outline-primary w-50">Обновить</button>
-                            <button class="btn btn-primary w-50">Ред.</button>
+                            <a href="/resumes/${resume.id}/edit" class="btn btn-primary w-50">Ред.</a>
                         </div>
                     </div>
                 </#list>

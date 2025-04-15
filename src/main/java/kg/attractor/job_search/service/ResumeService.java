@@ -13,6 +13,8 @@ public interface ResumeService {
 
     void deleteResume(Integer resumeId);
 
+    ResumeDto getResumeById(Integer resumeId);
+
     List<ResumeDto> getAllResumes();
 
     Optional<List<ResumeDto>> getResumesByUserId(Integer userId);

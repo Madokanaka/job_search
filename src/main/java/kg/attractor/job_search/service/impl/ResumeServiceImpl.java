@@ -20,7 +20,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.security.core.userdetails.User;
 
 
 import java.time.LocalDateTime;
@@ -132,6 +131,14 @@ public class ResumeServiceImpl implements ResumeService {
             log.error("Could not update resume with id={}", resume.getId());
             throw new DatabaseOperationException("Could not update resume");
         }
+    }
+
+    @Override
+    public ResumeDto getResumeById(Integer resumeId) {
+        if (!resumeDao.existsByResumeId(resumeId)) {
+            throw new ResumeNotFoundException("Resume was not found");
+        }
+        return convertToDto(resumeDao.findById(resumeId).get());
     }
 
     @Override

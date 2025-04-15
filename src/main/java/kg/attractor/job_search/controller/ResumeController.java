@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -63,5 +64,32 @@ public class ResumeController {
         }
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
+    }
+
+    @GetMapping("{resumeId}/edit")
+    public String getEditPage(@PathVariable Integer resumeId, Model model) {
+        Map<Integer, String> categories = resumeService.getCategories();
+        ResumeDto resumeDto = resumeService.getResumeById(resumeId);
+
+        resumeDto.setCategoryId(1);
+        model.addAttribute("categories", resumeService.getCategories());
+        model.addAttribute("resumeDto", resumeDto);
+
+        return "resumes/edit";
+    }
+
+    @PostMapping("{resumeId}/edit")
+    public String editResume(@Valid @ModelAttribute ResumeDto resumeDto, BindingResult bindingResult,
+                               @PathVariable Integer resumeId,
+                               @AuthenticationPrincipal User principal, Model model) {
+        if (!bindingResult.hasErrors()) {
+            resumeService.editResume(resumeId, resumeDto);
+            model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
+            model.addAttribute("categories", resumeService.getCategories());
+
+            return "redirect:/profile";
+        }
+        model.addAttribute("resumeDto", resumeDto);
+        return "resumes/edit";
     }
 }

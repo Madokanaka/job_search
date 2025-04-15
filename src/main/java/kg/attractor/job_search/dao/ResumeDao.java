@@ -200,6 +200,12 @@ public class ResumeDao {
         return count != null && count > 0;
     }
 
+    public boolean existsByResumeId(Integer resumeId) {
+        String sql = "SELECT COUNT(*) FROM resumes WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, resumeId);
+        return count != null && count > 0;
+    }
+
     public boolean existsTypeById(Integer typeId) {
         String sql = "SELECT COUNT(*) FROM contact_types WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, typeId);

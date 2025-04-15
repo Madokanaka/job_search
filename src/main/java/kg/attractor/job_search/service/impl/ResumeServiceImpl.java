@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dao.ContactInfoDao;
+import kg.attractor.job_search.dao.ContactTypeDao;
 import kg.attractor.job_search.dao.EducationInfoDao;
 import kg.attractor.job_search.dao.ResumeDao;
 import kg.attractor.job_search.dao.WorkExperienceInfoDao;
@@ -33,6 +34,7 @@ public class ResumeServiceImpl implements ResumeService {
     private final WorkExperienceInfoDao workExperienceInfoDao;
     private final EducationInfoDao educationInfoDao;
     private final ContactInfoDao contactInfoDao;
+    private final ContactTypeDao contactTypeDao;
 
     @Override
     @Transactional
@@ -155,18 +157,24 @@ public class ResumeServiceImpl implements ResumeService {
     private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto) {
         log.info("Saving resume details for resumeId={}", resumeId);
 
-        if (resumeDto.getContactInfoList() != null) {
-            resumeDto.getContactInfoList().forEach(contactInfoDto -> {
-                if (!resumeDao.existsTypeById(contactInfoDto.getTypeId())) {
-                    log.warn("Contact type ID={} not found", contactInfoDto.getTypeId());
-                    throw new ResourceNotFoundException("Contact type ID not found in database");
-                }
-                ContactInfo contactInfo = new ContactInfo();
-                contactInfo.setResumeId(resumeId);
-                contactInfo.setTypeId(contactInfoDto.getTypeId());
-                contactInfo.setValue(contactInfoDto.getValue());
-                contactInfoDao.createContactInfo(contactInfo);
-            });
+        if (resumeDto.getContactEmail() != null && !resumeDto.getContactEmail().isBlank()) {
+            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Email"), resumeDto.getContactEmail());
+        }
+
+        if (resumeDto.getPhoneNumber() != null && !resumeDto.getPhoneNumber().isBlank()) {
+            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Телефон"), resumeDto.getPhoneNumber());
+        }
+
+        if (resumeDto.getLinkedIn() != null && !resumeDto.getLinkedIn().isBlank()) {
+            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("LinkedIn"), resumeDto.getLinkedIn());
+        }
+
+        if (resumeDto.getTelegram() != null && !resumeDto.getTelegram().isBlank()) {
+            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Telegram"), resumeDto.getTelegram());
+        }
+
+        if (resumeDto.getFacebook() != null && !resumeDto.getFacebook().isBlank()) {
+            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Facebook"), resumeDto.getFacebook());
         }
 
         if (resumeDto.getEducationInfoList() != null) {
@@ -202,17 +210,24 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     private ResumeDto convertToDto(Resume resume) {
+        List<ContactInfo> contactInfos = contactInfoDao.findContactInfoByResumeId(resume.getId());
+
+        String email = getValueByTypeKey(contactInfos, "email");
+        String phone = getValueByTypeKey(contactInfos, "Телефон");
+        String linkedIn = getValueByTypeKey(contactInfos, "linkedin");
+        String telegram = getValueByTypeKey(contactInfos, "telegram");
+        String facebook = getValueByTypeKey(contactInfos, "facebook");
+
         return ResumeDto.builder()
                 .name(resume.getName())
                 .categoryId(resume.getCategoryId())
                 .salary(resume.getSalary())
                 .isActive(resume.getIsActive())
-                .contactInfoList(contactInfoDao.findContactInfoByResumeId(resume.getId()).stream()
-                        .map(ci -> ContactInfoDto.builder()
-                                .typeId(ci.getTypeId())
-                                .value(ci.getValue())
-                                .build())
-                        .collect(Collectors.toList()))
+                .contactEmail(email)
+                .phoneNumber(phone)
+                .linkedIn(linkedIn)
+                .telegram(telegram)
+                .facebook(facebook)
                 .educationInfoList(educationInfoDao.findEducationInfoByResumeId(resume.getId()).stream()
                         .map(ei -> EducationInfoDto.builder()
                                 .institution(ei.getInstitution())
@@ -232,4 +247,16 @@ public class ResumeServiceImpl implements ResumeService {
                         .collect(Collectors.toList()))
                 .build();
     }
+
+    private String getValueByTypeKey(List<ContactInfo> contactInfos, String typeKey) {
+        return contactInfos.stream()
+                .filter(ci -> {
+                    Integer typeId = contactTypeDao.getContactTypeId(typeKey);
+                    return typeId != null && ci.getTypeId().equals(typeId);
+                })
+                .map(ContactInfo::getValue)
+                .findFirst()
+                .orElse(null);
+    }
+
 }

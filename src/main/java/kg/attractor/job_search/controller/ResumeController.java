@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
@@ -78,7 +79,7 @@ public class ResumeController {
         return "resumes/edit";
     }
 
-    @PostMapping("{resumeId}/edit")
+    @PutMapping("{resumeId}/edit")
     public String editResume(@Valid @ModelAttribute ResumeDto resumeDto, BindingResult bindingResult,
                                @PathVariable Integer resumeId,
                                @AuthenticationPrincipal User principal, Model model) {

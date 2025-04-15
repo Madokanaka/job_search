@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class VacancyDto {
+    private Integer id;
     @NotBlank(message = "Vacancy name cannot be empty")
     private String name;
 

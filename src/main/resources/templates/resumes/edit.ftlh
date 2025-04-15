@@ -4,6 +4,7 @@
         <h2 class="mb-4">Изменение резюме</h2>
 
         <form action="/resumes/${resumeDto.id}/edit" method="post" class="needs-validation" novalidate>
+            <input type="hidden" name="_method" value="PUT" />
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="mb-3">

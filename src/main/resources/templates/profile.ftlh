@@ -56,9 +56,9 @@
 
             <#if user.accountType == "employer">
                 <div class="col-md-6">
-                    <button class="btn btn-outline-primary h-100 w-100 mb-2">
+                    <a href="/vacancies/create" class="btn btn-outline-primary h-100 w-100 mb-2">
                         <span class="me-2">+</span> Создать вакансию
-                    </button>
+                    </a>
                 </div>
                 <div class="col-md-6">
                     <button class="btn btn-outline-primary h-100 w-100 mb-2">
@@ -83,7 +83,7 @@
                         </div>
                         <div class="d-flex justify-content-between">
                             <button class="btn btn-outline-primary w-50">Обновить</button>
-                            <button class="btn btn-primary w-50">Ред.</button>
+                            <a href="/vacancies/${vacancy.id}/edit" class="btn btn-primary w-50">Ред.</a>
                         </div>
                     </div>
                 </#list>

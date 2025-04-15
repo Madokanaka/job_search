@@ -13,6 +13,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,6 +22,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ResumeDto {
+    private Integer id;
     @NotBlank(message = "Имя резюме необходимо")
     private String name;
 
@@ -33,11 +36,18 @@ public class ResumeDto {
 
     private Boolean isActive;
 
-    @Valid
-    private List<EducationInfoDto> educationInfoList;
+    private LocalDateTime created_date;
+    private LocalDateTime update_time;
 
     @Valid
-    private List<WorkExperienceInfoDto> workExperienceInfoList;
+    @Builder.Default
+
+    private List<EducationInfoDto> educationInfoList = new ArrayList<>();
+
+    @Valid
+    @Builder.Default
+
+    private List<WorkExperienceInfoDto> workExperienceInfoList = new ArrayList<>();
 
     @Email(message = "email должен быть правильного формата")
     private String contactEmail;

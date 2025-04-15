@@ -46,13 +46,20 @@
         </div>
 
         <div class="col-md-5 row d-flex justify-content-between">
-            <div class="col-md-6">
-                <button class="btn btn-outline-primary h-100 w-100 mb-2">
-                    <span class="me-2">+</span> Создать резюме
-                </button>
-            </div>
+            <#if user.accountType == "applicant">
+                <div class="col-md-6">
+                    <a href="/resumes/create" class="btn btn-outline-primary h-100 w-100 mb-2">
+                        <span class="me-2">+</span> Создать резюме
+                    </a>
+                </div>
+            </#if>
 
             <#if user.accountType == "employer">
+                <div class="col-md-6">
+                    <button class="btn btn-outline-primary h-100 w-100 mb-2">
+                        <span class="me-2">+</span> Создать вакансию
+                    </button>
+                </div>
                 <div class="col-md-6">
                     <button class="btn btn-outline-primary h-100 w-100 mb-2">
                         <span class="me-2"></span> Отклики
@@ -96,7 +103,7 @@
                         <div class="card vacancy-card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.updatedDate!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата обновления: ${resume.update_time!'дд/мм/гггг'}</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">

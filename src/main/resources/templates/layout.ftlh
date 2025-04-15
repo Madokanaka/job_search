@@ -21,7 +21,6 @@
 
     <style>
         .navbar {
-            position: sticky;
             top: 0;
         }
     </style>
@@ -77,7 +76,7 @@
         </div>
     </nav>
 
-    <div class="container min-vh-100 align-items-center justify-content-center">
+    <div class="container min-vh-100 align-items-center justify-content-center mt-5">
         <#nested spring>
     </div>
 

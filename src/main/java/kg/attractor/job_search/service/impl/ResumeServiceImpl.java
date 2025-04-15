@@ -1,15 +1,16 @@
 package kg.attractor.job_search.service.impl;
 
+import kg.attractor.job_search.dao.CategoryDao;
 import kg.attractor.job_search.dao.ContactInfoDao;
 import kg.attractor.job_search.dao.ContactTypeDao;
 import kg.attractor.job_search.dao.EducationInfoDao;
 import kg.attractor.job_search.dao.ResumeDao;
 import kg.attractor.job_search.dao.WorkExperienceInfoDao;
-import kg.attractor.job_search.dto.ContactInfoDto;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
 import kg.attractor.job_search.exception.*;
+import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.ContactInfo;
 import kg.attractor.job_search.model.EducationInfo;
 import kg.attractor.job_search.model.Resume;
@@ -19,9 +20,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.userdetails.User;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -35,6 +39,7 @@ public class ResumeServiceImpl implements ResumeService {
     private final EducationInfoDao educationInfoDao;
     private final ContactInfoDao contactInfoDao;
     private final ContactTypeDao contactTypeDao;
+    private final CategoryDao categoryDao;
 
     @Override
     @Transactional
@@ -209,6 +214,14 @@ public class ResumeServiceImpl implements ResumeService {
         log.debug("Resume details saved for resumeId={}", resumeId);
     }
 
+    @Override
+    public Map<Integer, String> getCategories() {
+        List<Category> categoryList = categoryDao.getAllCategories();
+        Map<Integer, String> categoryMap = categoryList.stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+        return categoryMap;
+    }
+
     private ResumeDto convertToDto(Resume resume) {
         List<ContactInfo> contactInfos = contactInfoDao.findContactInfoByResumeId(resume.getId());
 
@@ -219,10 +232,13 @@ public class ResumeServiceImpl implements ResumeService {
         String facebook = getValueByTypeKey(contactInfos, "facebook");
 
         return ResumeDto.builder()
+                .id(resume.getId())
                 .name(resume.getName())
                 .categoryId(resume.getCategoryId())
                 .salary(resume.getSalary())
                 .isActive(resume.getIsActive())
+                .update_time(resume.getUpdate_time())
+                .created_date(resume.getCreated_date())
                 .contactEmail(email)
                 .phoneNumber(phone)
                 .linkedIn(linkedIn)
@@ -258,5 +274,4 @@ public class ResumeServiceImpl implements ResumeService {
                 .findFirst()
                 .orElse(null);
     }
-
 }

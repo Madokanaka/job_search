@@ -3,6 +3,7 @@ package kg.attractor.job_search.service;
 import kg.attractor.job_search.dto.ResumeDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface ResumeService {
@@ -15,4 +16,6 @@ public interface ResumeService {
     List<ResumeDto> getAllResumes();
 
     Optional<List<ResumeDto>> getResumesByUserId(Integer userId);
+
+    Map<Integer, String> getCategories();
 }

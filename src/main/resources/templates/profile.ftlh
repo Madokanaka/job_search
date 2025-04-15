@@ -1,5 +1,5 @@
 <#import "layout.ftlh" as main>
-<@main.layout>
+<@main.layout ; spring>
     <div class="profile-info text-center">
         <h1 class="mb-5">
             Личный кабинет
@@ -21,7 +21,9 @@
             <div class="ms-4">
                 <h3 class="mb-2">${user.getName()} ${user.getSurname()}</h3>
                 <p class="text-muted mb-2">Возраст: ${user.getAge()}</p>
-                <button class="btn btn-primary w-100 mb-2">Редактировать</button>
+                <button class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#editModal">
+                    Редактировать
+                </button>
             </div>
         </div>
 
@@ -88,6 +90,53 @@
                 <div class="alert alert-info">Нет созданных резюме</div>
             </#if>
         </div>
+    </#if>
+
+    <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <form action="/profile" method="post">
+                    <input type="hidden" name="_method" value="put">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editModalLabel">Редактировать профиль</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="form3Example1cg">Имя</label>
+                            <@spring.formInput "userEdit.name" 'id="form3Example1cg" class="form-control" value="${userEdit.name}"' />
+                            <@spring.showErrors "<br>" "error text-danger" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="form3Example2cg">Фамилия</label>
+                            <@spring.formInput "userEdit.surname" 'id="form3Example2cg" class="form-control" value="${userEdit.surname}"' />
+                            <@spring.showErrors "<br>" "error text-danger" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="form3Example3cg">Возраст</label>
+                            <@spring.formInput "userEdit.age" 'id="form3Example3cg" class="form-control" value="${userEdit.age}"' />
+                            <@spring.showErrors "<br>" "error text-danger" />
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label" for="form3Example5cg">Телефон</label>
+                            <@spring.formInput "userEdit.phoneNumber" 'id="form3Example5cg" class="form-control" value="${userEdit.phoneNumber}"' />
+                            <@spring.showErrors "<br>" "error text-danger" />
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                        <button type="submit" class="btn btn-primary">Сохранить изменения</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <#if showEditModal?? && showEditModal>
+        <script>
+            const editModal = new bootstrap.Modal(document.getElementById('editModal'));
+            editModal.show();
+        </script>
     </#if>
 </@main.layout>
 

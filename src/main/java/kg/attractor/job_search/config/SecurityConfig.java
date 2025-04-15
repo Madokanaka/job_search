@@ -72,6 +72,7 @@ public class SecurityConfig {
 //
 //                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
                                 .requestMatchers("/profile", "/profile/edit").authenticated()
+                                .requestMatchers("/vacancies").hasAnyAuthority("ADMIN", "EMPLOYER")
                                 .anyRequest().permitAll()
 
 //                        .anyRequest().authenticated()

@@ -48,15 +48,12 @@
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/resumes">Резюме</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
                 </ul>
 
                 <#if user??>
-                    <a href = "/profile" class="btn btn-outline-info m-2">
+                    <a href="/profile" class="btn btn-outline-info m-2">
                         Профиль
                     </a>
                     <a href="/logout" class="btn btn-outline-info m-2"
@@ -70,12 +67,12 @@
                        class="btn btn-outline-info m-2">Register
                     </a>
                 </#if>
-<#--                <div class="d-flex align-items-center">-->
-<#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->
-<#--                    <form action="/logout" method="post" class="m-0">-->
-<#--                        <button type="submit" class="btn btn-danger">Выйти</button>-->
-<#--                    </form>-->
-<#--                </div>-->
+                <#--                <div class="d-flex align-items-center">-->
+                <#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->
+                <#--                    <form action="/logout" method="post" class="m-0">-->
+                <#--                        <button type="submit" class="btn btn-danger">Выйти</button>-->
+                <#--                    </form>-->
+                <#--                </div>-->
             </div>
         </div>
     </nav>

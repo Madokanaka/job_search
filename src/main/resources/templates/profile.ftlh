@@ -64,7 +64,7 @@
 
     <#if user.accountType == "employer" || user.accountType == "admin">
         <h5 class="mb-3">Созданные вакансии:</h5>
-        <div class="row g-3">
+        <div class="row g-3 mb-5">
             <#if vacancies?? && vacancies?size gt 0>
                 <#list vacancies as vacancy>
                     <div class="col-md-4">
@@ -84,6 +84,7 @@
                 <div class="alert alert-info">Нет созданных вакансий</div>
             </#if>
         </div>
+        <a class="btn btn-success m-2" href="/resumes">Список резюме</a>
     </#if>
 
     <#if user.accountType == "applicant" || user.accountType == "admin">

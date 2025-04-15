@@ -3,6 +3,7 @@ package kg.attractor.job_search.controller;
 import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.UserDto;
+import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
@@ -43,54 +44,51 @@ public class ProfileController {
             model.addAttribute("user", userDto.get());
             if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
                 Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
-                if (vacancies.isPresent()) {
-                    model.addAttribute("vacancies", vacancies.get());
-                }
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
                 model.addAttribute("view", "vacancies");
-            } else if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            }
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
                 Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
-                if (resumes.isPresent()) {
-                    model.addAttribute("resumes", resumes.get());
-                }
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
                 model.addAttribute("view", "resume");
             }
+            model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
             return "profile";
         } else {
             return "error";
         }
     }
 
-    @GetMapping("/edit")
-    public String editUserProfile(@AuthenticationPrincipal User principal, Model model) {
+    @PutMapping("")
+    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute("userEdit") @Valid UserEditDto userEditDto,
+                                    BindingResult bindingResult, Model model) {
+        if (!bindingResult.hasErrors()) {
+            UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
+
+            model.addAttribute("user", user);
+            return "redirect:/profile";
+
+        }
+
         Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
-        System.out.println(userId);
+
         Optional<UserDto> userDto = userService.getUserById(userId);
         if (userDto.isPresent()) {
-            System.out.println(userDto.get());
             model.addAttribute("user", userDto.get());
-            return "editProfile";
-        } else {
-            return "error";
-        }
-    }
-
-    @PutMapping("/edit")
-    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute ("user") @Valid UserDto userDto,
-                                    BindingResult bindingResult, Model model) {
-        System.out.println(userDto);
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                model.addAttribute("error_" + error.getField(), error.getDefaultMessage());
+            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                model.addAttribute("view", "vacancies");
             }
-            return "editProfile";
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+                model.addAttribute("view", "resume");
+                model.addAttribute("showEditModal", true);
+                model.addAttribute("userEdit", userEditDto);
+
+            }
         }
-
-        userService.updateUserProfile(principal.getUsername(), userDto);
-
-        model.addAttribute("user", userDto);
-        return "redirect:/profile";
+        return "profile";
     }
-
-
 }

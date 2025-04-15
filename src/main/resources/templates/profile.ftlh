@@ -74,7 +74,7 @@
         <div class="row g-3 mb-5">
             <#if vacancies?? && vacancies?size gt 0>
                 <#list vacancies as vacancy>
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-5">
                         <div class="card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>

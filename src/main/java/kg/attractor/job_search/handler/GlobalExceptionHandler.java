@@ -1,5 +1,6 @@
 package kg.attractor.job_search.handler;
 
+import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
@@ -8,21 +9,27 @@ import kg.attractor.job_search.service.ErrorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.ui.Model;
 import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.NoSuchElementException;
 
-@RestControllerAdvice
+@ControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
     private final ErrorService errorService;
 
     @ExceptionHandler(NoSuchElementException.class)
-    public ErrorResponse handleNotFoundException(NoSuchElementException ex) {
-        return ErrorResponse.builder(ex, HttpStatus.NOT_FOUND, ex.getMessage()).build();
+    public String handleNotFoundException(Model model, HttpServletRequest request, NoSuchElementException e) {
+        model.addAttribute("status", HttpStatus.NOT_FOUND.value());
+        model.addAttribute("reason", HttpStatus.NOT_FOUND.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";
     }
 
     @ExceptionHandler(DatabaseOperationException.class)

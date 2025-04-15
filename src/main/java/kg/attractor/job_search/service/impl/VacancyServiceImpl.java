@@ -196,6 +196,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     private VacancyDto convertToDto(Vacancy vacancy) {
         return VacancyDto.builder()
+                .id(vacancy.getId())
                 .name(vacancy.getName())
                 .description(vacancy.getDescription())
                 .categoryId(vacancy.getCategoryId())

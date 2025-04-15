@@ -85,9 +85,9 @@ public class UserDao {
     }
 
     public int updateUser(User user) {
-        String sql = "UPDATE users SET name = ?, surname = ?, email = ?, phone_number = ?, avatar = ?, account_type = ?, password = ?, age = ? WHERE id = ?";
+        String sql = "UPDATE users SET name = ?, surname = ?, email = ?, phone_number = ?, avatar = ?, account_type = ?, age = ? WHERE id = ?";
         return jdbcTemplate.update(sql, user.getName(), user.getSurname(), user.getEmail(),
-                user.getPhoneNumber(), user.getAvatar(), user.getAccountType(), user.getPassword(), user.getAge(), user.getId());
+                user.getPhoneNumber(), user.getAvatar(), user.getAccountType(), user.getAge(), user.getId());
     }
 
     public List<User> getApplicantsForVacancy(Integer vacancyId) {
@@ -112,6 +112,11 @@ public class UserDao {
             user.setAccountType(rs.getString("account_type"));
             return user;
         });
+    }
+
+    public void saveAvatar(Long id, String filename) {
+        String sql = "update users set avatar = ? where id = ?";
+        jdbcTemplate.update(sql, filename, id);
     }
 
 }

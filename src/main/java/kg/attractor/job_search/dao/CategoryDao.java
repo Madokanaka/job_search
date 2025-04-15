@@ -29,14 +29,14 @@ public class CategoryDao {
     }
 
     public List<Category> getAllCategories() {
-        String sql = "SELECT id, name FROM categories";
+        String sql = "SELECT id, name, parent_id FROM categories";
 
         return jdbcTemplate.query(sql, new RowMapper<Category>() {
             @Override
             public Category mapRow(java.sql.ResultSet rs, int rowNum) throws java.sql.SQLException {
                 Integer id = rs.getInt("id");
                 String name = rs.getString("name");
-                Integer parentId = rs.getInt("parentId");
+                Integer parentId = rs.getInt("parent_id");
                 return new Category(id, name, parentId);
             }
         });

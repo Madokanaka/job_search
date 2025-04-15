@@ -110,9 +110,14 @@ public class ResumeDao {
         return resumes.isEmpty() ? Optional.empty() : Optional.of(resumes);
     }
 
-    public void createContactInfo(ContactInfo contactInfo) {
+    public void createContactInfoByDto(ContactInfo contactInfo) {
         String sql = "INSERT INTO contact_info (resume_id, type_id, `value`) VALUES (?, ?, ?)";
         jdbcTemplate.update(sql, contactInfo.getResumeId(), contactInfo.getTypeId(), contactInfo.getValue());
+    }
+
+    public void createContactInfo(Integer resumeId, Integer type, String value) {
+        String sql = "INSERT INTO contact_info (resume_id, type_id, `value`) VALUES (?, ?, ?)";
+        jdbcTemplate.update(sql, resumeId, type, value);
     }
 
     public void deleteContactInfoByResumeId(Integer resumeId) {
@@ -192,6 +197,12 @@ public class ResumeDao {
     public boolean existsCategoryById(Integer categoryId) {
         String sql = "SELECT COUNT(*) FROM categories WHERE id = ?";
         Integer count = jdbcTemplate.queryForObject(sql, Integer.class, categoryId);
+        return count != null && count > 0;
+    }
+
+    public boolean existsByResumeId(Integer resumeId) {
+        String sql = "SELECT COUNT(*) FROM resumes WHERE id = ?";
+        Integer count = jdbcTemplate.queryForObject(sql, Integer.class, resumeId);
         return count != null && count > 0;
     }
 

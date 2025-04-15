@@ -14,16 +14,24 @@
                 integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
                 crossorigin="anonymous"></script>
         <script src="../static/scripts/main.js"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <title>Document</title>
     </head>
     <body>
 
     <style>
         .navbar {
-            position: sticky;
             top: 0;
         }
     </style>
+
+    <#assign known = SPRING_SECURITY_CONTEXT?? >
+    <#if known>
+        <#assign
+        user = SPRING_SECURITY_CONTEXT.authentication.principal
+        name = user.getUsername()
+        >
+    </#if>
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5">
         <div class="container-fluid">
@@ -39,23 +47,36 @@
                         <a class="nav-link active" aria-current="page" href="/">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/resumes">Резюме</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>
-                    <form action="/logout" method="post" class="m-0">
-                        <button type="submit" class="btn btn-danger">Выйти</button>
-                    </form>
-                </div>
+
+                <#if user??>
+                    <a href="/profile" class="btn btn-outline-info m-2">
+                        Профиль
+                    </a>
+                    <a href="/logout" class="btn btn-outline-info m-2"
+                       id="logout">Logout
+                    </a>
+                <#else>
+                    <a href="/auth/login"
+                       class="btn btn-outline-info m-2">Login
+                    </a>
+                    <a href="/auth/register"
+                       class="btn btn-outline-info m-2">Register
+                    </a>
+                </#if>
+                <#--                <div class="d-flex align-items-center">-->
+                <#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->
+                <#--                    <form action="/logout" method="post" class="m-0">-->
+                <#--                        <button type="submit" class="btn btn-danger">Выйти</button>-->
+                <#--                    </form>-->
+                <#--                </div>-->
             </div>
         </div>
     </nav>
 
-    <div class="container min-vh-100 align-items-center justify-content-center">
+    <div class="container min-vh-100 align-items-center justify-content-center mt-5">
         <#nested spring>
     </div>
 

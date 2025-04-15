@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dao.UserDao;
+import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
@@ -144,10 +145,6 @@ public class UserServiceImpl implements UserService {
         existingUser.setAvatar(userDto.getAvatar());
         existingUser.setAccountType(userDto.getAccountType().toLowerCase());
 
-        if (userDto.getPassword() != null && !userDto.getPassword().isEmpty()) {
-            existingUser.setPassword(passwordEncoder.encode(userDto.getPassword()));
-        }
-
         int rowsAffected = userDao.updateUser(existingUser);
         if (rowsAffected == 0) {
             log.error("Failed to update user profile for ID: {}", userId);
@@ -204,13 +201,29 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUserProfile(String email, UserDto userDto) {
+    public UserDto updateUserProfile(String email, UserEditDto userEditDto) {
         if (!userDao.existsByEmail(email)) {
             throw new UserNotFoundException("User not found");
         }
         User user = userDao.findByEmail(email);
-        userDto.setAccountType(user.getAccountType());
+        UserDto userDto = convertToDto(user);
+        userDto.setName(userEditDto.getName());
+        userDto.setSurname(userEditDto.getSurname());
+        userDto.setAge(userEditDto.getAge());
+        userDto.setPhoneNumber(userEditDto.getPhoneNumber());
         editUserProfile(user.getId(), userDto);
+
+        return userDto;
+    }
+
+    @Override
+    public UserEditDto fromDtoToUserEditDto(UserDto userDto) {
+        return UserEditDto.builder()
+                .name(userDto.getName())
+                .surname(userDto.getSurname())
+                .age(userDto.getAge())
+                .phoneNumber(userDto.getPhoneNumber())
+                .build();
     }
 
 }

@@ -7,14 +7,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
 
 @Controller
 @RequestMapping("/auth")
@@ -24,7 +22,8 @@ public class AuthController {
     private final UserService userService;
 
     @GetMapping("/register")
-    public String showRegistrationPage() {
+    public String showRegistrationPage(Model model) {
+        model.addAttribute("userDto", new UserDto());
         return "auth/registration";
     }
 
@@ -40,20 +39,14 @@ public class AuthController {
     public String registerUser(@Valid @ModelAttribute UserDto userDto,
                                BindingResult bindingResult,
                                Model model) {
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                model.addAttribute("error_" + error.getField(), error.getDefaultMessage());
-            }
-            return "auth/registration";
-        }
-        try {
+        if (!bindingResult.hasErrors()) {
             userService.registerUser(userDto);
             return "redirect:/auth/login";
-        } catch (Exception e) {
-            model.addAttribute("error", "Ошибка регистрации: " + e.getMessage());
-            return "auth/registration";
         }
+
+        model.addAttribute("userDto", userDto);
+
+        return "auth/registration";
     }
 }
 

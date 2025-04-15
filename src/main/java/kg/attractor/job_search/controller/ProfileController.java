@@ -3,7 +3,9 @@ package kg.attractor.job_search.controller;
 import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.UserDto;
+import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.dto.VacancyDto;
+import kg.attractor.job_search.service.ImageService;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
@@ -21,6 +23,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,6 +37,7 @@ public class ProfileController {
     private final UserService userService;
     private final VacancyService vacancyService;
     private final ResumeService resumeService;
+    private final ImageService imageService;
 
     @GetMapping("")
     public String getUserProfile(@AuthenticationPrincipal User principal, Model model) {
@@ -43,54 +48,69 @@ public class ProfileController {
             model.addAttribute("user", userDto.get());
             if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
                 Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
-                if (vacancies.isPresent()) {
-                    model.addAttribute("vacancies", vacancies.get());
-                }
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
                 model.addAttribute("view", "vacancies");
-            } else if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            }
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
                 Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
-                if (resumes.isPresent()) {
-                    model.addAttribute("resumes", resumes.get());
-                }
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
                 model.addAttribute("view", "resume");
             }
+            model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
             return "profile";
         } else {
             return "error";
         }
     }
 
-    @GetMapping("/edit")
-    public String editUserProfile(@AuthenticationPrincipal User principal, Model model) {
+    @PutMapping("")
+    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute("userEdit") @Valid UserEditDto userEditDto,
+                                    BindingResult bindingResult, Model model) {
+        if (!bindingResult.hasErrors()) {
+            UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
+
+            model.addAttribute("user", user);
+            return "redirect:/profile";
+
+        }
+
         Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
-        System.out.println(userId);
+
         Optional<UserDto> userDto = userService.getUserById(userId);
         if (userDto.isPresent()) {
-            System.out.println(userDto.get());
             model.addAttribute("user", userDto.get());
-            return "editProfile";
-        } else {
-            return "error";
+            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                model.addAttribute("view", "vacancies");
+            }
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+                model.addAttribute("view", "resume");
+                model.addAttribute("showEditModal", true);
+                model.addAttribute("userEdit", userEditDto);
+
+            }
         }
+        return "profile";
     }
 
-    @PutMapping("/edit")
-    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute ("user") @Valid UserDto userDto,
-                                    BindingResult bindingResult, Model model) {
-        System.out.println(userDto);
-        if (bindingResult.hasErrors()) {
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError error : fieldErrors) {
-                model.addAttribute("error_" + error.getField(), error.getDefaultMessage());
-            }
-            return "editProfile";
+    @PostMapping("/avatar")
+    public String updateAvatar(@AuthenticationPrincipal User principal,
+                               @RequestParam("file") MultipartFile file,
+                               Model model)  {
+
+        if (!file.isEmpty()) {
+            String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
+
+            imageService.uploadImage(principal, file);
         }
 
-        userService.updateUserProfile(principal.getUsername(), userDto);
+        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
 
-        model.addAttribute("user", userDto);
+        Optional<UserDto> userDto = userService.getUserById(userId);
+        model.addAttribute("user", userDto.get());
         return "redirect:/profile";
     }
-
-
 }

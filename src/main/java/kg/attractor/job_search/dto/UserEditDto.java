@@ -16,9 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserDto {
-    private Integer id;
-
+public class UserEditDto {
     @NotBlank(message = "Name cannot be empty")
     @Size(max = 50, message = "Name must not exceed 50 characters")
     private String name;
@@ -32,25 +30,7 @@ public class UserDto {
     @Max(value = 100, message = "Age cannot exceed 100")
     private Integer age;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
-    private String email;
-
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 25, message = "Password must be between 6 and 25 characters long")
-    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$", message = "Should contain at least one uppercase letter, one number")
-    private String password;
-
     @NotBlank(message = "PhoneNumber is required")
     @Pattern(regexp = "\\+?[0-9]{10,20}", message = "Invalid phone number format")
     private String phoneNumber;
-
-    private String avatar;
-
-    @Pattern(
-            regexp = "^(Applicant|Employer)$",
-            message = "Invalid account type"
-    )
-    private String accountType;
-
 }

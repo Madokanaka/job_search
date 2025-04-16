@@ -54,7 +54,7 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/profile", true)
+                        .defaultSuccessUrl("/vacancies", true)
                         .failureUrl("/auth/login?error=true")
                         .permitAll())
                 .logout(logout -> logout
@@ -71,8 +71,10 @@ public class SecurityConfig {
 //                        .requestMatchers("/images/**").hasAnyAuthority("EMPLOYER", "ADMIN", "APPLICANT")
 //
 //                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
+                                .requestMatchers("/vacancies").permitAll()
                                 .requestMatchers("/profile", "/profile/edit").authenticated()
-                                .requestMatchers("/vacancies").hasAnyAuthority("ADMIN", "EMPLOYER")
+                                .requestMatchers("/vacancies/**", "/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
+                                .requestMatchers("/resumes/create", "/resumes/{resumeId}/edit").hasAnyAuthority("ADMIN", "APPLICANT")
                                 .anyRequest().permitAll()
 
 //                        .anyRequest().authenticated()

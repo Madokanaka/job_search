@@ -82,9 +82,10 @@ public class VacancyController {
         if (!bindingResult.hasErrors()) {
             vacancyService.editVacancy(vacancyId, vacancyDto);
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
+
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/edit";
     }

@@ -31,8 +31,13 @@ public class VacancyController {
     private final ResumeService resumeService;
 
     @GetMapping
-    public String getAllVacancies(Model model) {
+    public String getAllVacancies(@AuthenticationPrincipal User principal, Model model) {
         List<VacancyDto> vacancies = vacancyService.getAllVacancies();
+        if (principal != null) {
+            userService.findUserByEmail(principal.getUsername()).ifPresent(user -> {
+                model.addAttribute("accountType", user.getAccountType());
+            });
+        }
         model.addAttribute("vacancies", vacancies);
         return "vacancies/vacancies";
     }
@@ -55,7 +60,7 @@ public class VacancyController {
             vacancyService.createVacancy(vacancyDto, userService.findUserByEmail(principal.getUsername()).get().getId());
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profile";
+            return "redirect:/profiles/profile";
         }
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/create";
@@ -78,7 +83,7 @@ public class VacancyController {
             vacancyService.editVacancy(vacancyId, vacancyDto);
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profile";
+            return "redirect:/profiles/profile";
         }
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/edit";

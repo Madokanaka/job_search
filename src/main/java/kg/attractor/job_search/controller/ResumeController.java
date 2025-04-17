@@ -61,7 +61,7 @@ public class ResumeController {
             resumeService.createResume(resumeDto, userService.findUserByEmail(principal.getUsername()).get().getId());
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profile";
+            return "redirect:/profiles/profile";
         }
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
@@ -69,7 +69,6 @@ public class ResumeController {
 
     @GetMapping("{resumeId}/edit")
     public String getEditPage(@PathVariable Integer resumeId, Model model) {
-        Map<Integer, String> categories = resumeService.getCategories();
         ResumeDto resumeDto = resumeService.getResumeById(resumeId);
 
         resumeDto.setCategoryId(1);
@@ -88,7 +87,7 @@ public class ResumeController {
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
 
-            return "redirect:/profile";
+            return "redirect:/profiles/profile";
         }
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/edit";

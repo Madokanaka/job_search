@@ -15,7 +15,22 @@
 
                     <div class="row">
 
-                        <div class="mb-3">
+                        <div class="col-md-6 mb-3">
+                            <label for="categoryId" class="form-label">Категория</label>
+                            <select class="form-select" id="categoryId" name="categoryId" required>
+                                <option value="" disabled selected>Выберите категорию</option>
+                                <#list categories as id, name>
+                                    <option value="${id}"
+                                            <#if (resumeDto.categoryId)?? && resumeDto.categoryId == id>selected</#if>>
+                                        ${name}
+                                    </option>
+                                </#list>
+                            </select>
+                            <@spring.showErrors "<br>" "error text-danger small" />
+                        </div>
+
+
+                        <div class="col-md-6 mb-3">
                             <label for="salary" class="form-label">Ожидаемый уровень оклада ($)</label>
                             <@spring.formInput "resumeDto.salary" 'class="form-control" id="salary" type="number" min="0"" required' />
                             <@spring.showErrors "<br>" "error text-danger small" />

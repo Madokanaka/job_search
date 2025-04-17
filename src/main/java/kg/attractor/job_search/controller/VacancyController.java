@@ -79,6 +79,7 @@ public class VacancyController {
     @PutMapping("{vacancyId}/edit")
     public String editVacancy(@Valid @ModelAttribute VacancyDto vacancyDto, BindingResult bindingResult,
                               @PathVariable Integer vacancyId, @AuthenticationPrincipal User principal, Model model) {
+        vacancyDto.setId(vacancyId);
         if (!bindingResult.hasErrors()) {
             vacancyService.editVacancy(vacancyId, vacancyDto);
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());

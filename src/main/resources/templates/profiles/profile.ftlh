@@ -1,4 +1,4 @@
-<#import "layout.ftlh" as main>
+<#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="profile-info text-center">
         <h1 class="mb-5">

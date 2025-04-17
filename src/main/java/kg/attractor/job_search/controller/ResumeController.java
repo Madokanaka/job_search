@@ -61,7 +61,7 @@ public class ResumeController {
             resumeService.createResume(resumeDto, userService.findUserByEmail(principal.getUsername()).get().getId());
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profiles/profile";
+            return "redirect:/profile";
         }
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
@@ -87,7 +87,7 @@ public class ResumeController {
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
 
-            return "redirect:/profiles/profile";
+            return "redirect:/profile";
         }
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/edit";

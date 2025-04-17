@@ -60,7 +60,7 @@ public class VacancyController {
             vacancyService.createVacancy(vacancyDto, userService.findUserByEmail(principal.getUsername()).get().getId());
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profiles/profile";
+            return "redirect:profile";
         }
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/create";
@@ -83,7 +83,7 @@ public class VacancyController {
             vacancyService.editVacancy(vacancyId, vacancyDto);
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
             model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profiles/profile";
+            return "redirect:/profile";
         }
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/edit";

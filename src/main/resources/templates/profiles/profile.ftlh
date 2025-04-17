@@ -83,7 +83,7 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
-                                <p class="text-muted">Дата обновления: ${vacancy.updatedDate!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата обновления: ${vacancy.updateTime.toLocalDate()}</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">
@@ -107,7 +107,7 @@
                         <div class="card vacancy-card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.update_time!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">

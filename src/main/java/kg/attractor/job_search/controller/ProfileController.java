@@ -13,8 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -39,7 +37,7 @@ public class ProfileController {
     private final ResumeService resumeService;
     private final ImageService imageService;
 
-    @GetMapping("")
+    @GetMapping()
     public String getUserProfile(@AuthenticationPrincipal User principal, Model model) {
         Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
 
@@ -57,10 +55,32 @@ public class ProfileController {
                 model.addAttribute("view", "resume");
             }
             model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
-            return "profile";
+            return "profiles/profile";
         } else {
             return "error";
         }
+    }
+
+    @GetMapping("{profileId}")
+    public String getAnotherUserProfile(@AuthenticationPrincipal User principal, Model model, @PathVariable Integer profileId) {
+        Optional<UserDto> userDto = userService.getUserById(profileId);
+        model.addAttribute("user", userDto.get());
+        if (principal != null && profileId.equals(userService.findUserByEmail(principal.getUsername()).get().getId())) {
+            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(profileId);
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                model.addAttribute("view", "vacancies");
+            }
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(profileId);
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+                model.addAttribute("view", "resume");
+            }
+            model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
+            return "profiles/profile";
+        }
+
+        return "profiles/another_profile";
     }
 
     @PutMapping("")
@@ -70,7 +90,7 @@ public class ProfileController {
             UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
 
             model.addAttribute("user", user);
-            return "redirect:/profile";
+            return "redirect:/profiles/profile";
 
         }
 
@@ -93,13 +113,13 @@ public class ProfileController {
 
             }
         }
-        return "profile";
+        return "profiles/profile";
     }
 
     @PostMapping("/avatar")
     public String updateAvatar(@AuthenticationPrincipal User principal,
                                @RequestParam("file") MultipartFile file,
-                               Model model)  {
+                               Model model) {
 
         if (!file.isEmpty()) {
             String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
@@ -111,6 +131,6 @@ public class ProfileController {
 
         Optional<UserDto> userDto = userService.getUserById(userId);
         model.addAttribute("user", userDto.get());
-        return "redirect:/profile";
+        return "redirect:/profiles/profile";
     }
 }

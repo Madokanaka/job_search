@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,7 +114,10 @@ public class VacancyServiceImpl implements VacancyService {
         }
 
         log.info("Retrieved {} vacancies", vacancies.size());
-        return vacancies.stream().map(this::convertToDto).collect(Collectors.toList());
+        return vacancies.stream()
+                .sorted(Comparator.comparing(Vacancy::getUpdateTime, Comparator.nullsLast(Comparator.naturalOrder())).reversed())
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -204,6 +208,9 @@ public class VacancyServiceImpl implements VacancyService {
                 .expFrom(vacancy.getExpFrom())
                 .expTo(vacancy.getExpTo())
                 .isActive(vacancy.getIsActive())
+                .createdDate(vacancy.getCreatedDate())
+                .updateTime(vacancy.getUpdateTime())
+                .authorId(vacancy.getAuthorId())
                 .build();
     }
 

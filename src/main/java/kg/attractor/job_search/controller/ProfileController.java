@@ -84,13 +84,13 @@ public class ProfileController {
     }
 
     @PutMapping("")
-    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute("userEdit") @Valid UserEditDto userEditDto,
+    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute @Valid UserEditDto userEditDto,
                                     BindingResult bindingResult, Model model) {
         if (!bindingResult.hasErrors()) {
             UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
 
             model.addAttribute("user", user);
-            return "redirect:/profiles/profile";
+            return "redirect:/profile";
 
         }
 
@@ -109,10 +109,11 @@ public class ProfileController {
                 resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
                 model.addAttribute("view", "resume");
                 model.addAttribute("showEditModal", true);
-                model.addAttribute("userEdit", userEditDto);
 
             }
         }
+        userEditDto.setAge(userDto.get().getAge());
+        model.addAttribute("userEdit", userEditDto);
         return "profiles/profile";
     }
 
@@ -131,6 +132,6 @@ public class ProfileController {
 
         Optional<UserDto> userDto = userService.getUserById(userId);
         model.addAttribute("user", userDto.get());
-        return "redirect:/profiles/profile";
+        return "redirect:/profile";
     }
 }

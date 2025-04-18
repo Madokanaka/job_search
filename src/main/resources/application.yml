@@ -1,11 +1,20 @@
 server:
   port: 8080
 spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        generate_statistics: false
+        format_sql: true
+    show-sql: false
+
   application:
     name: "job_search"
   mvc:
     static-path-pattern: /static/**
-    hiddenmethod:
+    hidden-method:
       filter:
         enabled: true
   freemarker:
@@ -24,13 +33,18 @@ management:
         include: "*"
 logging:
   level:
-    root: info
+    root: error
     org:
+      hibernate:
+        type: error
+        stat: error
       springframework:
         security: debug
     kg:
       attractor:
         quiz_platform: debug
+    web: info
+    sql: error
   logback:
     file: logs/application.log
 springdoc:

@@ -58,6 +58,7 @@ public class ResumeController {
             model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
     }

@@ -243,5 +243,5 @@ databaseChangeLog:
                   name: resume_id
                   type: INT
               - column:
-                  name: value
+                  name: infoValue
                   type: VARCHAR(255)

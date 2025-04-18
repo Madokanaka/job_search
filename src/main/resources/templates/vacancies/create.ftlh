@@ -23,7 +23,6 @@
                         <div class="col-md-6 mb-3">
                             <label for="categoryId" class="form-label">Категория</label>
                             <select class="form-select" id="categoryId" name="categoryId" required>
-                                <option value="1" disabled selected>Выберите категорию</option>
                                 <#list categories as id, name>
                                     <option value="${id}"
                                             <#if (vacancyDto.categoryId)?? && vacancyDto.categoryId == id>selected</#if>>

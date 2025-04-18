@@ -1,26 +1,14 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.dao.CategoryDao;
-import kg.attractor.job_search.dao.ContactInfoDao;
-import kg.attractor.job_search.dao.ContactTypeDao;
-import kg.attractor.job_search.dao.EducationInfoDao;
-import kg.attractor.job_search.dao.ResumeDao;
-import kg.attractor.job_search.dao.WorkExperienceInfoDao;
-import kg.attractor.job_search.dto.EducationInfoDto;
-import kg.attractor.job_search.dto.ResumeDto;
-import kg.attractor.job_search.dto.WorkExperienceInfoDto;
+import kg.attractor.job_search.dto.*;
 import kg.attractor.job_search.exception.*;
-import kg.attractor.job_search.model.Category;
-import kg.attractor.job_search.model.ContactInfo;
-import kg.attractor.job_search.model.EducationInfo;
-import kg.attractor.job_search.model.Resume;
-import kg.attractor.job_search.model.WorkExperienceInfo;
+import kg.attractor.job_search.model.*;
+import kg.attractor.job_search.repository.*;
 import kg.attractor.job_search.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,12 +21,13 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ResumeServiceImpl implements ResumeService {
 
-    private final ResumeDao resumeDao;
-    private final WorkExperienceInfoDao workExperienceInfoDao;
-    private final EducationInfoDao educationInfoDao;
-    private final ContactInfoDao contactInfoDao;
-    private final ContactTypeDao contactTypeDao;
-    private final CategoryDao categoryDao;
+    private final ResumeRepository resumeRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
+    private final ContactInfoRepository contactInfoRepository;
+    private final EducationInfoRepository educationInfoRepository;
+    private final WorkExperienceInfoRepository workExperienceInfoRepository;
+    private final ContactTypeRepository contactTypeRepository;
 
     @Override
     @Transactional
@@ -50,34 +39,25 @@ public class ResumeServiceImpl implements ResumeService {
             throw new BadRequestException("User ID or resume have invalid values");
         }
 
-        if (!resumeDao.existsApplicantById(userId)) {
-            log.warn("Applicant with ID={} not found", userId);
-            throw new UserNotFoundException("User with ID " + userId + " not found in database");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
-        if (!resumeDao.existsCategoryById(resumeDto.getCategoryId())) {
-            log.warn("Category ID={} not found", resumeDto.getCategoryId());
-            throw new ResourceNotFoundException("Category ID not found in database");
-        }
+        Category category = categoryRepository.findById(resumeDto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category ID not found in database"));
 
         Resume resume = new Resume();
-        resume.setApplicantId(userId);
+        resume.setApplicant(user);
         resume.setName(resumeDto.getName());
-        resume.setCategoryId(resumeDto.getCategoryId());
+        resume.setCategory(category);
         resume.setSalary(resumeDto.getSalary());
         resume.setIsActive(true);
-        resume.setCreated_date(LocalDateTime.now());
-        resume.setUpdate_time(LocalDateTime.now());
+        resume.setCreatedDate(LocalDateTime.now());
+        resume.setUpdateTime(LocalDateTime.now());
 
-        int resumeId = resumeDao.createResume(resume);
+        resume = resumeRepository.save(resume);
+        log.debug("Resume created with id={}", resume.getId());
 
-        if (resumeId == -1) {
-            log.error("Failed to create resume");
-            throw new DatabaseOperationException("Could not create resume");
-        }
-
-        log.debug("Resume created with id={}", resumeId);
-        saveResumeDetails(resumeId, resumeDto);
+        saveResumeDetails(resume.getId(), resumeDto, resume);
     }
 
     @Override
@@ -85,20 +65,14 @@ public class ResumeServiceImpl implements ResumeService {
     public void deleteResume(Integer resumeId) {
         log.info("Deleting resume with id={}", resumeId);
 
-        if (resumeDao.findById(resumeId).isEmpty()) {
-            log.warn("Resume with id={} not found", resumeId);
-            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
-        }
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
 
-        contactInfoDao.deleteContactInfoByResumeId(resumeId);
-        educationInfoDao.deleteEducationInfoByResumeId(resumeId);
-        workExperienceInfoDao.deleteWorkExperienceInfoByResumeId(resumeId);
+        contactInfoRepository.deleteByResumeId(resumeId);
+        educationInfoRepository.deleteByResumeId(resumeId);
+        workExperienceInfoRepository.deleteByResumeId(resumeId);
 
-        if (!resumeDao.deleteResume(resumeId)) {
-            log.error("Could not delete resume with id={}", resumeId);
-            throw new DatabaseOperationException("Could not delete resume");
-        }
-
+        resumeRepository.delete(resume);
         log.debug("Resume with id={} deleted successfully", resumeId);
     }
 
@@ -107,44 +81,40 @@ public class ResumeServiceImpl implements ResumeService {
     public void editResume(Integer resumeId, ResumeDto resumeDto) {
         log.info("Editing resume with id={}", resumeId);
 
-        Optional<Resume> optionalResume = resumeDao.findById(resumeId);
-        if (optionalResume.isEmpty()) {
-            log.warn("Resume with id={} not found", resumeId);
-            throw new ResumeNotFoundException("Resume with id " + resumeId + " not found");
-        }
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
 
-        Resume resume = optionalResume.get();
         resume.setName(resumeDto.getName());
         resume.setSalary(resumeDto.getSalary());
         resume.setIsActive(resumeDto.getIsActive());
-        resume.setUpdate_time(LocalDateTime.now());
+        resume.setUpdateTime(LocalDateTime.now());
 
-        if (resumeDao.updateResume(resume)) {
-            log.debug("Resume with id={} updated", resume.getId());
+        resumeRepository.save(resume);
+        log.debug("Resume with id={} updated", resume.getId());
 
-            contactInfoDao.deleteContactInfoByResumeId(resume.getId());
-            educationInfoDao.deleteEducationInfoByResumeId(resume.getId());
-            workExperienceInfoDao.deleteWorkExperienceInfoByResumeId(resume.getId());
+        contactInfoRepository.deleteByResumeId(resumeId);
+        educationInfoRepository.deleteByResumeId(resumeId);
+        workExperienceInfoRepository.deleteByResumeId(resumeId);
 
-            saveResumeDetails(resume.getId(), resumeDto);
-        } else {
-            log.error("Could not update resume with id={}", resume.getId());
-            throw new DatabaseOperationException("Could not update resume");
-        }
+        saveResumeDetails(resume.getId(), resumeDto, resume);
     }
 
     @Override
     public ResumeDto getResumeById(Integer resumeId) {
-        if (!resumeDao.existsByResumeId(resumeId)) {
-            throw new ResumeNotFoundException("Resume was not found");
-        }
-        return convertToDto(resumeDao.findById(resumeId).get());
+        log.info("Fetching resume with id={}", resumeId);
+
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+
+        return convertToDto(resume);
     }
 
     @Override
     public List<ResumeDto> getAllResumes() {
         log.info("Fetching all resumes");
-        return resumeDao.findAll().stream().map(this::convertToDto).collect(Collectors.toList());
+        return resumeRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -156,102 +126,129 @@ public class ResumeServiceImpl implements ResumeService {
             throw new BadRequestException("User ID has invalid value");
         }
 
-        if (!resumeDao.existsApplicantById(userId)) {
-            log.warn("Applicant with id={} not found", userId);
-            throw new UserNotFoundException("User with ID " + userId + " not found in database");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found in database"));
 
-        return resumeDao.findByUserId(userId).map(resumes -> resumes.stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList()));
+        List<Resume> resumes = resumeRepository.findByApplicantId(user.getId());
+
+        return Optional.of(resumes.stream().map(this::convertToDto).collect(Collectors.toList()));
     }
 
-    private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto) {
+    @Override
+    public Map<Integer, String> getCategories() {
+        return categoryRepository.findAll().stream()
+                .collect(Collectors.toMap(Category::getId, Category::getName));
+    }
+
+    private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto, Resume resume) {
         log.info("Saving resume details for resumeId={}", resumeId);
 
+        saveContactInfo(resumeId, resumeDto, resume);
+        saveEducationInfo(resumeId, resumeDto, resume);
+        saveWorkExperienceInfo(resumeId, resumeDto, resume);
+
+        log.debug("Resume details saved for resumeId={}", resumeId);
+    }
+
+    private void saveContactInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
         if (resumeDto.getContactEmail() != null && !resumeDto.getContactEmail().isBlank()) {
-            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Email"), resumeDto.getContactEmail());
+            ContactInfo contactInfo = new ContactInfo().builder()
+                    .resume(resume)
+                    .type(contactTypeRepository.findByType("Email"))
+                    .infoValue(resumeDto.getContactEmail())
+                    .build();
+            contactInfoRepository.save(contactInfo);
         }
 
         if (resumeDto.getPhoneNumber() != null && !resumeDto.getPhoneNumber().isBlank()) {
-            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Телефон"), resumeDto.getPhoneNumber());
+            ContactInfo contactInfo = new ContactInfo().builder()
+                    .resume(resume)
+                    .type(contactTypeRepository.findByType("Телефон"))
+                    .infoValue(resumeDto.getPhoneNumber())
+                    .build();
+            contactInfoRepository.save(contactInfo);
         }
 
         if (resumeDto.getLinkedIn() != null && !resumeDto.getLinkedIn().isBlank()) {
-            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("LinkedIn"), resumeDto.getLinkedIn());
+            ContactInfo contactInfo = new ContactInfo().builder()
+                    .resume(resume)
+                    .type(contactTypeRepository.findByType("LinkedIn"))
+                    .infoValue(resumeDto.getLinkedIn())
+                    .build();
+            contactInfoRepository.save(contactInfo);
         }
 
         if (resumeDto.getTelegram() != null && !resumeDto.getTelegram().isBlank()) {
-            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Telegram"), resumeDto.getTelegram());
+            ContactInfo contactInfo = new ContactInfo().builder()
+                    .resume(resume)
+                    .type(contactTypeRepository.findByType("Telegram"))
+                    .infoValue(resumeDto.getTelegram())
+                    .build();
+            contactInfoRepository.save(contactInfo);
         }
 
         if (resumeDto.getFacebook() != null && !resumeDto.getFacebook().isBlank()) {
-            resumeDao.createContactInfo(resumeId, contactTypeDao.getContactTypeId("Facebook"), resumeDto.getFacebook());
+            ContactInfo contactInfo = new ContactInfo().builder()
+                    .resume(resume)
+                    .type(contactTypeRepository.findByType("Facebook"))
+                    .infoValue(resumeDto.getFacebook())
+                    .build();
+            contactInfoRepository.save(contactInfo);
         }
+    }
 
+    private void saveEducationInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
         if (resumeDto.getEducationInfoList() != null) {
             resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
-                if (educationInfoDto.getStartDate().isAfter(educationInfoDto.getEndDate())) {
-                    log.warn("Invalid education dates: startDate={} > endDate={}", educationInfoDto.getStartDate(), educationInfoDto.getEndDate());
-                    throw new BadRequestException("Start date cannot be after end date");
-                }
                 EducationInfo educationInfo = new EducationInfo();
-                educationInfo.setResumeId(resumeId);
+                educationInfo.setResume(resume);
                 educationInfo.setInstitution(educationInfoDto.getInstitution());
                 educationInfo.setProgram(educationInfoDto.getProgram());
                 educationInfo.setStartDate(educationInfoDto.getStartDate());
                 educationInfo.setEndDate(educationInfoDto.getEndDate());
                 educationInfo.setDegree(educationInfoDto.getDegree());
-                educationInfoDao.createEducationInfo(educationInfo);
+                educationInfoRepository.save(educationInfo);
             });
         }
+    }
 
+    private void saveWorkExperienceInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
         if (resumeDto.getWorkExperienceInfoList() != null) {
             resumeDto.getWorkExperienceInfoList().forEach(workExperienceInfoDto -> {
                 WorkExperienceInfo workExperienceInfo = new WorkExperienceInfo();
-                workExperienceInfo.setResumeId(resumeId);
-                workExperienceInfo.setYears(workExperienceInfoDto.getYears());
+                workExperienceInfo.setResume(resume);
                 workExperienceInfo.setCompanyName(workExperienceInfoDto.getCompanyName());
                 workExperienceInfo.setPosition(workExperienceInfoDto.getPosition());
+                workExperienceInfo.setYears(workExperienceInfoDto.getYears());
                 workExperienceInfo.setResponsibilities(workExperienceInfoDto.getResponsibilities());
-                workExperienceInfoDao.createWorkExperienceInfo(workExperienceInfo);
+                workExperienceInfoRepository.save(workExperienceInfo);
             });
         }
-
-        log.debug("Resume details saved for resumeId={}", resumeId);
-    }
-
-    @Override
-    public Map<Integer, String> getCategories() {
-        List<Category> categoryList = categoryDao.getAllCategories();
-        Map<Integer, String> categoryMap = categoryList.stream()
-                .collect(Collectors.toMap(Category::getId, Category::getName));
-        return categoryMap;
     }
 
     private ResumeDto convertToDto(Resume resume) {
-        List<ContactInfo> contactInfos = contactInfoDao.findContactInfoByResumeId(resume.getId());
+        List<ContactInfo> contactInfos = contactInfoRepository.findByResumeId(resume.getId());
 
-        String email = getValueByTypeKey(contactInfos, "email");
+        String email = getValueByTypeKey(contactInfos, "Email");
         String phone = getValueByTypeKey(contactInfos, "Телефон");
-        String linkedIn = getValueByTypeKey(contactInfos, "linkedin");
-        String telegram = getValueByTypeKey(contactInfos, "telegram");
-        String facebook = getValueByTypeKey(contactInfos, "facebook");
+        String linkedIn = getValueByTypeKey(contactInfos, "LinkedIn");
+        String telegram = getValueByTypeKey(contactInfos, "Telegram");
+        String facebook = getValueByTypeKey(contactInfos, "Facebook");
 
         return ResumeDto.builder()
                 .id(resume.getId())
                 .name(resume.getName())
-                .categoryId(resume.getCategoryId())
+                .categoryId(resume.getCategory().getId())
                 .salary(resume.getSalary())
                 .isActive(resume.getIsActive())
-                .update_time(resume.getUpdate_time())
-                .created_date(resume.getCreated_date())
+                .update_time(resume.getUpdateTime())
+                .created_date(resume.getCreatedDate())
                 .contactEmail(email)
                 .phoneNumber(phone)
                 .linkedIn(linkedIn)
                 .telegram(telegram)
                 .facebook(facebook)
-                .educationInfoList(educationInfoDao.findEducationInfoByResumeId(resume.getId()).stream()
+                .educationInfoList(educationInfoRepository.findByResumeId(resume.getId()).stream()
                         .map(ei -> EducationInfoDto.builder()
                                 .institution(ei.getInstitution())
                                 .program(ei.getProgram())
@@ -260,7 +257,7 @@ public class ResumeServiceImpl implements ResumeService {
                                 .degree(ei.getDegree())
                                 .build())
                         .collect(Collectors.toList()))
-                .workExperienceInfoList(workExperienceInfoDao.findWorkExperienceInfoByResumeId(resume.getId()).stream()
+                .workExperienceInfoList(workExperienceInfoRepository.findByResumeId(resume.getId()).stream()
                         .map(wei -> WorkExperienceInfoDto.builder()
                                 .companyName(wei.getCompanyName())
                                 .position(wei.getPosition())
@@ -273,11 +270,8 @@ public class ResumeServiceImpl implements ResumeService {
 
     private String getValueByTypeKey(List<ContactInfo> contactInfos, String typeKey) {
         return contactInfos.stream()
-                .filter(ci -> {
-                    Integer typeId = contactTypeDao.getContactTypeId(typeKey);
-                    return typeId != null && ci.getTypeId().equals(typeId);
-                })
-                .map(ContactInfo::getValue)
+                .filter(ci -> ci.getType().getType().equals(typeKey))
+                .map(ContactInfo::getInfoValue)
                 .findFirst()
                 .orElse(null);
     }

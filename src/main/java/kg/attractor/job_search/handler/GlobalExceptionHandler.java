@@ -33,23 +33,37 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DatabaseOperationException.class)
-    public ResponseEntity<String> handleDatabaseOperationException(DatabaseOperationException ex) {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(ex.getMessage());
+    public String handleDatabaseOperationException(Model model, HttpServletRequest request, DatabaseOperationException e) {
+        model.addAttribute("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+        model.addAttribute("reason", HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseBody> validationHandler(MethodArgumentNotValidException ex) {
-        return new ResponseEntity<>(errorService.makeResponse(ex.getBindingResult()), HttpStatus.BAD_REQUEST);
+    public String validationHandler(Model model, HttpServletRequest request, MethodArgumentNotValidException e) {
+        model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
+        model.addAttribute("reason", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";
     }
 
     @ExceptionHandler(RecordAlreadyExistsException.class)
-    public ResponseEntity<String> handleRecordAlreadyExistsException(RecordAlreadyExistsException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
-    }
+    public String handleRecordAlreadyExistsException(Model model, HttpServletRequest request, RecordAlreadyExistsException e) {
+        model.addAttribute("status", HttpStatus.CONFLICT.value());
+        model.addAttribute("reason", HttpStatus.CONFLICT.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";    }
 
     @ExceptionHandler(BadRequestException.class)
-    public ResponseEntity<String> handleBadRequestException(BadRequestException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
-    }
+    public String handleBadRequestException(Model model, HttpServletRequest request, BadRequestException e) {
+        model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
+        model.addAttribute("reason", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";    }
 
 }

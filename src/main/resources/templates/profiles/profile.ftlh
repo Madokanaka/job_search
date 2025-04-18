@@ -1,4 +1,4 @@
-<#import "layout.ftlh" as main>
+<#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="profile-info text-center">
         <h1 class="mb-5">
@@ -48,22 +48,27 @@
         <div class="col-md-5 row d-flex justify-content-between">
             <#if user.accountType == "applicant">
                 <div class="col-md-6">
-                    <a href="/resumes/create" class="btn btn-outline-primary h-100 w-100 mb-2">
+                    <a href="/resumes/create" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
                         <span class="me-2">+</span> Создать резюме
-                    </a>
-                </div>
-            </#if>
-
-            <#if user.accountType == "employer">
-                <div class="col-md-6">
-                    <a href="/vacancies/create" class="btn btn-outline-primary h-100 w-100 mb-2">
-                        <span class="me-2">+</span> Создать вакансию
                     </a>
                 </div>
                 <div class="col-md-6">
                     <button class="btn btn-outline-primary h-100 w-100 mb-2">
                         <span class="me-2"></span> Отклики
                     </button>
+                </div>
+            </#if>
+
+            <#if user.accountType == "employer">
+                <div class="col-md-6">
+                    <a href="/vacancies/create" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
+                        <span class="me-2">+</span> Создать вакансию
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="/resumes" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
+                        <span class="me-2">+</span> Список резюме
+                    </a>
                 </div>
             </#if>
         </div>
@@ -78,7 +83,7 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
-                                <p class="text-muted">Дата обновления: ${vacancy.updatedDate!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата обновления: ${vacancy.updateTime.toLocalDate()}</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">
@@ -91,7 +96,6 @@
                 <div class="alert alert-info">Нет созданных вакансий</div>
             </#if>
         </div>
-        <a class="btn btn-success m-2" href="/resumes">Список резюме</a>
     </#if>
 
     <#if user.accountType == "applicant" || user.accountType == "admin">
@@ -103,7 +107,7 @@
                         <div class="card vacancy-card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.update_time!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
                             </div>
                         </div>
                         <div class="d-flex justify-content-between">

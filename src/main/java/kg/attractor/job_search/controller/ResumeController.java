@@ -3,9 +3,7 @@ package kg.attractor.job_search.controller;
 import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
-import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
-import kg.attractor.job_search.model.Resume;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("/resumes")
@@ -40,13 +37,11 @@ public class ResumeController {
 
     @GetMapping("/create")
     public String createResume(Model model) {
-        Map<Integer, String> categories = resumeService.getCategories();
         ResumeDto resumeDto = ResumeDto.builder()
                 .categoryId(1)
                 .workExperienceInfoList(List.of(new WorkExperienceInfoDto()))
                 .educationInfoList(List.of(new EducationInfoDto()))
                 .build();
-        System.out.println(resumeDto.getEducationInfoList().get(0));
 
         resumeDto.setCategoryId(1);
         model.addAttribute("categories", resumeService.getCategories());
@@ -63,13 +58,13 @@ public class ResumeController {
             model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
     }
 
     @GetMapping("{resumeId}/edit")
     public String getEditPage(@PathVariable Integer resumeId, Model model) {
-        Map<Integer, String> categories = resumeService.getCategories();
         ResumeDto resumeDto = resumeService.getResumeById(resumeId);
 
         resumeDto.setCategoryId(1);
@@ -83,13 +78,14 @@ public class ResumeController {
     public String editResume(@Valid @ModelAttribute ResumeDto resumeDto, BindingResult bindingResult,
                                @PathVariable Integer resumeId,
                                @AuthenticationPrincipal User principal, Model model) {
+        resumeDto.setId(resumeId);
         if (!bindingResult.hasErrors()) {
             resumeService.editResume(resumeId, resumeDto);
-            model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
 
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
+
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/edit";
     }

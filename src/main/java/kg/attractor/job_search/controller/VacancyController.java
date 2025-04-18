@@ -31,8 +31,13 @@ public class VacancyController {
     private final ResumeService resumeService;
 
     @GetMapping
-    public String getAllVacancies(Model model) {
+    public String getAllVacancies(@AuthenticationPrincipal User principal, Model model) {
         List<VacancyDto> vacancies = vacancyService.getAllVacancies();
+        if (principal != null) {
+            userService.findUserByEmail(principal.getUsername()).ifPresent(user -> {
+                model.addAttribute("accountType", user.getAccountType());
+            });
+        }
         model.addAttribute("vacancies", vacancies);
         return "vacancies/vacancies";
     }
@@ -53,10 +58,10 @@ public class VacancyController {
                                 @AuthenticationPrincipal User principal, Model model) {
         if (!bindingResult.hasErrors()) {
             vacancyService.createVacancy(vacancyDto, userService.findUserByEmail(principal.getUsername()).get().getId());
-            model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
+
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/create";
     }
@@ -74,12 +79,14 @@ public class VacancyController {
     @PutMapping("{vacancyId}/edit")
     public String editVacancy(@Valid @ModelAttribute VacancyDto vacancyDto, BindingResult bindingResult,
                               @PathVariable Integer vacancyId, @AuthenticationPrincipal User principal, Model model) {
+        vacancyDto.setId(vacancyId);
         if (!bindingResult.hasErrors()) {
             vacancyService.editVacancy(vacancyId, vacancyDto);
             model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
+
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/edit";
     }

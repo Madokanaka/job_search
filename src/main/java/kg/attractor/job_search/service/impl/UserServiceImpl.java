@@ -1,19 +1,18 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.dao.UserDao;
+import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.User;
-import kg.attractor.job_search.dto.UserDto;
+import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -24,24 +23,101 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-    private final UserDao userDao;
+    private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
     public void registerUser(UserDto userDto) {
-        log.info("Attempting to register user with email: {}", userDto.getEmail());
+        log.info("Registering user: {}", userDto.getEmail());
 
-        if (userDao.existsByEmail(userDto.getEmail())) {
-            log.warn("Registration failed: email {} already exists", userDto.getEmail());
+        if (userRepository.existsByEmail(userDto.getEmail())) {
             throw new RecordAlreadyExistsException("User with this email already exists");
         }
 
-        if (!("employer".equals(userDto.getAccountType()) || "applicant".equals(userDto.getAccountType()))) {
-            log.error("Invalid account type: {}", userDto.getAccountType());
-            throw new BadRequestException("User role should be either employer or applicant");
+        validateAccountType(userDto.getAccountType());
+
+        User user = User.builder()
+                .name(userDto.getName())
+                .surname(userDto.getSurname())
+                .age(userDto.getAge())
+                .email(userDto.getEmail())
+                .phoneNumber(userDto.getPhoneNumber())
+                .avatar(userDto.getAvatar())
+                .accountType(userDto.getAccountType().toLowerCase())
+                .password(passwordEncoder.encode(userDto.getPassword()))
+                .build();
+
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
+            log.error("Error saving user", e);
+            throw new DatabaseOperationException("Error creating user");
         }
 
-        User user = new User();
+        log.info("User registered: {}", user.getEmail());
+    }
+
+    @Override
+    public Optional<UserDto> findUserByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("User with this email does not exist");
+                });
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public List<UserDto> findAllUsers() {
+        return userRepository.findAll().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<UserDto> getApplicantById(Integer userId) {
+        return userRepository.findById(userId)
+                .filter(u -> "APPLICANT".equalsIgnoreCase(u.getAccountType()))
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("Could not find applicant with id " + userId);
+                });
+    }
+
+    @Override
+    public Optional<UserDto> getEmployeeById(Integer userId) {
+        return userRepository.findById(userId)
+                .filter(u -> "EMPLOYER".equalsIgnoreCase(u.getAccountType()))
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("Could not find employee with id " + userId);
+                });
+    }
+
+    @Override
+    public Optional<UserDto> getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                });
+    }
+
+    @Override
+    public void editUserProfile(Integer userId, UserDto userDto) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (!user.getEmail().equals(userDto.getEmail()) && userRepository.existsByEmail(userDto.getEmail())) {
+            throw new BadRequestException("User with this email already exists");
+        }
+
+        validateAccountType(userDto.getAccountType());
+
         user.setName(userDto.getName());
         user.setSurname(userDto.getSurname());
         user.setAge(userDto.getAge());
@@ -49,121 +125,59 @@ public class UserServiceImpl implements UserService {
         user.setPhoneNumber(userDto.getPhoneNumber());
         user.setAvatar(userDto.getAvatar());
         user.setAccountType(userDto.getAccountType().toLowerCase());
-        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        int rowsAffected = userDao.createUser(user);
-        if (rowsAffected == 0) {
-            log.error("User creation failed for email: {}", userDto.getEmail());
-            throw new DatabaseOperationException("Error creating user");
-        }
-
-        log.info("User registered successfully: {}", userDto.getEmail());
-    }
-
-    @Override
-    public Optional<UserDto> findUserByEmail(String email) {
-        log.debug("Finding user by email: {}", email);
-        User user = userDao.findByEmail(email);
-        if (user == null) {
-            log.warn("User with email {} not found", email);
-            throw new UserNotFoundException("User with this email does not exist");
-        }
-        return Optional.of(convertToDto(user));
-    }
-
-    @Override
-    public boolean existsByEmail(String email) {
-        log.debug("Checking if email exists: {}", email);
-        return userDao.existsByEmail(email);
-    }
-
-    @Override
-    public List<UserDto> findAllUsers() {
-        log.info("Fetching all users");
-        return userDao.findAll().stream()
-                .map(this::convertToDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Optional<UserDto> getApplicantById(Integer userId) {
-        log.debug("Fetching applicant with ID: {}", userId);
-        User user = userDao.findById(userId);
-        if (user == null || !"APPLICANT".equalsIgnoreCase(user.getAccountType())) {
-            log.warn("Applicant not found or invalid type for ID: {}", userId);
-            throw new UserNotFoundException("Could not find applicant with id " + userId);
-        }
-        return Optional.of(convertToDto(user));
-    }
-
-    @Override
-    public Optional<UserDto> getEmployeeById(Integer userId) {
-        log.debug("Fetching employee with ID: {}", userId);
-        User user = userDao.findById(userId);
-        if (user == null || !"EMPLOYER".equalsIgnoreCase(user.getAccountType())) {
-            log.warn("Employer not found or invalid type for ID: {}", userId);
-            throw new UserNotFoundException("Could not find employee with id " + userId);
-        }
-        return Optional.of(convertToDto(user));
-    }
-
-    @Override
-    public Optional<UserDto> getUserById(Integer userId) {
-        log.debug("Fetching user with ID: {}", userId);
-        User user = userDao.findById(userId);
-        if (user == null) {
-            log.warn("User not found for ID: {}", userId);
-            throw new UserNotFoundException("Could not find user with id " + userId);
-        }
-        return Optional.of(convertToDto(user));
-    }
-
-    @Override
-    public void editUserProfile(Integer userId, UserDto userDto) {
-        log.info("Editing profile for user ID: {}", userId);
-        User existingUser = userDao.findById(userId);
-        if (existingUser == null) {
-            log.warn("Edit failed: user not found with ID: {}", userId);
-            throw new UserNotFoundException("User not found");
-        }
-
-        if (!existingUser.getEmail().equals(userDto.getEmail()) && userDao.existsByEmail(userDto.getEmail())) {
-            log.warn("Edit failed: new email {} already taken", userDto.getEmail());
-            throw new BadRequestException("User with this email already exists");
-        }
-
-        if (!("employer".equals(userDto.getAccountType()) || "applicant".equals(userDto.getAccountType()))) {
-            log.error("Invalid account type during edit: {}", userDto.getAccountType());
-            throw new BadRequestException("User should be either employer or applicant");
-        }
-
-        existingUser.setName(userDto.getName());
-        existingUser.setAge(userDto.getAge());
-        existingUser.setSurname(userDto.getSurname());
-        existingUser.setEmail(userDto.getEmail());
-        existingUser.setPhoneNumber(userDto.getPhoneNumber());
-        existingUser.setAvatar(userDto.getAvatar());
-        existingUser.setAccountType(userDto.getAccountType().toLowerCase());
-
-        int rowsAffected = userDao.updateUser(existingUser);
-        if (rowsAffected == 0) {
-            log.error("Failed to update user profile for ID: {}", userId);
+        try {
+            userRepository.save(user);
+        } catch (Exception e) {
             throw new DatabaseOperationException("Error updating user profile");
         }
-
-        log.info("User profile updated successfully for ID: {}", userId);
     }
 
     @Override
     public Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId) {
-        log.info("Fetching applicants for vacancy ID: {}", vacancyId);
-        List<User> applicants = userDao.getApplicantsForVacancy(vacancyId);
-
-        List<UserDto> userDtos = applicants.stream()
+        List<User> applicants = userRepository.findApplicantsByVacancyId(vacancyId);
+        List<UserDto> dtos = applicants.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
-        return userDtos.isEmpty() ? Optional.empty() : Optional.of(userDtos);
+        return dtos.isEmpty() ? Optional.empty() : Optional.of(dtos);
+    }
+
+    @Override
+    public boolean authenticateUser(String email, String password) {
+        if (!userRepository.existsByEmail(email)) {
+            throw new UserNotFoundException("User with this email does not exist");
+        }
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) return false;
+
+        User user = userOpt.get();
+        return passwordEncoder.matches(password, user.getPassword());
+    }
+
+    @Override
+    public UserDto updateUserProfile(String email, UserEditDto userEditDto) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        user.setName(userEditDto.getName());
+        user.setSurname(userEditDto.getSurname());
+        user.setAge(userEditDto.getAge());
+        user.setPhoneNumber(userEditDto.getPhoneNumber());
+
+        userRepository.save(user);
+
+        return convertToDto(user);
+    }
+
+    @Override
+    public UserEditDto fromDtoToUserEditDto(UserDto userDto) {
+        return UserEditDto.builder()
+                .name(userDto.getName())
+                .surname(userDto.getSurname())
+                .age(userDto.getAge())
+                .phoneNumber(userDto.getPhoneNumber())
+                .build();
     }
 
     private UserDto convertToDto(User user) {
@@ -180,50 +194,9 @@ public class UserServiceImpl implements UserService {
                 .build();
     }
 
-    @Override
-    public boolean authenticateUser(String email, String password) {
-        log.debug("Authenticating user with email: {}", email);
-
-        if (!userDao.existsByEmail(email)) {
-            log.warn("User not found for email: {}", email);
-            return false;
+    private void validateAccountType(String type) {
+        if (!("employer".equalsIgnoreCase(type) || "applicant".equalsIgnoreCase(type))) {
+            throw new BadRequestException("User role should be either employer or applicant");
         }
-        User user = userDao.findByEmail(email);
-
-        boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
-        if (!passwordMatches) {
-            log.warn("Incorrect password for email: {}", email);
-            return false;
-        }
-
-        log.info("User authenticated successfully: {}", email);
-        return true;
     }
-
-    @Override
-    public UserDto updateUserProfile(String email, UserEditDto userEditDto) {
-        if (!userDao.existsByEmail(email)) {
-            throw new UserNotFoundException("User not found");
-        }
-        User user = userDao.findByEmail(email);
-        UserDto userDto = convertToDto(user);
-        userDto.setName(userEditDto.getName());
-        userDto.setSurname(userEditDto.getSurname());
-        userDto.setAge(userEditDto.getAge());
-        userDto.setPhoneNumber(userEditDto.getPhoneNumber());
-        editUserProfile(user.getId(), userDto);
-
-        return userDto;
-    }
-
-    @Override
-    public UserEditDto fromDtoToUserEditDto(UserDto userDto) {
-        return UserEditDto.builder()
-                .name(userDto.getName())
-                .surname(userDto.getSurname())
-                .age(userDto.getAge())
-                .phoneNumber(userDto.getPhoneNumber())
-                .build();
-    }
-
 }

@@ -58,10 +58,10 @@ public class VacancyController {
                                 @AuthenticationPrincipal User principal, Model model) {
         if (!bindingResult.hasErrors()) {
             vacancyService.createVacancy(vacancyDto, userService.findUserByEmail(principal.getUsername()).get().getId());
-            model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:profile";
+            return "redirect:/profile";
         }
+        model.addAttribute("categories", resumeService.getCategories());
+
         model.addAttribute("vacancyDto", vacancyDto);
         return "vacancies/create";
     }

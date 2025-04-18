@@ -1,7 +1,5 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.dao.CategoryDao;
-import kg.attractor.job_search.dao.VacancyDao;
 import kg.attractor.job_search.dto.VacancyDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
@@ -9,13 +7,15 @@ import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.exception.VacancyNotFoundException;
 import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.Vacancy;
+import kg.attractor.job_search.repository.CategoryRepository;
+import kg.attractor.job_search.repository.UserRepository;
+import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -26,24 +26,25 @@ import java.util.stream.Collectors;
 @Slf4j
 public class VacancyServiceImpl implements VacancyService {
 
-    private final VacancyDao vacancyDao;
-    private final CategoryDao categoryDao;
+    private final VacancyRepository vacancyRepository;
+    private final CategoryRepository categoryRepository;
+    private final UserRepository userRepository;
 
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
         log.info("Creating vacancy for user with ID {}", userId);
 
-        if (!vacancyDao.existsUserById(userId)) {
+        if (!userRepository.existsById(userId)) {
             log.warn("User with ID {} not found", userId);
             throw new UserNotFoundException("User with id " + userId + " not found");
         }
 
-        if (!vacancyDao.isUserEmployer(userId)) {
+        if (!"employer".equalsIgnoreCase(userRepository.getReferenceById(userId).getAccountType())) {
             log.warn("User with ID {} is not an employer", userId);
             throw new BadRequestException("User with id " + userId + " is not employer");
         }
 
-        if (!vacancyDao.existsCategoryById(vacancyDto.getCategoryId())) {
+        if (!categoryRepository.existsById(vacancyDto.getCategoryId())) {
             log.warn("Category with ID {} not found", vacancyDto.getCategoryId());
             throw new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found");
         }
@@ -53,18 +54,20 @@ public class VacancyServiceImpl implements VacancyService {
             throw new BadRequestException("Exp to should be greater than experience from");
         }
 
-        Vacancy vacancy = new Vacancy().builder()
-                .authorId(userId)
-                .categoryId(vacancyDto.getCategoryId())
+        Vacancy vacancy = Vacancy.builder()
+                .author(userRepository.getReferenceById(userId))
+                .category(categoryRepository.getReferenceById(vacancyDto.getCategoryId()))
                 .isActive(true)
                 .description(vacancyDto.getDescription())
                 .name(vacancyDto.getName())
                 .salary(vacancyDto.getSalary())
                 .expFrom(vacancyDto.getExpFrom())
                 .expTo(vacancyDto.getExpTo())
+                .updateTime(LocalDateTime.now())
+                .createdDate(LocalDateTime.now())
                 .build();
 
-        vacancyDao.createVacancy(vacancy);
+        vacancyRepository.save(vacancy);
         log.info("Vacancy created successfully for user with ID {}", userId);
     }
 
@@ -72,7 +75,7 @@ public class VacancyServiceImpl implements VacancyService {
     public void editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
         log.info("Editing vacancy with ID {}", vacancyId);
 
-        Optional<Vacancy> optionalVacancy = vacancyDao.getVacancyById(vacancyId);
+        Optional<Vacancy> optionalVacancy = vacancyRepository.findById(vacancyId);
 
         if (optionalVacancy.isEmpty()) {
             log.warn("Vacancy with ID {} not found", vacancyId);
@@ -91,22 +94,23 @@ public class VacancyServiceImpl implements VacancyService {
         vacancy.setExpFrom(vacancyDto.getExpFrom());
         vacancy.setExpTo(vacancyDto.getExpTo());
         vacancy.setIsActive(vacancyDto.getIsActive());
+        vacancy.setUpdateTime(LocalDateTime.now());
 
-        vacancyDao.updateVacancy(vacancyId, vacancy);
+        vacancyRepository.save(vacancy);
         log.info("Vacancy with ID {} updated successfully", vacancyId);
     }
 
     @Override
     public void deleteVacancy(Integer vacancyId) {
         log.info("Deleting vacancy with ID {}", vacancyId);
-        vacancyDao.deleteVacancy(vacancyId);
+        vacancyRepository.deleteById(vacancyId);
         log.info("Vacancy with ID {} deleted successfully", vacancyId);
     }
 
     @Override
     public List<VacancyDto> getAllVacancies() {
         log.info("Retrieving all vacancies");
-        List<Vacancy> vacancies = vacancyDao.getAllVacancies();
+        List<Vacancy> vacancies = vacancyRepository.findAll();
 
         if (vacancies.isEmpty()) {
             log.warn("No vacancies found");
@@ -122,10 +126,10 @@ public class VacancyServiceImpl implements VacancyService {
 
     @Override
     public Optional<List<VacancyDto>> getVacanciesByUserId(Integer userId) {
-        log.info("Retrieving all vacancies");
-        List<Vacancy> vacancies = vacancyDao.getVacanciesByUserId(userId);
+        log.info("Retrieving all vacancies for user with ID {}", userId);
+        List<Vacancy> vacancies = vacancyRepository.findByAuthorId(userId);
 
-        log.info("Retrieved {} vacancies", vacancies.size());
+        log.info("Retrieved {} vacancies for user", vacancies.size());
         return Optional.of(vacancies.stream().map(this::convertToDto).collect(Collectors.toList()));
     }
 
@@ -138,12 +142,12 @@ public class VacancyServiceImpl implements VacancyService {
             throw new BadRequestException("Invalid category ID");
         }
 
-        if (!vacancyDao.existsCategoryById(categoryId)) {
+        if (!categoryRepository.existsById(categoryId)) {
             log.warn("Category with ID {} not found", categoryId);
             throw new ResourceNotFoundException("Category not found in database");
         }
 
-        List<VacancyDto> vacancies = vacancyDao.getVacanciesByCategory(categoryId).stream()
+        List<VacancyDto> vacancies = vacancyRepository.findByCategoryId(categoryId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
@@ -165,12 +169,7 @@ public class VacancyServiceImpl implements VacancyService {
             throw new BadRequestException("Invalid user ID");
         }
 
-        if (!vacancyDao.existsUserById(userId)) {
-            log.warn("User with ID {} not found", userId);
-            throw new UserNotFoundException("User not found in database");
-        }
-
-        List<VacancyDto> vacancies = vacancyDao.getVacanciesUserRespondedTo(userId).stream()
+        List<VacancyDto> vacancies = vacancyRepository.findVacanciesUserRespondedTo(userId).stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
 
@@ -187,7 +186,7 @@ public class VacancyServiceImpl implements VacancyService {
             throw new BadRequestException("Invalid vacancy ID: " + vacancyId);
         }
 
-        Optional<Vacancy> vacancy = vacancyDao.getVacancyById(vacancyId);
+        Optional<Vacancy> vacancy = vacancyRepository.findById(vacancyId);
 
         if (vacancy.isEmpty()) {
             log.warn("Vacancy with ID {} not found", vacancyId);
@@ -203,22 +202,14 @@ public class VacancyServiceImpl implements VacancyService {
                 .id(vacancy.getId())
                 .name(vacancy.getName())
                 .description(vacancy.getDescription())
-                .categoryId(vacancy.getCategoryId())
+                .categoryId(vacancy.getCategory().getId())
                 .salary(vacancy.getSalary())
                 .expFrom(vacancy.getExpFrom())
                 .expTo(vacancy.getExpTo())
                 .isActive(vacancy.getIsActive())
                 .createdDate(vacancy.getCreatedDate())
                 .updateTime(vacancy.getUpdateTime())
-                .authorId(vacancy.getAuthorId())
+                .authorId(vacancy.getAuthor().getId())
                 .build();
-    }
-
-    public String getCategoryName(Integer categoryId) {
-        return categoryDao.getCategoryById(categoryId).getName();
-    }
-
-    public List<Category> getCategories() {
-        return categoryDao.getAllCategories();
     }
 }

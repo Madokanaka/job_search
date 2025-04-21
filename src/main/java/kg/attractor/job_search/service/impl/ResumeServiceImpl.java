@@ -8,6 +8,7 @@ import kg.attractor.job_search.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -292,10 +293,19 @@ public class ResumeServiceImpl implements ResumeService {
     @Override
     public Page<ResumeDto> getResumesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {
         int page = parsePageParameter(pageNumber);
-        int size = parseSizeParameter(pageSize, 9);
+        int size = parseSizeParameter(pageSize, 6);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        return resumeRepository.findByApplicantId(userId, pageable)
-                .map(this::convertToDto);
+        Page<Resume> resumePage = resumeRepository.findByApplicantId(userId, pageable);
+        if (resumePage.getTotalPages() > 0 && page >= resumePage.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(resumePage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
+            resumePage = resumeRepository.findByApplicantId(userId, pageable);
+        }
+
+        List<ResumeDto> resumeDtos = resumePage.getContent().stream()
+                .map(this::convertToDto)
+                .toList();
+        return new PageImpl<>(resumeDtos, pageable, resumePage.getTotalElements());
     }
 
 

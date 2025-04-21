@@ -241,14 +241,14 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {
         int page = parsePageParameter(pageNumber);
-        int size = parseSizeParameter(pageSize, 12);
+        int size = parseSizeParameter(pageSize, 6);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
         Page<Vacancy> vacanciesPage = vacancyRepository.findByAuthorId(userId, pageable);
-        if (page >= vacanciesPage.getTotalPages()) {
+        if (vacanciesPage.getTotalPages() > 0 && page >= vacanciesPage.getTotalPages()) {
             log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
             pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
-            vacanciesPage = vacancyRepository.findAll(pageable);
+            vacanciesPage = vacancyRepository.findByAuthorId(userId, pageable);
         }
 
         List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()

@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.ResumeDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Map;
@@ -20,4 +21,8 @@ public interface ResumeService {
     Optional<List<ResumeDto>> getResumesByUserId(Integer userId);
 
     Map<Integer, String> getCategories();
+
+    Page<ResumeDto> getAllResumesPaged(String pageNumber, String pageSize);
+
+    Page<ResumeDto> getResumesByUserIdPaged(Integer userId, String page, String size);
 }

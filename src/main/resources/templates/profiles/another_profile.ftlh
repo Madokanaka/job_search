@@ -16,12 +16,12 @@
     <div class="row mb-5">
         <div class="col-md-7 d-flex align-items-center">
             <div class="position-relative d-inline-block me-4">
-                    <div class="d-inline-block position-relative" style="cursor: pointer;">
-                        <img src="${user.avatar?has_content?then('/api/images/' + user.avatar, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')}"
-                             alt="Фото профиля"
-                             class="border rounded-circle"
-                             style="width: 100px; height: 100px; object-fit: cover;"/>
-                    </div>
+                <div class="d-inline-block position-relative" style="cursor: pointer;">
+                    <img src="${user.avatar?has_content?then('/api/images/' + user.avatar, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')}"
+                         alt="Фото профиля"
+                         class="border rounded-circle"
+                         style="width: 100px; height: 100px; object-fit: cover;"/>
+                </div>
             </div>
 
 
@@ -41,11 +41,35 @@
                         <div class="card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
-                                <p class="text-muted">Дата обновления: ${vacancy.updatedDate!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата
+                                    обновления: ${vacancy.updateTime.toLocalDate()!'дд/мм/гггг'}</p>
                             </div>
                         </div>
                     </div>
                 </#list>
+                <div class="col-12 d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <#if (currentPage > 0)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/profile?page=${currentPage - 1}&size=6">«</a>
+                                </li>
+                            </#if>
+
+                            <#list 0..(totalPages - 1) as i>
+                                <li class="page-item <#if i == currentPage>active</#if>">
+                                    <a class="page-link" href="/profile?page=${i}&size=6">${i + 1}</a>
+                                </li>
+                            </#list>
+
+                            <#if (currentPage?? && (currentPage + 1) < totalPages)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/profile?page=${currentPage + 1}&size=6">»</a>
+                                </li>
+                            </#if>
+                        </ul>
+                    </nav>
+                </div>
             <#else>
                 <div class="alert alert-info">Нет созданных вакансий</div>
             </#if>
@@ -61,7 +85,8 @@
                         <div class="card vacancy-card h-100">
                             <div class="card-body">
                                 <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.update_time!'дд/мм/гггг'}</p>
+                                <p class="text-muted">Дата
+                                    обновления: ${resume.update_time.toLocalDate()!'дд/мм/гггг'}</p>
                             </div>
                         </div>
                     </div>

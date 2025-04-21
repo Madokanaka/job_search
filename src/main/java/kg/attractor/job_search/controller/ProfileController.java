@@ -75,75 +75,75 @@ public class ProfileController {
                                         @PathVariable String profileId) {
         Optional<UserDto> userDto = userService.getUserById(profileId);
         model.addAttribute("user", userDto.get());
-        if (principal != null && profileId.equals(userService.findUserByEmail(principal.getUsername()).get().getId())) {
-            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.get().getId(), page, size);
-                model.addAttribute("vacancies", vacanciesPage.getContent());
-                model.addAttribute("totalPages", vacanciesPage.getTotalPages());
-                model.addAttribute("currentPage", vacanciesPage.getNumber());
-                model.addAttribute("view", "vacancies");
-            }
-            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userDto.get().getId());
-                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
-                model.addAttribute("view", "resume");
-            }
-            model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
-            return "profiles/profile";
-        }
-
-        return "profiles/another_profile";
-    }
-
-    @PutMapping("")
-    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute @Valid UserEditDto userEditDto,
-                                    BindingResult bindingResult, Model model) {
-        if (!bindingResult.hasErrors()) {
-            UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
-
-            model.addAttribute("user", user);
+        if (principal != null && Integer.valueOf(profileId).equals(userService.findUserByEmail(principal.getUsername()).get().getId())) {
             return "redirect:/profile";
-
         }
-
-        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
-
-        Optional<UserDto> userDto = userService.getUserById(userId);
-        if (userDto.isPresent()) {
-            model.addAttribute("user", userDto.get());
-            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
-                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
-                model.addAttribute("view", "vacancies");
-            }
-            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
-                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
-                model.addAttribute("view", "resume");
-                model.addAttribute("showEditModal", true);
-
-            }
+        if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.get().getId(), page, size);
+            model.addAttribute("vacancies", vacanciesPage.getContent());
+            model.addAttribute("totalPages", vacanciesPage.getTotalPages());
+            model.addAttribute("currentPage", vacanciesPage.getNumber());
+            model.addAttribute("view", "vacancies");
         }
-        userEditDto.setAge(userDto.get().getAge());
-        model.addAttribute("userEdit", userEditDto);
-        return "profiles/profile";
-    }
-
-    @PostMapping("/avatar")
-    public String updateAvatar(@AuthenticationPrincipal User principal,
-                               @RequestParam("file") MultipartFile file,
-                               Model model) {
-
-        if (!file.isEmpty()) {
-            String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
-
-            imageService.uploadImage(principal, file);
+        if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userDto.get().getId());
+            resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+            model.addAttribute("view", "resume");
         }
+        model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
 
-        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+        return"profiles/another_profile";
+}
 
-        Optional<UserDto> userDto = userService.getUserById(userId);
-        model.addAttribute("user", userDto.get());
+@PutMapping("")
+public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute @Valid UserEditDto userEditDto,
+                                BindingResult bindingResult, Model model) {
+    if (!bindingResult.hasErrors()) {
+        UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
+
+        model.addAttribute("user", user);
         return "redirect:/profile";
+
     }
+
+    Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+
+    Optional<UserDto> userDto = userService.getUserById(userId);
+    if (userDto.isPresent()) {
+        model.addAttribute("user", userDto.get());
+        if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
+            vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+            model.addAttribute("view", "vacancies");
+        }
+        if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+            Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
+            resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+            model.addAttribute("view", "resume");
+            model.addAttribute("showEditModal", true);
+
+        }
+    }
+    userEditDto.setAge(userDto.get().getAge());
+    model.addAttribute("userEdit", userEditDto);
+    return "profiles/profile";
+}
+
+@PostMapping("/avatar")
+public String updateAvatar(@AuthenticationPrincipal User principal,
+                           @RequestParam("file") MultipartFile file,
+                           Model model) {
+
+    if (!file.isEmpty()) {
+        String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
+
+        imageService.uploadImage(principal, file);
+    }
+
+    Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+
+    Optional<UserDto> userDto = userService.getUserById(userId);
+    model.addAttribute("user", userDto.get());
+    return "redirect:/profile";
+}
 }

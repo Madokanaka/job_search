@@ -108,6 +108,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Optional<UserDto> getUserById(String userIdInString) {
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdInString);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("User ID must be a valid number");
+        }
+        return userRepository.findById(userId)
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                });
+    }
+
+    @Override
     public void editUserProfile(Integer userId, UserDto userDto) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));

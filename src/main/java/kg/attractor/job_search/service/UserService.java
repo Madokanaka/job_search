@@ -21,6 +21,8 @@ public interface UserService {
 
     Optional<UserDto> getUserById(Integer userId);
 
+    Optional<UserDto> getUserById(String userId);
+
     void editUserProfile(Integer userId, UserDto userDto);
 
     Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);

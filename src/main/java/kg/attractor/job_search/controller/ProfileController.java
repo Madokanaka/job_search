@@ -10,6 +10,7 @@ import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,15 +39,20 @@ public class ProfileController {
     private final ImageService imageService;
 
     @GetMapping()
-    public String getUserProfile(@AuthenticationPrincipal User principal, Model model) {
+    public String getUserProfile(@AuthenticationPrincipal User principal,
+                                 @RequestParam(defaultValue = "0") String page,
+                                 @RequestParam(defaultValue = "6") String size,
+                                 Model model) {
         Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
 
         Optional<UserDto> userDto = userService.getUserById(userId);
         if (userDto.isPresent()) {
             model.addAttribute("user", userDto.get());
             if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
-                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userId, page, size);
+                model.addAttribute("vacancies", vacanciesPage.getContent());
+                model.addAttribute("totalPages", vacanciesPage.getTotalPages());
+                model.addAttribute("currentPage", vacanciesPage.getNumber());
                 model.addAttribute("view", "vacancies");
             }
             if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
@@ -62,17 +68,23 @@ public class ProfileController {
     }
 
     @GetMapping("{profileId}")
-    public String getAnotherUserProfile(@AuthenticationPrincipal User principal, Model model, @PathVariable Integer profileId) {
+    public String getAnotherUserProfile(@AuthenticationPrincipal User principal,
+                                        @RequestParam(defaultValue = "0") String page,
+                                        @RequestParam(defaultValue = "6") String size,
+                                        Model model,
+                                        @PathVariable String profileId) {
         Optional<UserDto> userDto = userService.getUserById(profileId);
         model.addAttribute("user", userDto.get());
         if (principal != null && profileId.equals(userService.findUserByEmail(principal.getUsername()).get().getId())) {
             if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(profileId);
-                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.get().getId(), page, size);
+                model.addAttribute("vacancies", vacanciesPage.getContent());
+                model.addAttribute("totalPages", vacanciesPage.getTotalPages());
+                model.addAttribute("currentPage", vacanciesPage.getNumber());
                 model.addAttribute("view", "vacancies");
             }
             if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(profileId);
+                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userDto.get().getId());
                 resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
                 model.addAttribute("view", "resume");
             }

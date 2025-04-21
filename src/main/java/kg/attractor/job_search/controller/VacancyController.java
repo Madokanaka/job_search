@@ -17,6 +17,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 import java.util.List;
 import java.util.Map;
@@ -31,16 +36,25 @@ public class VacancyController {
     private final ResumeService resumeService;
 
     @GetMapping
-    public String getAllVacancies(@AuthenticationPrincipal User principal, Model model) {
-        List<VacancyDto> vacancies = vacancyService.getAllVacancies();
+    public String getAllVacancies(@AuthenticationPrincipal User principal,
+                                  Model model,
+                                  @RequestParam(defaultValue = "0") int page,
+                                  @RequestParam(defaultValue = "6") int size) {
+
+        Page<VacancyDto> vacancyPage = vacancyService.getAllVacanciesPaged(page, size);
+
         if (principal != null) {
-            userService.findUserByEmail(principal.getUsername()).ifPresent(user -> {
-                model.addAttribute("accountType", user.getAccountType());
-            });
+            userService.findUserByEmail(principal.getUsername())
+                    .ifPresent(user -> model.addAttribute("accountType", user.getAccountType()));
         }
-        model.addAttribute("vacancies", vacancies);
+
+        model.addAttribute("vacancies", vacancyPage.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", vacancyPage.getTotalPages());
+
         return "vacancies/vacancies";
     }
+
 
     @GetMapping("/create")
     public String createVacancy(Model model) {

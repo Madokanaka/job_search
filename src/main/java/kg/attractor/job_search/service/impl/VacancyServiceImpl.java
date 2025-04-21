@@ -220,7 +220,7 @@ public class VacancyServiceImpl implements VacancyService {
     @Override
     public Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize) {
         int page = parsePageParameter(pageNumber);
-        int size = parseSizeParameter(pageSize);
+        int size = parseSizeParameter(pageSize, 6);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
         Page<Vacancy> vacanciesPage = vacancyRepository.findAll(pageable);
@@ -238,12 +238,26 @@ public class VacancyServiceImpl implements VacancyService {
         return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
     }
 
-
     @Override
-    public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable) {
-        return vacancyRepository.findByAuthorId(userId, pageable)
-                .map(this::convertToDto);
+    public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 12);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
+        Page<Vacancy> vacanciesPage = vacancyRepository.findByAuthorId(userId, pageable);
+        if (page >= vacanciesPage.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
+            vacanciesPage = vacancyRepository.findAll(pageable);
+        }
+
+        List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
     }
+
 
     private int parsePageParameter(String page) {
         try {
@@ -259,17 +273,17 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
-    private int parseSizeParameter(String size) {
+    private int parseSizeParameter(String size, int defaultValue) {
         try {
             int pageSize = Integer.parseInt(size);
             if (pageSize <= 0 || pageSize > 100) {
                 log.warn("Invalid size parameter: {}. Setting to default 6", size);
-                return 6;
+                return defaultValue;
             }
             return pageSize;
         } catch (NumberFormatException e) {
             log.warn("Invalid size parameter: {}. Setting to default 6", size);
-            return 6;
+            return defaultValue;
         }
     }
 

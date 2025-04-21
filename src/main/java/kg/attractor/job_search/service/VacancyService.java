@@ -19,6 +19,9 @@ public interface VacancyService {
 
     Optional<List<VacancyDto>> getVacanciesByUserId(Integer userId);
 
+
+    Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize);
+
     Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId);
 
     Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
@@ -27,5 +30,4 @@ public interface VacancyService {
 
     Page<VacancyDto> getAllVacanciesPaged(String page, String size);
 
-    Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable);
 }

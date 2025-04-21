@@ -35,7 +35,6 @@
                 </form>
             </div>
 
-
             <div class="ms-4">
                 <h3 class="mb-2">${user.getName()} ${user.getSurname()}</h3>
                 <p class="text-muted mb-2">Возраст: ${user.getAge()}</p>
@@ -92,6 +91,31 @@
                         </div>
                     </div>
                 </#list>
+
+                <div class="col-12 d-flex justify-content-center mt-4">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <#if (currentPage > 0)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/profile?page=${currentPage - 1}&size=6">«</a>
+                                </li>
+                            </#if>
+
+                            <#list 0..(totalPages - 1) as i>
+                                <li class="page-item <#if i == currentPage>active</#if>">
+                                    <a class="page-link" href="/profile?page=${i}&size=6">${i + 1}</a>
+                                </li>
+                            </#list>
+
+                            <#if (currentPage?? && (currentPage + 1) < totalPages)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/profile?page=${currentPage + 1}&size=6">»</a>
+                                </li>
+                            </#if>
+                        </ul>
+                    </nav>
+                </div>
+
             <#else>
                 <div class="alert alert-info">Нет созданных вакансий</div>
             </#if>
@@ -152,7 +176,6 @@
                             <@spring.formInput "userEdit.phoneNumber" 'id="form3Example5cg" class="form-control" value="${userEdit.phoneNumber}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -162,6 +185,7 @@
             </div>
         </div>
     </div>
+
     <#if showEditModal?? && showEditModal>
         <script>
             const editModal = new bootstrap.Modal(document.getElementById('editModal'));
@@ -169,4 +193,3 @@
         </script>
     </#if>
 </@main.layout>
-

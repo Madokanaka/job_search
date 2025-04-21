@@ -7,6 +7,7 @@ import kg.attractor.job_search.dto.WorkExperienceInfoDto;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
@@ -29,11 +31,18 @@ public class ResumeController {
     private final ResumeService resumeService;
     private final UserService userService;
     @GetMapping
-    public String getAllResumes(Model model) {
-        List<ResumeDto> resumes = resumeService.getAllResumes();
-        model.addAttribute("resumes", resumes);
+    public String getAllResumes(@RequestParam(defaultValue = "0") String page,
+                                @RequestParam(defaultValue = "6") String size,
+                                Model model) {
+
+        Page<ResumeDto> resumePage = resumeService.getAllResumesPaged(page, size);
+        model.addAttribute("resumes", resumePage.getContent());
+        model.addAttribute("currentPage", resumePage.getNumber()    );
+        model.addAttribute("totalPages", resumePage.getTotalPages());
+
         return "resumes/resumes";
     }
+
 
     @GetMapping("/create")
     public String createResume(Model model) {

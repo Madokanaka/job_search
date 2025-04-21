@@ -1,6 +1,8 @@
 package kg.attractor.job_search.repository;
 
 import kg.attractor.job_search.model.Vacancy;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,5 +24,11 @@ public interface VacancyRepository extends JpaRepository<Vacancy, Integer> {
     WHERE r.applicant.id = :userId AND v.isActive = true
 """)
     List<Vacancy> findVacanciesUserRespondedTo(@Param("userId") Integer userId);
+
+    Page<Vacancy> findAll(Pageable pageable);
+
+    Page<Vacancy> findByAuthorId(Integer authorId, Pageable pageable);
+
+    Page<Vacancy> findByCategoryId(Integer categoryId, Pageable pageable);
 
 }

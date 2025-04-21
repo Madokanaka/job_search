@@ -86,6 +86,31 @@
 
                     </#if>
                 </#list>
+                <div class="d-flex justify-content-center mt-4">
+                    <nav aria-label="Pagination">
+                        <ul class="pagination">
+                            <#if (currentPage > 0)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/vacancies?page=${currentPage - 1}&size=6">«</a>
+                                </li>
+                            </#if>
+
+                            <#list 0..(totalPages - 1) as i>
+                                <li class="page-item <#if i == currentPage>active</#if>">
+                                    <a class="page-link" href="/vacancies?page=${i}&size=6">${i + 1}</a>
+                                </li>
+                            </#list>
+
+                            <#if (currentPage?? && (currentPage + 1) < totalPages)>
+                                <li class="page-item">
+                                    <a class="page-link" href="/vacancies?page=${currentPage + 1}&size=6">»</a>
+                                </li>
+                            </#if>
+                        </ul>
+                    </nav>
+                </div>
+
+
             </div>
         <#else>
             <div class="alert alert-info" role="alert">

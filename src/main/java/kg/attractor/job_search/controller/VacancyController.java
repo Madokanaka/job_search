@@ -49,7 +49,7 @@ public class VacancyController {
         }
 
         model.addAttribute("vacancies", vacancyPage.getContent());
-        model.addAttribute("currentPage", page);
+        model.addAttribute("currentPage", vacancyPage.getNumber());
         model.addAttribute("totalPages", vacancyPage.getTotalPages());
 
         return "vacancies/vacancies";

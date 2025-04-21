@@ -51,13 +51,15 @@ public class ProfileController {
             if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
                 Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userId, page, size);
                 model.addAttribute("vacancies", vacanciesPage.getContent());
-                model.addAttribute("totalPages", vacanciesPage.getTotalPages());
-                model.addAttribute("currentPage", vacanciesPage.getNumber());
+                model.addAttribute("vacancyTotalPages", vacanciesPage.getTotalPages());
+                model.addAttribute("vacancyCurrentPage", vacanciesPage.getNumber());
                 model.addAttribute("view", "vacancies");
             }
             if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
-                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+                Page<ResumeDto> resumePage = resumeService.getResumesByUserIdPaged(userDto.get().getId(), page, size);
+                model.addAttribute("resumes", resumePage.getContent());
+                model.addAttribute("resumeTotalPages", resumePage.getTotalPages());
+                model.addAttribute("resumeCurrentPage", resumePage.getNumber());
                 model.addAttribute("view", "resume");
             }
             model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
@@ -81,13 +83,15 @@ public class ProfileController {
         if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
             Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.get().getId(), page, size);
             model.addAttribute("vacancies", vacanciesPage.getContent());
-            model.addAttribute("totalPages", vacanciesPage.getTotalPages());
-            model.addAttribute("currentPage", vacanciesPage.getNumber());
+            model.addAttribute("vacancyTotalPages", vacanciesPage.getTotalPages());
+            model.addAttribute("vacancyCurrentPage", vacanciesPage.getNumber());
             model.addAttribute("view", "vacancies");
         }
         if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-            Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userDto.get().getId());
-            resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+            Page<ResumeDto> resumePage = resumeService.getResumesByUserIdPaged(userDto.get().getId(), page, size);
+            model.addAttribute("resumes", resumePage.getContent());
+            model.addAttribute("resumeTotalPages", resumePage.getTotalPages());
+            model.addAttribute("resumeCurrentPage", resumePage.getNumber());
             model.addAttribute("view", "resume");
         }
         model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));

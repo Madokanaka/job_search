@@ -5,7 +5,6 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.exception.VacancyNotFoundException;
-import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.repository.CategoryRepository;
 import kg.attractor.job_search.repository.UserRepository;
@@ -13,6 +12,11 @@ import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -212,4 +216,41 @@ public class VacancyServiceImpl implements VacancyService {
                 .authorId(vacancy.getAuthor().getId())
                 .build();
     }
+
+    @Override
+    public Page<VacancyDto> getAllVacanciesPaged(int page, int size) {
+        if (page < 0) {
+            log.warn("Page index меньше 0, устанавливаем в 0");
+            page = 0;
+        }
+
+        if (size <= 0 || size > 100) {
+            log.warn("Page size недопустим: {}. Устанавливаем значение по умолчанию: 6", size);
+            size = 6;
+        }
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
+        Page<Vacancy> vacanciesPage = vacancyRepository.findAll(pageable);
+
+        if (page >= vacanciesPage.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
+            vacanciesPage = vacancyRepository.findAll(pageable);
+        }
+
+        List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
+    }
+
+
+    @Override
+    public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable) {
+        return vacancyRepository.findByAuthorId(userId, pageable)
+                .map(this::convertToDto);
+    }
+
+
 }

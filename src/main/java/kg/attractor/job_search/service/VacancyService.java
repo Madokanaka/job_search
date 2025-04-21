@@ -1,6 +1,8 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.VacancyDto;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,4 +24,8 @@ public interface VacancyService {
     Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
 
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
+
+    Page<VacancyDto> getAllVacanciesPaged(int page, int size);
+
+    Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable);
 }

@@ -218,16 +218,9 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public Page<VacancyDto> getAllVacanciesPaged(int page, int size) {
-        if (page < 0) {
-            log.warn("Page index меньше 0, устанавливаем в 0");
-            page = 0;
-        }
-
-        if (size <= 0 || size > 100) {
-            log.warn("Page size недопустим: {}. Устанавливаем значение по умолчанию: 6", size);
-            size = 6;
-        }
+    public Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize);
 
         Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
         Page<Vacancy> vacanciesPage = vacancyRepository.findAll(pageable);
@@ -250,6 +243,34 @@ public class VacancyServiceImpl implements VacancyService {
     public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable) {
         return vacancyRepository.findByAuthorId(userId, pageable)
                 .map(this::convertToDto);
+    }
+
+    private int parsePageParameter(String page) {
+        try {
+            int pageNumber = Integer.parseInt(page);
+            if (pageNumber < 0) {
+                log.warn("Page index less than 0, setting to 0");
+                return 0;
+            }
+            return pageNumber;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter: {}. Setting to default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParameter(String size) {
+        try {
+            int pageSize = Integer.parseInt(size);
+            if (pageSize <= 0 || pageSize > 100) {
+                log.warn("Invalid size parameter: {}. Setting to default 6", size);
+                return 6;
+            }
+            return pageSize;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter: {}. Setting to default 6", size);
+            return 6;
+        }
     }
 
 

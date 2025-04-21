@@ -25,7 +25,7 @@ public interface VacancyService {
 
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
 
-    Page<VacancyDto> getAllVacanciesPaged(int page, int size);
+    Page<VacancyDto> getAllVacanciesPaged(String page, String size);
 
     Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, Pageable pageable);
 }

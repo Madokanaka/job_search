@@ -38,8 +38,8 @@ public class VacancyController {
     @GetMapping
     public String getAllVacancies(@AuthenticationPrincipal User principal,
                                   Model model,
-                                  @RequestParam(defaultValue = "0") int page,
-                                  @RequestParam(defaultValue = "6") int size) {
+                                  @RequestParam(defaultValue = "0") String page,
+                                  @RequestParam(defaultValue = "6") String size) {
 
         Page<VacancyDto> vacancyPage = vacancyService.getAllVacanciesPaged(page, size);
 

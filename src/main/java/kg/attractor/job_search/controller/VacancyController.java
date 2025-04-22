@@ -39,9 +39,10 @@ public class VacancyController {
     public String getAllVacancies(@AuthenticationPrincipal User principal,
                                   Model model,
                                   @RequestParam(defaultValue = "0") String page,
-                                  @RequestParam(defaultValue = "6") String size) {
+                                  @RequestParam(defaultValue = "6") String size,
+                                  @RequestParam(defaultValue = "date") String sort) {
 
-        Page<VacancyDto> vacancyPage = vacancyService.getAllVacanciesPaged(page, size);
+        Page<VacancyDto> vacancyPage = vacancyService.getAllVacanciesPaged(page, size, sort);
 
         if (principal != null) {
             userService.findUserByEmail(principal.getUsername())
@@ -54,6 +55,8 @@ public class VacancyController {
         model.addAttribute("vacancies", vacancyPage.getContent());
         model.addAttribute("currentPage", vacancyPage.getNumber());
         model.addAttribute("totalPages", vacancyPage.getTotalPages());
+        model.addAttribute("sort", sort);
+
 
         return "vacancies/vacancies";
     }

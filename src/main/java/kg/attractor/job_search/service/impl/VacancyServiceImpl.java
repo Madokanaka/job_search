@@ -218,17 +218,26 @@ public class VacancyServiceImpl implements VacancyService {
     }
 
     @Override
-    public Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize) {
+    public Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize, String sortType) {
         int page = parsePageParameter(pageNumber);
         int size = parseSizeParameter(pageSize, 6);
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
-        Page<Vacancy> vacanciesPage = vacancyRepository.findAll(pageable);
+        Sort sort = Sort.by("updateTime").descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Vacancy> vacanciesPage;
+
+        if ("responses".equals(sortType)) {
+            vacanciesPage = vacancyRepository.findAllOrderByResponseCount(pageable);
+        } else {
+            vacanciesPage = vacancyRepository.findAll(pageable);
+        }
 
         if (page >= vacanciesPage.getTotalPages()) {
-            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
-            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
-            vacanciesPage = vacancyRepository.findAll(pageable);
+            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, sort);
+            vacanciesPage = "responses".equals(sortType) ?
+                    vacancyRepository.findAllOrderByResponseCount(pageable) :
+                    vacancyRepository.findAll(pageable);
         }
 
         List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()
@@ -237,6 +246,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
     }
+
 
     @Override
     public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {

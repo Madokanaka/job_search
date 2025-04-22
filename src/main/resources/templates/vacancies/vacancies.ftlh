@@ -6,6 +6,16 @@
         </div>
 
         <#if vacancies?? && vacancies?size gt 0>
+            <form method="get" action="/vacancies" class="mb-4 d-flex justify-content-end">
+                <input type="hidden" name="page" value="${currentPage}" />
+                <input type="hidden" name="size" value="6" />
+
+                <label for="sort" class="me-2">Сортировка:</label>
+                <select name="sort" id="sort" class="form-select w-auto" onchange="this.form.submit()">
+                    <option value="date" <#if (sort == "date")>selected</#if>>По дате</option>
+                    <option value="responses" <#if (sort == "responses")>selected</#if>>По количеству откликов</option>
+                </select>
+            </form>
             <div class="row">
                 <#list vacancies as vacancy>
                     <#if vacancy.isActive>
@@ -91,19 +101,19 @@
                         <ul class="pagination">
                             <#if (currentPage > 0)>
                                 <li class="page-item">
-                                    <a class="page-link" href="/vacancies?page=${currentPage - 1}&size=6">«</a>
+                                    <a class="page-link" href="/vacancies?page=${currentPage - 1}&size=6&sortBy=date">«</a>
                                 </li>
                             </#if>
 
                             <#list 0..(totalPages - 1) as i>
                                 <li class="page-item <#if i == currentPage>active</#if>">
-                                    <a class="page-link" href="/vacancies?page=${i}&size=6">${i + 1}</a>
+                                    <a class="page-link" href="/vacancies?page=${i}&size=6&sortBy=date">${i + 1}</a>
                                 </li>
                             </#list>
 
                             <#if (currentPage?? && (currentPage + 1) < totalPages)>
                                 <li class="page-item">
-                                    <a class="page-link" href="/vacancies?page=${currentPage + 1}&size=6">»</a>
+                                    <a class="page-link" href="/vacancies?page=${currentPage + 1}&size=6&sortBy=date">»</a>
                                 </li>
                             </#if>
                         </ul>

@@ -18,11 +18,11 @@ public interface VacancyRepository extends JpaRepository<Vacancy, Integer> {
     List<Vacancy> findByCategoryId(Integer categoryId);
 
     @Query("""
-    SELECT v FROM Vacancy v
-    JOIN RespondedApplicant ra ON ra.vacancy.id = v.id
-    JOIN Resume r ON ra.resume.id = r.id
-    WHERE r.applicant.id = :userId AND v.isActive = true
-""")
+                SELECT v FROM Vacancy v
+                JOIN RespondedApplicant ra ON ra.vacancy.id = v.id
+                JOIN Resume r ON ra.resume.id = r.id
+                WHERE r.applicant.id = :userId AND v.isActive = true
+            """)
     List<Vacancy> findVacanciesUserRespondedTo(@Param("userId") Integer userId);
 
     Page<Vacancy> findAll(Pageable pageable);
@@ -30,5 +30,9 @@ public interface VacancyRepository extends JpaRepository<Vacancy, Integer> {
     Page<Vacancy> findByAuthorId(Integer authorId, Pageable pageable);
 
     Page<Vacancy> findByCategoryId(Integer categoryId, Pageable pageable);
+
+
+    @Query("SELECT v FROM Vacancy v LEFT JOIN v.respondedApplicants ra GROUP BY v ORDER BY COUNT(ra) DESC")
+    Page<Vacancy> findAllOrderByResponseCount(Pageable pageable);
 
 }

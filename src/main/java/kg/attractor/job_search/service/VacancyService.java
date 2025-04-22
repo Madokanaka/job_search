@@ -20,6 +20,8 @@ public interface VacancyService {
     Optional<List<VacancyDto>> getVacanciesByUserId(Integer userId);
 
 
+    Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize, String str);
+
     Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize);
 
     Optional<List<VacancyDto>> getVacanciesByCategory(Integer categoryId);
@@ -27,7 +29,5 @@ public interface VacancyService {
     Optional<List<VacancyDto>> getVacanciesUserRespondedTo(Integer userId);
 
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
-
-    Page<VacancyDto> getAllVacanciesPaged(String page, String size);
 
 }

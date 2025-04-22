@@ -9,6 +9,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "vacancies")
@@ -55,4 +57,8 @@ public class Vacancy {
     private LocalDateTime createdDate;
 
     private LocalDateTime updateTime;
+
+    @OneToMany(mappedBy = "vacancy", fetch = FetchType.LAZY)
+    private List<RespondedApplicant> respondedApplicants;
+
 }

@@ -14,6 +14,9 @@ import java.util.List;
 @AllArgsConstructor
 public class User {
 
+    @Column(nullable = false, unique = true, length = 255)
+    private String email;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -25,9 +28,6 @@ public class User {
     private String surname;
 
     private Integer age;
-
-    @Column(nullable = false, unique = true, length = 255)
-    private String email;
 
     @Column(nullable = false, length = 255)
     private String password;
@@ -45,5 +45,6 @@ public class User {
     private boolean enabled = true;
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
+
     private List<Role> roles;
 }

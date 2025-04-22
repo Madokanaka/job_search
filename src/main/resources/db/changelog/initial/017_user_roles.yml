@@ -7,7 +7,7 @@ databaseChangeLog:
             comment: Link users to roles via usr_roles
             sql: |
               INSERT INTO usr_roles (usr_id, role_id)
-              SELECT u.id, r.id
+              SELECT u.email, r.id
               FROM users u
               JOIN roles r ON 
                   (u.account_type = 'admin' AND r.role = 'ADMIN') OR

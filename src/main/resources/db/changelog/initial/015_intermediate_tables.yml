@@ -9,12 +9,12 @@ databaseChangeLog:
             columns:
               - column:
                   name: usr_id
-                  type: long
+                  type: varchar(50)
                   constraints:
                     nullable: false
                     primaryKey: true
                     foreignKeyName: fk_usr_email_to_roles
-                    references: users(id)
+                    references: users(email)
               - column:
                   name: role_id
                   type: long

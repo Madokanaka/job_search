@@ -22,4 +22,6 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     WHERE ra.vacancy.id = :vacancyId
 """)
     List<User> findApplicantsByVacancyId(@Param("vacancyId") Integer vacancyId);
+
+    Integer getIdByEmail(String email);
 }

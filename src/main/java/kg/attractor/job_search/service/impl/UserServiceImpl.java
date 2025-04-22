@@ -13,6 +13,10 @@ import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -227,4 +231,49 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("User role should be either employer or applicant");
         }
     }
+
+    @Override
+    public Page<UserDto> getEmployers(String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 6);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> employers = userRepository.findByAccountType("employer", pageable);
+
+        if (employers.getTotalPages() > 0 && page >= employers.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(employers.getTotalPages() - 1, size);
+            employers = userRepository.findByAccountType("employer", pageable);
+        }
+
+        return employers.map(this::convertToDto);
+    }
+
+    private int parsePageParameter(String page) {
+        try {
+            int pageNumber = Integer.parseInt(page);
+            if (pageNumber < 0) {
+                log.warn("Page index less than 0, setting to 0");
+                return 0;
+            }
+            return pageNumber;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter: {}. Setting to default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParameter(String size, int defaultValue) {
+        try {
+            int pageSize = Integer.parseInt(size);
+            if (pageSize <= 0 || pageSize > 100) {
+                log.warn("Invalid size parameter: {}. Setting to default 6", size);
+                return defaultValue;
+            }
+            return pageSize;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter: {}. Setting to default 6", size);
+            return defaultValue;
+        }
+    }
+
 }

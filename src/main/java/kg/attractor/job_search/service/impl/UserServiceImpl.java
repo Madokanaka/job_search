@@ -6,7 +6,9 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
+import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -25,16 +27,23 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RolesRepository rolesRepository;
 
     @Override
     public void registerUser(UserDto userDto) {
         log.info("Registering user: {}", userDto.getEmail());
 
-        if (userRepository.existsByEmail(userDto.getEmail())) {
+        if (userRepository.existsByEmail(userDto.getEmail().strip())) {
             throw new RecordAlreadyExistsException("User with this email already exists");
         }
 
         validateAccountType(userDto.getAccountType());
+
+        if (!rolesRepository.existsByRole(userDto.getAccountType().toUpperCase())) {
+            throw new BadRequestException("Invalid account type");
+        }
+
+        Role userRole = rolesRepository.findByRole(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -45,6 +54,8 @@ public class UserServiceImpl implements UserService {
                 .avatar(userDto.getAvatar())
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
+                .enabled(true)
+                .roles(List.of(userRole))
                 .build();
 
         try {

@@ -3,6 +3,8 @@ package kg.attractor.job_search.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Setter
@@ -41,4 +43,9 @@ public class User {
 
     @Column(nullable = false)
     private boolean enabled = true;
+
+//    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
+//    private List<Role> roles;
+
+    private Long role_id;
 }

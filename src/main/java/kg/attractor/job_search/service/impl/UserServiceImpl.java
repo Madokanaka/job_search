@@ -6,13 +6,20 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
+import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,16 +32,24 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RolesRepository rolesRepository;
 
     @Override
+    @Transactional
     public void registerUser(UserDto userDto) {
         log.info("Registering user: {}", userDto.getEmail());
 
-        if (userRepository.existsByEmail(userDto.getEmail())) {
+        if (userRepository.existsByEmail(userDto.getEmail().strip())) {
             throw new RecordAlreadyExistsException("User with this email already exists");
         }
 
         validateAccountType(userDto.getAccountType());
+
+        if (!rolesRepository.existsByRole(userDto.getAccountType().toUpperCase())) {
+            throw new BadRequestException("Invalid account type");
+        }
+
+        Role userRole = rolesRepository.findByRole(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -45,6 +60,8 @@ public class UserServiceImpl implements UserService {
                 .avatar(userDto.getAvatar())
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
+                .enabled(true)
+                .role_id(userRole.getId())
                 .build();
 
         try {
@@ -100,6 +117,21 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Optional<UserDto> getUserById(Integer userId) {
+        return userRepository.findById(userId)
+                .map(this::convertToDto)
+                .or(() -> {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                });
+    }
+
+    @Override
+    public Optional<UserDto> getUserById(String userIdInString) {
+        int userId;
+        try {
+            userId = Integer.parseInt(userIdInString);
+        } catch (NumberFormatException e) {
+            throw new BadRequestException("User ID must be a valid number");
+        }
         return userRepository.findById(userId)
                 .map(this::convertToDto)
                 .or(() -> {
@@ -199,4 +231,49 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("User role should be either employer or applicant");
         }
     }
+
+    @Override
+    public Page<UserDto> getEmployers(String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 6);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<User> employers = userRepository.findByAccountType("employer", pageable);
+
+        if (employers.getTotalPages() > 0 && page >= employers.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(employers.getTotalPages() - 1, size);
+            employers = userRepository.findByAccountType("employer", pageable);
+        }
+
+        return employers.map(this::convertToDto);
+    }
+
+    private int parsePageParameter(String page) {
+        try {
+            int pageNumber = Integer.parseInt(page);
+            if (pageNumber < 0) {
+                log.warn("Page index less than 0, setting to 0");
+                return 0;
+            }
+            return pageNumber;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter: {}. Setting to default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParameter(String size, int defaultValue) {
+        try {
+            int pageSize = Integer.parseInt(size);
+            if (pageSize <= 0 || pageSize > 100) {
+                log.warn("Invalid size parameter: {}. Setting to default 6", size);
+                return defaultValue;
+            }
+            return pageSize;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter: {}. Setting to default 6", size);
+            return defaultValue;
+        }
+    }
+
 }

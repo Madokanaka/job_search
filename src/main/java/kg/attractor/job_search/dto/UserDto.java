@@ -48,7 +48,7 @@ public class UserDto {
     private String avatar;
 
     @Pattern(
-            regexp = "^(Applicant|Employer)$",
+            regexp = "^(applicant|employer)$",
             message = "Invalid account type"
     )
     private String accountType;

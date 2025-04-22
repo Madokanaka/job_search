@@ -7,6 +7,11 @@ import kg.attractor.job_search.repository.*;
 import kg.attractor.job_search.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -274,5 +279,61 @@ public class ResumeServiceImpl implements ResumeService {
                 .map(ContactInfo::getInfoValue)
                 .findFirst()
                 .orElse(null);
+    }
+
+    @Override
+    public Page<ResumeDto> getAllResumesPaged(String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 9);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        return resumeRepository.findAll(pageable)
+                .map(this::convertToDto);
+    }
+
+    @Override
+    public Page<ResumeDto> getResumesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 6);
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
+        Page<Resume> resumePage = resumeRepository.findByApplicantId(userId, pageable);
+        if (resumePage.getTotalPages() > 0 && page >= resumePage.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(resumePage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
+            resumePage = resumeRepository.findByApplicantId(userId, pageable);
+        }
+
+        List<ResumeDto> resumeDtos = resumePage.getContent().stream()
+                .map(this::convertToDto)
+                .toList();
+        return new PageImpl<>(resumeDtos, pageable, resumePage.getTotalElements());
+    }
+
+
+    private int parsePageParameter(String page) {
+        try {
+            int pageNumber = Integer.parseInt(page);
+            if (pageNumber < 0) {
+                log.warn("Page index less than 0, setting to 0");
+                return 0;
+            }
+            return pageNumber;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter: {}. Setting to default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParameter(String size, int defaultValue) {
+        try {
+            int pageSize = Integer.parseInt(size);
+            if (pageSize <= 0 || pageSize > 100) {
+                log.warn("Invalid size parameter: {}. Setting to default 6", size);
+                return defaultValue;
+            }
+            return pageSize;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter: {}. Setting to default 6", size);
+            return defaultValue;
+        }
     }
 }

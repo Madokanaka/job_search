@@ -28,8 +28,8 @@
     <#assign known = SPRING_SECURITY_CONTEXT?? >
     <#if known>
         <#assign
-        user = SPRING_SECURITY_CONTEXT.authentication.principal
-        name = user.getUsername()
+        userPr = SPRING_SECURITY_CONTEXT.authentication.principal
+        name = userPr.getUsername()
         >
     </#if>
 
@@ -49,9 +49,20 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
+                    <#if user??>
+                        <#if user.accountType?string == "applicant">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/companies">Компании</a>
+                            </li>
+                        <#elseif user.accountType?string == "employer">
+                            <li class="nav-item">
+                                <a class="nav-link" href="/resumes">Резюме</a>
+                            </li>
+                        </#if>
+                    </#if>
                 </ul>
 
-                <#if user??>
+                <#if userPr??>
                     <a href="/profile" class="btn btn-outline-info m-2">
                         Профиль
                     </a>

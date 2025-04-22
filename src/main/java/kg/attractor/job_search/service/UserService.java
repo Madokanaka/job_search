@@ -2,6 +2,7 @@ package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +22,8 @@ public interface UserService {
 
     Optional<UserDto> getUserById(Integer userId);
 
+    Optional<UserDto> getUserById(String userId);
+
     void editUserProfile(Integer userId, UserDto userDto);
 
     Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);
@@ -30,4 +33,6 @@ public interface UserService {
     UserDto updateUserProfile(String email, UserEditDto userDto);
 
     UserEditDto fromDtoToUserEditDto(UserDto userDto);
+
+    Page<UserDto> getEmployers(String pageNumber, String pageSize);
 }

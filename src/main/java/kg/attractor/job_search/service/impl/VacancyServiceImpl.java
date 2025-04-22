@@ -5,7 +5,6 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.exception.VacancyNotFoundException;
-import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.repository.CategoryRepository;
 import kg.attractor.job_search.repository.UserRepository;
@@ -13,6 +12,11 @@ import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -212,4 +216,86 @@ public class VacancyServiceImpl implements VacancyService {
                 .authorId(vacancy.getAuthor().getId())
                 .build();
     }
+
+    @Override
+    public Page<VacancyDto> getAllVacanciesPaged(String pageNumber, String pageSize, String sortType) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 6);
+
+        Sort sort = Sort.by("updateTime").descending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+        Page<Vacancy> vacanciesPage;
+
+        if ("responses".equals(sortType)) {
+            vacanciesPage = vacancyRepository.findAllOrderByResponseCount(pageable);
+        } else {
+            vacanciesPage = vacancyRepository.findAll(pageable);
+        }
+
+        if (page >= vacanciesPage.getTotalPages()) {
+            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, sort);
+            vacanciesPage = "responses".equals(sortType) ?
+                    vacancyRepository.findAllOrderByResponseCount(pageable) :
+                    vacancyRepository.findAll(pageable);
+        }
+
+        List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
+    }
+
+
+    @Override
+    public Page<VacancyDto> getVacanciesByUserIdPaged(Integer userId, String pageNumber, String pageSize) {
+        int page = parsePageParameter(pageNumber);
+        int size = parseSizeParameter(pageSize, 6);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.by("updateTime").descending());
+        Page<Vacancy> vacanciesPage = vacancyRepository.findByAuthorId(userId, pageable);
+        if (vacanciesPage.getTotalPages() > 0 && page >= vacanciesPage.getTotalPages()) {
+            log.warn("Запрашиваемая страница больше максимальной, выбираем последнюю страницу");
+            pageable = PageRequest.of(vacanciesPage.getTotalPages() - 1, size, Sort.by("updateTime").descending());
+            vacanciesPage = vacancyRepository.findByAuthorId(userId, pageable);
+        }
+
+        List<VacancyDto> vacancyDtos = vacanciesPage.getContent().stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
+
+        return new PageImpl<>(vacancyDtos, pageable, vacanciesPage.getTotalElements());
+    }
+
+
+    private int parsePageParameter(String page) {
+        try {
+            int pageNumber = Integer.parseInt(page);
+            if (pageNumber < 0) {
+                log.warn("Page index less than 0, setting to 0");
+                return 0;
+            }
+            return pageNumber;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid page parameter: {}. Setting to default 0", page);
+            return 0;
+        }
+    }
+
+    private int parseSizeParameter(String size, int defaultValue) {
+        try {
+            int pageSize = Integer.parseInt(size);
+            if (pageSize <= 0 || pageSize > 100) {
+                log.warn("Invalid size parameter: {}. Setting to default 6", size);
+                return defaultValue;
+            }
+            return pageSize;
+        } catch (NumberFormatException e) {
+            log.warn("Invalid size parameter: {}. Setting to default 6", size);
+            return defaultValue;
+        }
+    }
+
+
 }

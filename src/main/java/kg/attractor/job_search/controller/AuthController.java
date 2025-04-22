@@ -39,14 +39,18 @@ public class AuthController {
     public String registerUser(@Valid @ModelAttribute UserDto userDto,
                                BindingResult bindingResult,
                                Model model) {
-        if (!bindingResult.hasErrors()) {
-            userService.registerUser(userDto);
-            return "redirect:/auth/login";
+        if (userService.existsByEmail(userDto.getEmail())) {
+            bindingResult.rejectValue("email", "email.exists", "User with this email already exists");
         }
 
-        model.addAttribute("userDto", userDto);
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("userDto", userDto);
+            return "auth/registration";
+        }
 
-        return "auth/registration";
+        userService.registerUser(userDto);
+
+        return "redirect:/auth/login";
     }
 }
 

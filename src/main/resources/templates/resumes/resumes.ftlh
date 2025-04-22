@@ -46,6 +46,30 @@
                     </div>
                 </#list>
             </div>
+            <div class="d-flex justify-content-center mt-4">
+                <nav aria-label="Pagination">
+                    <ul class="pagination">
+                        <#if (currentPage > 0)>
+                            <li class="page-item">
+                                <a class="page-link" href="/resumes?page=${currentPage - 1}&size=9">«</a>
+                            </li>
+                        </#if>
+
+                        <#list 0..(totalPages - 1) as i>
+                            <li class="page-item <#if i == currentPage>active</#if>">
+                                <a class="page-link" href="/resumes?page=${i}&size=9">${i + 1}</a>
+                            </li>
+                        </#list>
+
+                        <#if (currentPage?? && (currentPage + 1) < totalPages)>
+                            <li class="page-item">
+                                <a class="page-link" href="/resumes?page=${currentPage + 1}&size=9">»</a>
+                            </li>
+                        </#if>
+                    </ul>
+                </nav>
+            </div>
+
         <#else>
             <div class="alert alert-info mt-4">
                 <i class="bi bi-info-circle"></i> Активных резюме не найдено

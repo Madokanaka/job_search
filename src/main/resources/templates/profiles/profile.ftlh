@@ -35,7 +35,6 @@
                 </form>
             </div>
 
-
             <div class="ms-4">
                 <h3 class="mb-2">${user.getName()} ${user.getSurname()}</h3>
                 <p class="text-muted mb-2">Возраст: ${user.getAge()}</p>
@@ -152,7 +151,6 @@
                             <@spring.formInput "userEdit.phoneNumber" 'id="form3Example5cg" class="form-control" value="${userEdit.phoneNumber}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>
-
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
@@ -162,11 +160,64 @@
             </div>
         </div>
     </div>
+
     <#if showEditModal?? && showEditModal>
         <script>
             const editModal = new bootstrap.Modal(document.getElementById('editModal'));
             editModal.show();
         </script>
     </#if>
-</@main.layout>
 
+    <#if (user.accountType == "employer" || user.accountType == "admin") && vacancyTotalPages?? && (vacancyTotalPages > 1)>
+        <div class="col-12 d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <#if vacancyCurrentPage?? && (vacancyCurrentPage > 0)>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${vacancyCurrentPage - 1}&size=6">«</a>
+                        </li>
+                    </#if>
+
+                    <#list 0..(vacancyTotalPages - 1) as i>
+                        <li class="page-item <#if i == vacancyCurrentPage>active</#if>">
+                            <a class="page-link" href="?page=${i}&size=6">${i + 1}</a>
+                        </li>
+                    </#list>
+
+                    <#if vacancyCurrentPage?? && (vacancyCurrentPage + 1) < vacancyTotalPages>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${vacancyCurrentPage + 1}&size=6">»</a>
+                        </li>
+                    </#if>
+                </ul>
+            </nav>
+        </div>
+    </#if>
+
+    <#if (user.accountType == "applicant" || user.accountType == "admin") && resumeTotalPages?? && (resumeTotalPages > 1)>
+        <div class="col-12 d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                <ul class="pagination">
+                    <#if resumeCurrentPage?? && (resumeCurrentPage > 0)>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${resumeCurrentPage - 1}&size=6">«</a>
+                        </li>
+                    </#if>
+
+                    <#list 0..(resumeTotalPages - 1) as i>
+                        <li class="page-item <#if i == resumeCurrentPage>active</#if>">
+                            <a class="page-link" href="?page=${i}&size=6">${i + 1}</a>
+                        </li>
+                    </#list>
+
+                    <#if resumeCurrentPage?? && (resumeCurrentPage + 1) < resumeTotalPages>
+                        <li class="page-item">
+                            <a class="page-link" href="?page=${resumeCurrentPage + 1}&size=6">»</a>
+                        </li>
+                    </#if>
+                </ul>
+            </nav>
+        </div>
+    </#if>
+
+</@main.layout>

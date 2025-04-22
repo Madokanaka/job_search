@@ -1,6 +1,8 @@
 package kg.attractor.job_search.repository;
 
 import kg.attractor.job_search.model.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +24,9 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     WHERE ra.vacancy.id = :vacancyId
 """)
     List<User> findApplicantsByVacancyId(@Param("vacancyId") Integer vacancyId);
+
+    Integer getIdByEmail(String email);
+
+    Page<User> findByAccountType(String accountType, Pageable pageable);
+
 }

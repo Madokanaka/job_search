@@ -6,6 +6,7 @@ import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
@@ -32,6 +33,7 @@ public class Vacancy {
 
     private String name;
 
+    @Lob
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)

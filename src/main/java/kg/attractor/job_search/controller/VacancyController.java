@@ -45,9 +45,12 @@ public class VacancyController {
 
         if (principal != null) {
             userService.findUserByEmail(principal.getUsername())
-                    .ifPresent(user -> model.addAttribute("accountType", user.getAccountType()));
-        }
+                    .ifPresent(user -> {
+                        model.addAttribute("accountType", user.getAccountType());
+                        model.addAttribute("user", user);
+                    });
 
+        }
         model.addAttribute("vacancies", vacancyPage.getContent());
         model.addAttribute("currentPage", vacancyPage.getNumber());
         model.addAttribute("totalPages", vacancyPage.getTotalPages());

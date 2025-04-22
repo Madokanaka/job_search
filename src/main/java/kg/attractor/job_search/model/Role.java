@@ -18,14 +18,6 @@ public class Role {
     @Column(name = "role")
     private String role;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(
-            name = "usr_roles",
-            joinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "usr_id", referencedColumnName = "email")
-    )
-    private List<User> users;
-
-    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "roles", cascade = CascadeType.ALL)
-    private List<Authority> authorities;
+    @Column(name = "authority_id")
+    private Integer authorityId;
 }

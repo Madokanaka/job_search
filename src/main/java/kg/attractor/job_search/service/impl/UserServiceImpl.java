@@ -57,7 +57,7 @@ public class UserServiceImpl implements UserService {
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
-                .roles(List.of(userRole))
+                .role_id(userRole.getId())
                 .build();
 
         try {

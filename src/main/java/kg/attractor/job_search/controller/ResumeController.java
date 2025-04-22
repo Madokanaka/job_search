@@ -31,11 +31,13 @@ public class ResumeController {
     private final ResumeService resumeService;
     private final UserService userService;
     @GetMapping
-    public String getAllResumes(@RequestParam(defaultValue = "0") String page,
+    public String getAllResumes(@AuthenticationPrincipal User principal,
+            @RequestParam(defaultValue = "0") String page,
                                 @RequestParam(defaultValue = "6") String size,
                                 Model model) {
 
         Page<ResumeDto> resumePage = resumeService.getAllResumesPaged(page, size);
+        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("resumes", resumePage.getContent());
         model.addAttribute("currentPage", resumePage.getNumber()    );
         model.addAttribute("totalPages", resumePage.getTotalPages());
@@ -45,7 +47,7 @@ public class ResumeController {
 
 
     @GetMapping("/create")
-    public String createResume(Model model) {
+    public String createResume(@AuthenticationPrincipal User principal, Model model) {
         ResumeDto resumeDto = ResumeDto.builder()
                 .categoryId(1)
                 .workExperienceInfoList(List.of(new WorkExperienceInfoDto()))
@@ -54,6 +56,7 @@ public class ResumeController {
 
         resumeDto.setCategoryId(1);
         model.addAttribute("categories", resumeService.getCategories());
+        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
     }
@@ -67,16 +70,18 @@ public class ResumeController {
             model.addAttribute("categories", resumeService.getCategories());
             return "redirect:/profile";
         }
+        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("categories", resumeService.getCategories());
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
     }
 
     @GetMapping("{resumeId}/edit")
-    public String getEditPage(@PathVariable Integer resumeId, Model model) {
+    public String getEditPage(@AuthenticationPrincipal User principal, @PathVariable Integer resumeId, Model model) {
         ResumeDto resumeDto = resumeService.getResumeById(resumeId);
 
         resumeDto.setCategoryId(1);
+        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("categories", resumeService.getCategories());
         model.addAttribute("resumeDto", resumeDto);
 
@@ -93,6 +98,7 @@ public class ResumeController {
 
             return "redirect:/profile";
         }
+        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("categories", resumeService.getCategories());
 
         model.addAttribute("resumeDto", resumeDto);

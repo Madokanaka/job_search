@@ -1,0 +1,49 @@
+
+databaseChangeLog:
+  - changeSet:
+      id: Create intermediate table for usr <-> roles
+      author: Seitek
+      changes:
+        - createTable:
+            tableName: usr_roles
+            columns:
+              - column:
+                  name: usr_id
+                  type: long
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_usr_email_to_roles
+                    references: users(id)
+              - column:
+                  name: role_id
+                  type: long
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_role_id_to_usr
+                    references: roles(id)
+
+  - changeSet:
+      id: Create intermediate table for roles <-> authorities
+      author: Aleksei
+      changes:
+        - createTable:
+            tableName: roles_authorities
+            columns:
+              - column:
+                  name: role_id
+                  type: long
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_role_id_to_auth
+                    references: roles(id)
+              - column:
+                  name: authority_id
+                  type: long
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    foreignKeyName: fk_authority_id_to_roles
+                    references: authorities(id)

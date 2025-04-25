@@ -1,0 +1,18 @@
+databaseChangeLog:
+  - changeSet:
+      id: 014 remove fk in user & role tables
+      author: Seitek Askarbekov
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: users
+            constraintName: fk_role_id
+        - dropColumn:
+            tableName: users
+            columnName: role_id
+
+        - dropForeignKeyConstraint:
+            baseTableName: roles
+            constraintName: fk_authority_id
+        - dropColumn:
+            tableName: roles
+            columnName: authority_id

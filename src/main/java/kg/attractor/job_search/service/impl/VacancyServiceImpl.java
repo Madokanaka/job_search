@@ -5,10 +5,14 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.exception.VacancyNotFoundException;
+import kg.attractor.job_search.model.Category;
+import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.repository.CategoryRepository;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.repository.VacancyRepository;
+import kg.attractor.job_search.service.CategoryService;
+import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,27 +35,24 @@ import java.util.stream.Collectors;
 public class VacancyServiceImpl implements VacancyService {
 
     private final VacancyRepository vacancyRepository;
-    private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
+
+    private final UserService userService;
+    private final CategoryService categoryService;
 
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
         log.info("Creating vacancy for user with ID {}", userId);
 
-        if (!userRepository.existsById(userId)) {
-            log.warn("User with ID {} not found", userId);
-            throw new UserNotFoundException("User with id " + userId + " not found");
-        }
+        User user = userService.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
 
-        if (!"employer".equalsIgnoreCase(userRepository.getReferenceById(userId).getAccountType())) {
+        if (!"employer".equalsIgnoreCase(user.getAccountType())) {
             log.warn("User with ID {} is not an employer", userId);
             throw new BadRequestException("User with id " + userId + " is not employer");
         }
 
-        if (!categoryRepository.existsById(vacancyDto.getCategoryId())) {
-            log.warn("Category with ID {} not found", vacancyDto.getCategoryId());
-            throw new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found");
-        }
+        Category category = categoryService.findById(vacancyDto.getCategoryId())
+                .orElseThrow(() -> new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found"));
 
         if (vacancyDto.getExpFrom() >= vacancyDto.getExpTo() && vacancyDto.getExpFrom() != 0) {
             log.warn("Invalid experience range: from {} to {}", vacancyDto.getExpFrom(), vacancyDto.getExpTo());
@@ -59,8 +60,8 @@ public class VacancyServiceImpl implements VacancyService {
         }
 
         Vacancy vacancy = Vacancy.builder()
-                .author(userRepository.getReferenceById(userId))
-                .category(categoryRepository.getReferenceById(vacancyDto.getCategoryId()))
+                .author(user)
+                .category(category)
                 .isActive(true)
                 .description(vacancyDto.getDescription())
                 .name(vacancyDto.getName())
@@ -146,7 +147,7 @@ public class VacancyServiceImpl implements VacancyService {
             throw new BadRequestException("Invalid category ID");
         }
 
-        if (!categoryRepository.existsById(categoryId)) {
+        if (!categoryService.existsByCategoryId(categoryId)) {
             log.warn("Category with ID {} not found", categoryId);
             throw new ResourceNotFoundException("Category not found in database");
         }

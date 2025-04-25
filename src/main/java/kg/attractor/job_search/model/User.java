@@ -42,10 +42,8 @@ public class User {
     private String accountType;
 
     @Column(nullable = false)
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
-//    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
-//    private List<Role> roles;
-
-    private Long role_id;
+    @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
+    private List<Role> roles;
 }

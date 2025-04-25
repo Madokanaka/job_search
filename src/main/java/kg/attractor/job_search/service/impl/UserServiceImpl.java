@@ -21,6 +21,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -45,11 +46,11 @@ public class UserServiceImpl implements UserService {
 
         validateAccountType(userDto.getAccountType());
 
-        if (!rolesRepository.existsByRole(userDto.getAccountType().toUpperCase())) {
+        if (!rolesRepository.existsByRoleName(userDto.getAccountType().toUpperCase())) {
             throw new BadRequestException("Invalid account type");
         }
 
-        Role userRole = rolesRepository.findByRole(userDto.getAccountType().toUpperCase());
+        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -61,7 +62,6 @@ public class UserServiceImpl implements UserService {
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
-                .role_id(userRole.getId())
                 .build();
 
         try {

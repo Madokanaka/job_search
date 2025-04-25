@@ -30,22 +30,22 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    @Autowired
-    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        String fetchUser = "select email, password, enabled " +
-                "from USERS " +
-                "where email = ?";
-        String fetchRoles = "select email, role " +
-                "from USERS u, roles r " +
-                "where u.email = ? " +
-                "and u.role_id = r.id ";
-        log.info("Fetching user with query: {}", fetchUser);
-        log.info("Fetching roles with query: {}", fetchRoles);
-        auth.jdbcAuthentication()
-                .dataSource(dataSource)
-                .usersByUsernameQuery(fetchUser)
-                .authoritiesByUsernameQuery(fetchRoles);
-    }
+//    @Autowired
+//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
+//        String fetchUser = "select email, password, enabled " +
+//                "from USERS " +
+//                "where email = ?";
+//        String fetchRoles = "select email, role " +
+//                "from USERS u, roles r " +
+//                "where u.email = ? " +
+//                "and u.role_id = r.id ";
+//        log.info("Fetching user with query: {}", fetchUser);
+//        log.info("Fetching roles with query: {}", fetchRoles);
+//        auth.jdbcAuthentication()
+//                .dataSource(dataSource)
+//                .usersByUsernameQuery(fetchUser)
+//                .authoritiesByUsernameQuery(fetchRoles);
+//    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -54,14 +54,14 @@ public class SecurityConfig {
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
-                        .defaultSuccessUrl("/vacancies", true)
+                        .defaultSuccessUrl("/vacancies")
                         .failureUrl("/auth/login?error=true")
                         .permitAll())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .permitAll())
                 .httpBasic(Customizer.withDefaults())
-                .csrf(AbstractHttpConfigurer::disable)
+//                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
 //                        .requestMatchers("/register", "/vacancies", "/vacancies/{vacancyId}", "/", "/auth/**").permitAll()
 //                        .requestMatchers("/applications/**", "/resumes/create", "/resumes/{resumeId}/edit", "/resumes/{resumeId}/delete", "/profile/**", "/user/{userId}/employee").hasAnyAuthority("APPLICANT", "ADMIN")
@@ -72,9 +72,6 @@ public class SecurityConfig {
 //
 //                        .requestMatchers("/users/**", "/vacancies/**", "/resumes/**", "/api/**").hasAuthority("ADMIN")
                                 .requestMatchers("/vacancies").permitAll()
-                                .requestMatchers("/profile", "/profile/edit").authenticated()
-                                .requestMatchers("/vacancies/**", "/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
-                                .requestMatchers("/resumes/create", "/resumes/{resumeId}/edit").hasAnyAuthority("ADMIN", "APPLICANT")
                                 .anyRequest().permitAll()
 
 //                        .anyRequest().authenticated()

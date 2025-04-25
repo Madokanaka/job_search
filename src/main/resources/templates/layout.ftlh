@@ -65,12 +65,6 @@
                 <#if userPr??>
                     <a href="/profile" class="text-light m-2 m-sm-0">
                         Hello, ${name}:
-                        <#list userPr.authorities as auth>
-                            <span class="text-danger">${auth}</span>
-                            <#if auth?has_next>
-                                /
-                            </#if>
-                        </#list>
                     </a>
                     <#if _csrf??>
                         <form action="/logout" method="post">

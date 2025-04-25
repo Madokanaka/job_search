@@ -4,6 +4,10 @@
         <h2 class="mb-4">Создание вакансии</h2>
 
         <form action="/vacancies/create" method="post" class="needs-validation" novalidate>
+            <#if _csrf??>
+                <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                       value="${(_csrf.token)!'csrf-token'}"/>
+            </#if>
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="mb-3">

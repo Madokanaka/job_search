@@ -4,6 +4,10 @@
         <div class="col-7">
             <h2 class="text-center mb-4">Регистрация</h2>
             <form action="/auth/register" method="post" enctype="multipart/form-data">
+                <#if _csrf??>
+                    <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                           value="${(_csrf.token)!'csrf-token'}"/>
+                </#if>
                 <div class="form-group mb-3">
                     <label class="form-label" for="form3Example1cg">Имя</label>
                     <@spring.formInput "userDto.name" 'id="form3Example1cg" class="form-control"' />

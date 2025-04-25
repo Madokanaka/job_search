@@ -2,6 +2,7 @@ package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
+import kg.attractor.job_search.model.User;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -35,4 +36,6 @@ public interface UserService {
     UserEditDto fromDtoToUserEditDto(UserDto userDto);
 
     Page<UserDto> getEmployers(String pageNumber, String pageSize);
+
+    Optional<User> findById(Integer id);
 }

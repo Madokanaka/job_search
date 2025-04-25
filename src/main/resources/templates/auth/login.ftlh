@@ -8,6 +8,10 @@
                         <h2 class="card-title text-center mb-4">Вход</h2>
 
                         <form id="login-form" action="/auth/login" method="post">
+                            <#if _csrf??>
+                                <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                                       value="${(_csrf.token)!'csrf-token'}"/>
+                            </#if>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control" id="email" name="username" required>

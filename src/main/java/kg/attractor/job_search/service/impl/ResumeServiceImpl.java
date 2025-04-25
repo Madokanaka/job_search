@@ -4,7 +4,12 @@ import kg.attractor.job_search.dto.*;
 import kg.attractor.job_search.exception.*;
 import kg.attractor.job_search.model.*;
 import kg.attractor.job_search.repository.*;
+import kg.attractor.job_search.service.CategoryService;
+import kg.attractor.job_search.service.ContactInfoService;
+import kg.attractor.job_search.service.EducationInfoService;
 import kg.attractor.job_search.service.ResumeService;
+import kg.attractor.job_search.service.UserService;
+import kg.attractor.job_search.service.WorkExperienceInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,6 +39,11 @@ public class ResumeServiceImpl implements ResumeService {
     private final EducationInfoRepository educationInfoRepository;
     private final WorkExperienceInfoRepository workExperienceInfoRepository;
     private final ContactTypeRepository contactTypeRepository;
+    private final UserService userService;
+    private final CategoryService categoryService;
+    private final ContactInfoService contactInfoService;
+    private final EducationInfoService educationInfoService;
+    private final WorkExperienceInfoService workExperienceInfoService;
 
     @Override
     @Transactional
@@ -44,7 +55,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new BadRequestException("User ID or resume have invalid values");
         }
 
-        User user = userRepository.findById(userId)
+        User user = userService.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
         Category category = categoryRepository.findById(resumeDto.getCategoryId())
@@ -62,7 +73,10 @@ public class ResumeServiceImpl implements ResumeService {
         resume = resumeRepository.save(resume);
         log.debug("Resume created with id={}", resume.getId());
 
-        saveResumeDetails(resume.getId(), resumeDto, resume);
+        contactInfoService.createContactInfo(resumeDto, resume);
+        educationInfoService.createEducationInfo(resumeDto.getEducationInfoList(), resume);
+        workExperienceInfoService.createWorkExperienceInfo(resumeDto.getWorkExperienceInfoList(), resume);
+//        saveResumeDetails(resume.getId(), resumeDto, resume);
     }
 
     @Override
@@ -73,9 +87,9 @@ public class ResumeServiceImpl implements ResumeService {
         Resume resume = resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
 
-        contactInfoRepository.deleteByResumeId(resumeId);
-        educationInfoRepository.deleteByResumeId(resumeId);
-        workExperienceInfoRepository.deleteByResumeId(resumeId);
+        contactInfoService.deleteContactInfoByResumeId(resumeId);
+        educationInfoService.deleteEducationInfoByResumeId(resumeId);
+        workExperienceInfoService.deleteWorkExperienceInfoByResumeId(resumeId);
 
         resumeRepository.delete(resume);
         log.debug("Resume with id={} deleted successfully", resumeId);
@@ -91,17 +105,19 @@ public class ResumeServiceImpl implements ResumeService {
 
         resume.setName(resumeDto.getName());
         resume.setSalary(resumeDto.getSalary());
-        resume.setIsActive(resumeDto.getIsActive());
+        resume.setIsActive(true);
         resume.setUpdateTime(LocalDateTime.now());
 
         resumeRepository.save(resume);
         log.debug("Resume with id={} updated", resume.getId());
 
-        contactInfoRepository.deleteByResumeId(resumeId);
-        educationInfoRepository.deleteByResumeId(resumeId);
-        workExperienceInfoRepository.deleteByResumeId(resumeId);
+        contactInfoService.deleteContactInfoByResumeId(resumeId);
+        educationInfoService.deleteEducationInfoByResumeId(resumeId);
+        workExperienceInfoService.deleteWorkExperienceInfoByResumeId(resumeId);
 
-        saveResumeDetails(resume.getId(), resumeDto, resume);
+        contactInfoService.createContactInfo(resumeDto, resume);
+        educationInfoService.createEducationInfo(resumeDto.getEducationInfoList(), resume);
+        workExperienceInfoService.createWorkExperienceInfo(resumeDto.getWorkExperienceInfoList(), resume);
     }
 
     @Override
@@ -131,7 +147,7 @@ public class ResumeServiceImpl implements ResumeService {
             throw new BadRequestException("User ID has invalid value");
         }
 
-        User user = userRepository.findById(userId)
+        User user = userService.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found in database"));
 
         List<Resume> resumes = resumeRepository.findByApplicantId(user.getId());
@@ -141,98 +157,13 @@ public class ResumeServiceImpl implements ResumeService {
 
     @Override
     public Map<Integer, String> getCategories() {
-        return categoryRepository.findAll().stream()
-                .collect(Collectors.toMap(Category::getId, Category::getName));
+        return categoryService.findAll().stream()
+                .collect(Collectors.toMap(CategoryDto::getId, CategoryDto::getName));
     }
 
-    private void saveResumeDetails(Integer resumeId, ResumeDto resumeDto, Resume resume) {
-        log.info("Saving resume details for resumeId={}", resumeId);
-
-        saveContactInfo(resumeId, resumeDto, resume);
-        saveEducationInfo(resumeId, resumeDto, resume);
-        saveWorkExperienceInfo(resumeId, resumeDto, resume);
-
-        log.debug("Resume details saved for resumeId={}", resumeId);
-    }
-
-    private void saveContactInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
-        if (resumeDto.getContactEmail() != null && !resumeDto.getContactEmail().isBlank()) {
-            ContactInfo contactInfo = new ContactInfo().builder()
-                    .resume(resume)
-                    .type(contactTypeRepository.findByType("Email"))
-                    .infoValue(resumeDto.getContactEmail())
-                    .build();
-            contactInfoRepository.save(contactInfo);
-        }
-
-        if (resumeDto.getPhoneNumber() != null && !resumeDto.getPhoneNumber().isBlank()) {
-            ContactInfo contactInfo = new ContactInfo().builder()
-                    .resume(resume)
-                    .type(contactTypeRepository.findByType("Телефон"))
-                    .infoValue(resumeDto.getPhoneNumber())
-                    .build();
-            contactInfoRepository.save(contactInfo);
-        }
-
-        if (resumeDto.getLinkedIn() != null && !resumeDto.getLinkedIn().isBlank()) {
-            ContactInfo contactInfo = new ContactInfo().builder()
-                    .resume(resume)
-                    .type(contactTypeRepository.findByType("LinkedIn"))
-                    .infoValue(resumeDto.getLinkedIn())
-                    .build();
-            contactInfoRepository.save(contactInfo);
-        }
-
-        if (resumeDto.getTelegram() != null && !resumeDto.getTelegram().isBlank()) {
-            ContactInfo contactInfo = new ContactInfo().builder()
-                    .resume(resume)
-                    .type(contactTypeRepository.findByType("Telegram"))
-                    .infoValue(resumeDto.getTelegram())
-                    .build();
-            contactInfoRepository.save(contactInfo);
-        }
-
-        if (resumeDto.getFacebook() != null && !resumeDto.getFacebook().isBlank()) {
-            ContactInfo contactInfo = new ContactInfo().builder()
-                    .resume(resume)
-                    .type(contactTypeRepository.findByType("Facebook"))
-                    .infoValue(resumeDto.getFacebook())
-                    .build();
-            contactInfoRepository.save(contactInfo);
-        }
-    }
-
-    private void saveEducationInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
-        if (resumeDto.getEducationInfoList() != null) {
-            resumeDto.getEducationInfoList().forEach(educationInfoDto -> {
-                EducationInfo educationInfo = new EducationInfo();
-                educationInfo.setResume(resume);
-                educationInfo.setInstitution(educationInfoDto.getInstitution());
-                educationInfo.setProgram(educationInfoDto.getProgram());
-                educationInfo.setStartDate(educationInfoDto.getStartDate());
-                educationInfo.setEndDate(educationInfoDto.getEndDate());
-                educationInfo.setDegree(educationInfoDto.getDegree());
-                educationInfoRepository.save(educationInfo);
-            });
-        }
-    }
-
-    private void saveWorkExperienceInfo(Integer resumeId, ResumeDto resumeDto, Resume resume) {
-        if (resumeDto.getWorkExperienceInfoList() != null) {
-            resumeDto.getWorkExperienceInfoList().forEach(workExperienceInfoDto -> {
-                WorkExperienceInfo workExperienceInfo = new WorkExperienceInfo();
-                workExperienceInfo.setResume(resume);
-                workExperienceInfo.setCompanyName(workExperienceInfoDto.getCompanyName());
-                workExperienceInfo.setPosition(workExperienceInfoDto.getPosition());
-                workExperienceInfo.setYears(workExperienceInfoDto.getYears());
-                workExperienceInfo.setResponsibilities(workExperienceInfoDto.getResponsibilities());
-                workExperienceInfoRepository.save(workExperienceInfo);
-            });
-        }
-    }
 
     private ResumeDto convertToDto(Resume resume) {
-        List<ContactInfo> contactInfos = contactInfoRepository.findByResumeId(resume.getId());
+        List<ContactInfo> contactInfos = contactInfoService.getContactInfoByResumeId(resume.getId());
 
         String email = getValueByTypeKey(contactInfos, "Email");
         String phone = getValueByTypeKey(contactInfos, "Телефон");
@@ -253,23 +184,8 @@ public class ResumeServiceImpl implements ResumeService {
                 .linkedIn(linkedIn)
                 .telegram(telegram)
                 .facebook(facebook)
-                .educationInfoList(educationInfoRepository.findByResumeId(resume.getId()).stream()
-                        .map(ei -> EducationInfoDto.builder()
-                                .institution(ei.getInstitution())
-                                .program(ei.getProgram())
-                                .startDate(ei.getStartDate())
-                                .endDate(ei.getEndDate())
-                                .degree(ei.getDegree())
-                                .build())
-                        .collect(Collectors.toList()))
-                .workExperienceInfoList(workExperienceInfoRepository.findByResumeId(resume.getId()).stream()
-                        .map(wei -> WorkExperienceInfoDto.builder()
-                                .companyName(wei.getCompanyName())
-                                .position(wei.getPosition())
-                                .years(wei.getYears())
-                                .responsibilities(wei.getResponsibilities())
-                                .build())
-                        .collect(Collectors.toList()))
+                .educationInfoList(new ArrayList<>(educationInfoService.getEducationInfoByResumeId(resume.getId())))
+                .workExperienceInfoList(new ArrayList<>(workExperienceInfoService.getWorkExperienceInfoByResumeId(resume.getId())))
                 .build();
     }
 
@@ -286,7 +202,13 @@ public class ResumeServiceImpl implements ResumeService {
         int page = parsePageParameter(pageNumber);
         int size = parseSizeParameter(pageSize, 9);
         Pageable pageable = PageRequest.of(page, size, Sort.by("createdDate").descending());
-        return resumeRepository.findAll(pageable)
+
+        Page<Resume> resumes = resumeRepository.findAll(pageable);
+        if (page > resumes.getTotalPages()) {
+            pageable = PageRequest.of(resumes.getTotalPages() - 1, size, Sort.by("createdDate").descending());
+            resumes = resumeRepository.findAll(pageable);
+        }
+        return resumes
                 .map(this::convertToDto);
     }
 

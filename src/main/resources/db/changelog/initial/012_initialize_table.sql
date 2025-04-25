@@ -49,3 +49,15 @@ values ((select id from CONTACT_TYPES where type = 'Телефон'),  (select i
 
 insert into CONTACT_INFO (TYPE_ID, RESUME_ID, INFOVALUE)
 values (( select id from CONTACT_TYPES where type = 'Email'), (select id from resumes where name = 'Java Developer'),'ivan.petrov@example.com');
+
+INSERT INTO work_experience (resume_id, years, company_name, position, responsibilities)
+VALUES ( (select id from resumes where name = 'Frontend Developer'), 5, 'Tech Corp', 'Senior Frontend Developer', 'Разработка и поддержка серверной части приложения');
+
+INSERT INTO education_info (resume_id, institution, program, start_date, end_date, degree)
+VALUES ( (select id from resumes where name = 'Frontend Developer'), 'КТМУ Манас', 'Программная инженерия', '2010-09-01', '2014-06-30', 'Бакалавр');
+
+insert into CONTACT_INFO (TYPE_ID, RESUME_ID, INFOVALUE)
+values ((select id from CONTACT_TYPES where type = 'Телефон'),  (select id from resumes where name = 'Frontend Developer'), '+77001112233');
+
+insert into CONTACT_INFO (TYPE_ID, RESUME_ID, INFOVALUE)
+values (( select id from CONTACT_TYPES where type = 'Email'), (select id from resumes where name = 'Frontend Developer'),'ivan.petrov@example.com');

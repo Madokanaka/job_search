@@ -33,7 +33,7 @@ public class ResumeController {
     @GetMapping
     public String getAllResumes(@AuthenticationPrincipal User principal,
             @RequestParam(defaultValue = "0") String page,
-                                @RequestParam(defaultValue = "6") String size,
+                                @RequestParam(defaultValue = "9") String size,
                                 Model model) {
 
         Page<ResumeDto> resumePage = resumeService.getAllResumesPaged(page, size);

@@ -6,7 +6,6 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
-import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
@@ -16,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,11 +43,11 @@ public class UserServiceImpl implements UserService {
 
         validateAccountType(userDto.getAccountType());
 
-        if (!rolesRepository.existsByRole(userDto.getAccountType().toUpperCase())) {
+        if (!rolesRepository.existsByRoleName(userDto.getAccountType().toUpperCase())) {
             throw new BadRequestException("Invalid account type");
         }
 
-        Role userRole = rolesRepository.findByRole(userDto.getAccountType().toUpperCase());
+//        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -61,7 +59,6 @@ public class UserServiceImpl implements UserService {
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
-                .role_id(userRole.getId())
                 .build();
 
         try {
@@ -275,5 +272,11 @@ public class UserServiceImpl implements UserService {
             return defaultValue;
         }
     }
+
+    @Override
+    public Optional<User> findById(Integer id) {
+        return userRepository.findById(id);
+    }
+
 
 }

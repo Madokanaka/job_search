@@ -18,6 +18,10 @@
             <div class="position-relative d-inline-block me-4">
                 <form action="/profile/avatar" method="post" enctype="multipart/form-data" id="avatarForm">
                     <input type="hidden" name="userId" value="${user.id}"/>
+                    <#if _csrf??>
+                        <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                               value="${(_csrf.token)!'csrf-token'}"/>
+                    </#if>
 
                     <input type="file" name="file" id="avatarInput" accept="image/*" style="display: none;" onchange="this.form.submit()"/>
 
@@ -125,6 +129,10 @@
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
                 <form action="/profile" method="post">
+                    <#if _csrf??>
+                        <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                               value="${(_csrf.token)!'csrf-token'}"/>
+                    </#if>
                     <input type="hidden" name="_method" value="put">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editModalLabel">Редактировать профиль</h5>

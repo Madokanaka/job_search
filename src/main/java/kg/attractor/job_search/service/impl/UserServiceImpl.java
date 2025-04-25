@@ -6,7 +6,6 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
-import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
@@ -16,12 +15,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -50,7 +47,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Invalid account type");
         }
 
-        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
+//        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -275,5 +272,11 @@ public class UserServiceImpl implements UserService {
             return defaultValue;
         }
     }
+
+    @Override
+    public Optional<User> findById(Integer id) {
+        return userRepository.findById(id);
+    }
+
 
 }

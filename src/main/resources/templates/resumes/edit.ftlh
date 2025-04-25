@@ -5,6 +5,10 @@
 
         <form action="/resumes/${resumeDto.id}/edit" method="post" class="needs-validation" novalidate>
             <input type="hidden" name="_method" value="PUT" />
+            <#if _csrf??>
+                <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                       value="${(_csrf.token)!'csrf-token'}"/>
+            </#if>
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="mb-3">

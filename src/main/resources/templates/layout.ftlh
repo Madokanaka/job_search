@@ -50,11 +50,11 @@
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
                     <#if user??>
-                        <#if user.accountType?string == "applicant">
+                        <#if userPr.authorities?seq_contains("APPLICANT")>
                             <li class="nav-item">
                                 <a class="nav-link" href="/companies">Компании</a>
                             </li>
-                        <#elseif user.accountType?string == "employer">
+                        <#elseif userPr.authorities?seq_contains("EMPLOYER")>
                             <li class="nav-item">
                                 <a class="nav-link" href="/resumes">Резюме</a>
                             </li>
@@ -63,19 +63,32 @@
                 </ul>
 
                 <#if userPr??>
-                    <a href="/profile" class="btn btn-outline-info m-2">
-                        Профиль
+                    <a href="/profile" class="text-light m-2 m-sm-0">
+                        Hello, ${name}:
+                        <#list userPr.authorities as auth>
+                            <span class="text-danger">${auth}</span>
+                            <#if auth?has_next>
+                                /
+                            </#if>
+                        </#list>
                     </a>
-                    <a href="/logout" class="btn btn-outline-info m-2"
-                       id="logout">Logout
-                    </a>
+                    <#if _csrf??>
+                        <form action="/logout" method="post">
+                            <input type="hidden" name="${(_csrf.parameterName)!'csrf'}"
+                                   value="${(_csrf.token)!'--no-token--'}"/>
+                            <button type="submit" class="btn btn-outline-info m-2"
+                                    id="logout">Logout
+                            </button>
+                        </form>
+                    <#else>
+                        <a href="/logout" class="btn btn-outline-info m-2"
+                           id="logout">Logout</a>
+                    </#if>
                 <#else>
                     <a href="/auth/login"
-                       class="btn btn-outline-info m-2">Login
-                    </a>
+                       class="btn btn-outline-info m-2">Login</a>
                     <a href="/auth/register"
-                       class="btn btn-outline-info m-2">Register
-                    </a>
+                       class="btn btn-outline-info m-2">Register</a>
                 </#if>
                 <#--                <div class="d-flex align-items-center">-->
                 <#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->

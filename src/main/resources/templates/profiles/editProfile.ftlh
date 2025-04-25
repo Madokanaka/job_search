@@ -4,6 +4,10 @@
 
     <form action="/profile/edit" method="POST">
         <input type="hidden" name="_method" value="PUT">
+        <#if _csrf??>
+            <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                   value="${(_csrf.token)!'csrf-token'}"/>
+        </#if>
 
         <div class="mb-3">
             <label for="name" class="form-label">Имя</label>

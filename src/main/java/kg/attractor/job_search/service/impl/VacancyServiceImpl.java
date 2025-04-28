@@ -41,6 +41,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
+        validateExperienceRange(vacancyDto);
         log.info("Creating vacancy for user with ID {}", userId);
 
         User user = userService.findById(userId)
@@ -78,6 +79,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     @Override
     public void editVacancy(Integer vacancyId, VacancyDto vacancyDto) {
+        validateExperienceRange(vacancyDto);
         log.info("Editing vacancy with ID {}", vacancyId);
 
         Optional<Vacancy> optionalVacancy = vacancyRepository.findById(vacancyId);
@@ -296,6 +298,12 @@ public class VacancyServiceImpl implements VacancyService {
         } catch (NumberFormatException e) {
             log.warn("Invalid size parameter: {}. Setting to default 6", size);
             return defaultValue;
+        }
+    }
+
+    private void validateExperienceRange(VacancyDto vacancyDto) {
+        if (vacancyDto.getExpTo() < vacancyDto.getExpFrom()) {
+            throw new IllegalArgumentException("Experience 'to' must be greater than or equal to 'from'");
         }
     }
 

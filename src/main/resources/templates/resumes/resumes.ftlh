@@ -27,7 +27,7 @@
                                             </#if>
                                         </span>
                                     <span class="badge bg-info text-white">
-                                            Категория: ${resume.categoryId!''}
+                                            Категория: ${resume.categoryName!''}
                                         </span>
                                 </div>
 

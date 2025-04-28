@@ -70,7 +70,7 @@
                                         <div>
                                             <#if vacancy.categoryId??>
                                                 <span class="badge bg-info text-dark">
-                                                   Категория ${vacancy.categoryId}
+                                                   Категория ${vacancy.categoryName}
                                                 </span>
                                             </#if>
                                         </div>

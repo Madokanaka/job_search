@@ -12,7 +12,7 @@
                 <div class="card-body">
                     <div class="mb-3">
                         <label for="name" class="form-label">Название резюме</label>
-                        <@spring.formInput "resumeDto.name" 'class="form-control" id="name" required' />
+                        <@spring.formInput "resumeDto.name" 'class="form-control" id="name"' />
                         <@spring.showErrors "<br>" "error text-danger small" />
                     </div>
 
@@ -20,7 +20,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label for="categoryId" class="form-label">Категория</label>
-                            <select class="form-select" id="categoryId" name="categoryId" required>
+                            <select class="form-select" id="categoryId" name="categoryId">
                                 <#list categories as id, name>
                                     <option value="${id}"
                                             <#if (resumeDto.categoryId)?? && resumeDto.categoryId == id>selected</#if>>
@@ -34,7 +34,7 @@
 
                         <div class="col-md-6 mb-3">
                             <label for="salary" class="form-label">Ожидаемый уровень оклада ($)</label>
-                            <@spring.formInput "resumeDto.salary" 'class="form-control" id="salary" type="number" min="0"" required' />
+                            <@spring.formInput "resumeDto.salary" 'class="form-control" id="salary" type="number" min="0""' />
                             <@spring.showErrors "<br>" "error text-danger small" />
                         </div>
                     </div>

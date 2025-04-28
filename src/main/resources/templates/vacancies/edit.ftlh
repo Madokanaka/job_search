@@ -69,7 +69,7 @@
             </div>
 
             <div class="d-flex justify-content-end mb-5">
-                <button type="submit" class="btn btn-primary btn-lg">Создать вакансию</button>
+                <button type="submit" class="btn btn-primary btn-lg">Редактировать вакансию</button>
             </div>
         </form>
     </div>

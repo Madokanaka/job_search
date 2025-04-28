@@ -13,4 +13,6 @@ public interface CategoryService {
     Map<Integer, String> getCategories();
 
     boolean existsByCategoryId(Integer categoryId);
+
+    String getCategoryNameById(Integer categoryId);
 }

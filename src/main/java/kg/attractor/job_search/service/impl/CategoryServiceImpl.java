@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.CategoryDto;
+import kg.attractor.job_search.exception.CategoryNotFoundException;
 import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.repository.CategoryRepository;
 import kg.attractor.job_search.service.CategoryService;
@@ -59,5 +60,10 @@ public class CategoryServiceImpl implements CategoryService {
     public boolean existsByCategoryId(Integer categoryId) {
         log.info("Fetching category with id={}", categoryId);
         return categoryRepository.existsById(categoryId);
+    }
+
+    @Override
+    public String getCategoryNameById(Integer categoryId) {
+        return categoryRepository.findNameById(categoryId).orElseThrow(() -> new CategoryNotFoundException("Category with id " + categoryId + " was not found"));
     }
 }

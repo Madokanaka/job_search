@@ -34,11 +34,6 @@ public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
-    private final ContactInfoRepository contactInfoRepository;
-    private final EducationInfoRepository educationInfoRepository;
-    private final WorkExperienceInfoRepository workExperienceInfoRepository;
-    private final ContactTypeRepository contactTypeRepository;
     private final UserService userService;
     private final CategoryService categoryService;
     private final ContactInfoService contactInfoService;
@@ -186,6 +181,7 @@ public class ResumeServiceImpl implements ResumeService {
                 .facebook(facebook)
                 .educationInfoList(new ArrayList<>(educationInfoService.getEducationInfoByResumeId(resume.getId())))
                 .workExperienceInfoList(new ArrayList<>(workExperienceInfoService.getWorkExperienceInfoByResumeId(resume.getId())))
+                .categoryName(categoryService.getCategoryNameById(resume.getCategory().getId()))
                 .build();
     }
 

@@ -215,6 +215,7 @@ public class VacancyServiceImpl implements VacancyService {
                 .createdDate(vacancy.getCreatedDate())
                 .updateTime(vacancy.getUpdateTime())
                 .authorId(vacancy.getAuthor().getId())
+                .categoryName(categoryService.getCategoryNameById(vacancy.getCategory().getId()))
                 .build();
     }
 

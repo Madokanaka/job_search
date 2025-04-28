@@ -4,6 +4,8 @@ import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
+import kg.attractor.job_search.exception.IllegalEducationDatesException;
+import kg.attractor.job_search.exception.IllegalYearsException;
 import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -50,8 +52,6 @@ public class ResumeController {
     public String createResume(@AuthenticationPrincipal User principal, Model model) {
         ResumeDto resumeDto = ResumeDto.builder()
                 .categoryId(1)
-                .workExperienceInfoList(List.of(new WorkExperienceInfoDto()))
-                .educationInfoList(List.of(new EducationInfoDto()))
                 .build();
 
         resumeDto.setCategoryId(1);
@@ -64,14 +64,28 @@ public class ResumeController {
     @PostMapping("/create")
     public String createResume(@Valid @ModelAttribute ResumeDto resumeDto, BindingResult bindingResult,
                                @AuthenticationPrincipal User principal, Model model) {
-        if (!bindingResult.hasErrors()) {
-            resumeService.createResume(resumeDto, userService.findUserByEmail(principal.getUsername()).get().getId());
-            model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
-            model.addAttribute("categories", resumeService.getCategories());
-            return "redirect:/profile";
+        var optionalUser = userService.findUserByEmail(principal.getUsername());
+        if (optionalUser.isEmpty()) {
+            return "redirect:/login?error";
         }
-        model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
+        var user = optionalUser.get();
+        model.addAttribute("user", user);
         model.addAttribute("categories", resumeService.getCategories());
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("resumeDto", resumeDto);
+            return "resumes/create";
+        }
+
+        try {
+            resumeService.createResume(resumeDto, user.getId());
+            return "redirect:/profile";
+        } catch (IllegalYearsException e) {
+            bindingResult.rejectValue("workExperienceInfoList[0].years", "error.resumeDto", e.getMessage());
+        } catch (IllegalEducationDatesException e) {
+            bindingResult.rejectValue("educationInfoList[0].endDate", "error.resumeDto", e.getMessage());
+        }
+
         model.addAttribute("resumeDto", resumeDto);
         return "resumes/create";
     }
@@ -90,18 +104,26 @@ public class ResumeController {
 
     @PutMapping("{resumeId}/edit")
     public String editResume(@Valid @ModelAttribute ResumeDto resumeDto, BindingResult bindingResult,
-                               @PathVariable Integer resumeId,
-                               @AuthenticationPrincipal User principal, Model model) {
+                             @PathVariable Integer resumeId,
+                             @AuthenticationPrincipal User principal, Model model) {
         resumeDto.setId(resumeId);
-        if (!bindingResult.hasErrors()) {
-            resumeService.editResume(resumeId, resumeDto);
 
-            return "redirect:/profile";
+        if (!bindingResult.hasErrors()) {
+            try {
+                resumeService.editResume(resumeId, resumeDto);
+                return "redirect:/profile";
+            } catch (IllegalYearsException e) {
+                bindingResult.rejectValue("workExperienceInfoList[0].years", "error.resumeDto", e.getMessage());
+            } catch (IllegalEducationDatesException e) {
+                bindingResult.rejectValue("educationInfoList[0].endDate", "error.resumeDto", e.getMessage());
+            }
         }
+
         model.addAttribute("user", userService.findUserByEmail(principal.getUsername()).get());
         model.addAttribute("categories", resumeService.getCategories());
-
         model.addAttribute("resumeDto", resumeDto);
+
         return "resumes/edit";
     }
+
 }

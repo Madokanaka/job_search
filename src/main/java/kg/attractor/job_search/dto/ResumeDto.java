@@ -41,13 +41,7 @@ public class ResumeDto {
     private LocalDateTime created_date;
     private LocalDateTime update_time;
 
-    @Valid
-    @Builder.Default
-
     private List<EducationInfoDto> educationInfoList = new ArrayList<>();
-
-    @Valid
-    @Builder.Default
 
     private List<WorkExperienceInfoDto> workExperienceInfoList = new ArrayList<>();
 

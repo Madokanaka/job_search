@@ -29,6 +29,8 @@ public class ResumeDto {
     @NotNull(message = "ID категории необходим")
     @Min(value = 1, message = "Категория должна быть положительной")
     private Integer categoryId;
+    @NotBlank(message = "Category name cannot be empty")
+    private String categoryName;
 
     @Positive(message = "Зарплата должна быть положительной")
     @NotNull(message = "Поле зарплаты необходимо")

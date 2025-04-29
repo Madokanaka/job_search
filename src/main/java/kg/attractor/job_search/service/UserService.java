@@ -13,6 +13,8 @@ public interface UserService {
 
     Optional<UserDto> findUserByEmail(String email);
 
+    User findUserModelByEmail(String email);
+
     boolean existsByEmail(String email);
 
     List<UserDto> findAllUsers();
@@ -22,6 +24,8 @@ public interface UserService {
     Optional<UserDto> getEmployeeById(Integer userId);
 
     Optional<UserDto> getUserById(Integer userId);
+
+    User getUserModelById(Integer userId);
 
     Optional<UserDto> getUserById(String userId);
 
@@ -38,4 +42,6 @@ public interface UserService {
     Page<UserDto> getEmployers(String pageNumber, String pageSize);
 
     Optional<User> findById(Integer id);
+
+    void saveAvatar(Long userId, String fileName);
 }

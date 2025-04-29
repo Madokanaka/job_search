@@ -81,6 +81,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserModelByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("User with this email does not exist");
+                });
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -117,6 +125,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .map(this::convertToDto)
                 .or(() -> {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                });
+    }
+
+    @Override
+    public User getUserModelById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
                     throw new UserNotFoundException("Could not find user with id " + userId);
                 });
     }
@@ -279,4 +295,10 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public void saveAvatar(Long userId, String fileName) {
+        userRepository.saveAvatar(userId, fileName);
+
+        log.debug("Image saved with fileName={}", fileName);
+    }
 }

@@ -126,4 +126,11 @@ public class ResumeController {
         return "resumes/edit";
     }
 
+    @GetMapping("{resumeId}")
+    public String getResumePage(@PathVariable Integer resumeId, Model model) {
+        ResumeDto resumeDto = resumeService.getResumeById(resumeId);
+        model.addAttribute("resume", resumeDto);
+        return "resumes/resume";
+    }
+
 }

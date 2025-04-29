@@ -75,9 +75,7 @@
                                             </#if>
                                         </div>
                                         <div>
-<#--                                            <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">-->
-<#--                                                Подробнее-->
-<#--                                            </a>-->
+
                                             <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">
                                                 Подробнее
                                             </a>

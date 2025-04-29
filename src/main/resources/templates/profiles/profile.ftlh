@@ -87,18 +87,18 @@
             <#if vacancies?? && vacancies?size gt 0>
                 <#list vacancies as vacancy>
                     <div class="col-md-4 mb-5">
-                        <a href="/vacancies/${vacancy.id}" class="text-decoration-none">
-                            <div class="card h-100">
+                        <div class="card h-100">
+                            <a href="/vacancies/${vacancy.id}" class="text-decoration-none">
                                 <div class="card-body">
                                     <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
                                     <p class="text-muted">Дата обновления: ${vacancy.updateTime.toLocalDate()}</p>
                                 </div>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <a href="/profile" class="btn btn-outline-primary w-50">Обновить</a>
-                                <a href="/vacancies/${vacancy.id}/edit" class="btn btn-primary w-50">Ред.</a>
-                            </div>
-                        </a>
+                            </a>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="/profile" class="btn btn-outline-primary w-50">Обновить</a>
+                            <a href="/vacancies/${vacancy.id}/edit" class="btn btn-primary w-50">Ред.</a>
+                        </div>
                     </div>
                 </#list>
             <#else>
@@ -112,15 +112,18 @@
         <div class="row g-3">
             <#if resumes?? && resumes?size gt 0>
                 <#list resumes as resume>
+
                     <div class="col-md-4 mb-5">
                         <div class="card vacancy-card h-100">
-                            <div class="card-body">
-                                <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
-                            </div>
+                            <a href="/resumes/${resume.id}" class="text-decoration-none">
+                                <div class="card-body">
+                                    <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
+                                    <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
+                                </div>
+                            </a>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <button class="btn btn-outline-primary w-50">Обновить</button>
+                            <a href="/profile" class="btn btn-outline-primary w-50">Обновить</a>
                             <a href="/resumes/${resume.id}/edit" class="btn btn-primary w-50">Ред.</a>
                         </div>
                     </div>

@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface CategoryService {
+    int getCategoryIdByResumeId(Integer resumeId);
+
+    int getCategoryIdByVacancyId(Integer vacancyId);
+
     List<CategoryDto> findAll();
     Optional<Category> findById(Integer id);
     Map<Integer, String> getCategories();

@@ -2,8 +2,14 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.CategoryDto;
 import kg.attractor.job_search.exception.CategoryNotFoundException;
+import kg.attractor.job_search.exception.ResourceNotFoundException;
+import kg.attractor.job_search.exception.ResumeNotFoundException;
 import kg.attractor.job_search.model.Category;
+import kg.attractor.job_search.model.Resume;
+import kg.attractor.job_search.model.Vacancy;
 import kg.attractor.job_search.repository.CategoryRepository;
+import kg.attractor.job_search.repository.ResumeRepository;
+import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +27,32 @@ public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
+    private final ResumeRepository resumeRepository;
+    private final VacancyRepository vacancyRepository;
+
+    @Override
+    public int getCategoryIdByResumeId(Integer resumeId) {
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+
+        if (resume.getCategory() == null) {
+            throw new ResourceNotFoundException("Resume category is not set for id " + resumeId);
+        }
+
+        return resume.getCategory().getId();
+    }
+
+    @Override
+    public int getCategoryIdByVacancyId(Integer vacancyId) {
+        Vacancy vacancy = vacancyRepository.findById(vacancyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found"));
+
+        if (vacancy.getCategory() == null) {
+            throw new ResourceNotFoundException("Vacancy category is not set for id " + vacancyId);
+        }
+
+        return vacancy.getCategory().getId();
+    }
     @Override
     public List<CategoryDto> findAll() {
         log.info("Fetching all categories");

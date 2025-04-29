@@ -8,8 +8,6 @@ import kg.attractor.job_search.exception.VacancyNotFoundException;
 import kg.attractor.job_search.model.Category;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.model.Vacancy;
-import kg.attractor.job_search.repository.CategoryRepository;
-import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.CategoryService;
 import kg.attractor.job_search.service.UserService;
@@ -202,6 +200,22 @@ public class VacancyServiceImpl implements VacancyService {
 
         log.info("Vacancy with ID {} retrieved successfully", vacancyId);
         return vacancy.map(this::convertToDto);
+    }
+
+    @Override
+    public Vacancy getVacancyModelById(Integer vacancyId) {
+        log.info("Retrieving vacancy by ID {}", vacancyId);
+
+        if (vacancyId == null || vacancyId <= 0) {
+            log.warn("Invalid vacancy ID: {}", vacancyId);
+            throw new BadRequestException("Invalid vacancy ID: " + vacancyId);
+        }
+
+        Vacancy vacancy = vacancyRepository.findById(vacancyId).orElseThrow(() -> new VacancyNotFoundException("Vacancy with ID " + vacancyId + " not found"));
+
+
+        log.info("Vacancy with ID {} retrieved successfully", vacancyId);
+        return vacancy;
     }
 
     private VacancyDto convertToDto(Vacancy vacancy) {

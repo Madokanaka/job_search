@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.ResumeDto;
+import kg.attractor.job_search.model.Resume;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -15,6 +16,8 @@ public interface ResumeService {
     void deleteResume(Integer resumeId);
 
     ResumeDto getResumeById(Integer resumeId);
+
+    Resume getResumeModelById(Integer resumeId);
 
     List<ResumeDto> getAllResumes();
 

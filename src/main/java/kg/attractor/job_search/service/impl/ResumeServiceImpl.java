@@ -126,6 +126,16 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    public Resume getResumeModelById(Integer resumeId) {
+        log.info("Fetching resume with id={}", resumeId);
+
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+
+        return resume;
+    }
+
+    @Override
     public List<ResumeDto> getAllResumes() {
         log.info("Fetching all resumes");
         return resumeRepository.findAll().stream()

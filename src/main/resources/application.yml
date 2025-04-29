@@ -10,6 +10,18 @@ spring:
         format_sql: true
     show-sql: false
 
+  mail:
+    host: smtp.gmail.com
+    username: seita20078@gmail.com
+    password: xqgl rjvw vwdi vynq
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
   application:
     name: "job_search"
   mvc:

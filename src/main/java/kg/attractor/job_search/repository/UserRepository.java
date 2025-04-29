@@ -35,4 +35,5 @@ public interface UserRepository extends JpaRepository<User, Integer> {
     @Transactional
     @Query("UPDATE User u SET u.avatar = :fileName WHERE u.id = :userId")
     void saveAvatar(@Param("userId") Long userId, @Param("fileName") String fileName);
-}
+
+    Optional<User> findByResetPasswordToken(String token);}

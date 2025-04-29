@@ -46,7 +46,7 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/vacancies">Вакансии</a>
                     </li>
-                    <#if user??>
+                    <#if userPr??>
                         <#if userPr.authorities?seq_contains("APPLICANT")>
                             <li class="nav-item">
                                 <a class="nav-link" href="/companies">Компании</a>

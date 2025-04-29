@@ -117,4 +117,11 @@ public class VacancyController {
         return "vacancies/edit";
     }
 
+    @GetMapping("{vacancyId}")
+    public String getVacancyPage(@PathVariable Integer vacancyId, Model model) {
+        VacancyDto dto = vacancyService.getVacancyById(vacancyId).get();
+        model.addAttribute("vacancy", dto);
+        return "vacancies/vacancy";
+    }
+
 }

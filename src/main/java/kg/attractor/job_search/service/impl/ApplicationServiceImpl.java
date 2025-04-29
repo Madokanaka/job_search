@@ -1,6 +1,5 @@
 package kg.attractor.job_search.service.impl;
 
-import kg.attractor.job_search.dao.ApplicationDao;
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
@@ -54,7 +53,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         respondedApplicantRepository.save(respondedApplicant);
 
         log.info("Response successfully saved: {}", respondedApplicant);
-        return new RespondenApplicantDto().builder()
+        new RespondenApplicantDto();
+        return RespondenApplicantDto.builder()
                 .resumeId(resumeId)
                 .vacancyId(vacancyId)
                 .confirmation(false)

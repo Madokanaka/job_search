@@ -27,6 +27,8 @@ public class VacancyDto {
     @NotNull(message = "Category ID is required")
     private Integer categoryId;
 
+    private String categoryName;
+
     @Positive(message = "Salary must be a positive number")
     @NotNull(message = "Salary amount is required")
     private Double salary;

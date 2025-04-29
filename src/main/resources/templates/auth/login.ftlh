@@ -29,7 +29,8 @@
                             </#if>
 
                             <button type="submit" class="btn btn-primary w-100 mb-3">Войти</button>
-                            <a href="register" class="btn btn-secondary w-100 mb-3">Регистрация</a>
+                            <a href="/auth/register" class="btn btn-secondary w-100 mb-3">Регистрация</a>
+                            <a href="/auth/forgot_password" class="btn btn-success w-100 mb-3">Forgot password</a>
                         </form>
                     </div>
                 </div>

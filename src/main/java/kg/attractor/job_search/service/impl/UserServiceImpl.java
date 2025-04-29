@@ -1,5 +1,7 @@
 package kg.attractor.job_search.service.impl;
 
+import jakarta.mail.MessagingException;
+import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.exception.BadRequestException;
@@ -10,6 +12,7 @@ import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.UserService;
+import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,8 +22,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,6 +36,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RolesRepository rolesRepository;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -81,6 +87,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User findUserModelByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> {
+                    throw new UserNotFoundException("User with this email does not exist");
+                });
+    }
+
+    @Override
     public boolean existsByEmail(String email) {
         return userRepository.existsByEmail(email);
     }
@@ -117,6 +131,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .map(this::convertToDto)
                 .or(() -> {
+                    throw new UserNotFoundException("Could not find user with id " + userId);
+                });
+    }
+
+    @Override
+    public User getUserModelById(Integer userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> {
                     throw new UserNotFoundException("Could not find user with id " + userId);
                 });
     }
@@ -279,4 +301,41 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Override
+    public void saveAvatar(Long userId, String fileName) {
+        userRepository.saveAvatar(userId, fileName);
+
+        log.debug("Image saved with fileName={}", fileName);
+    }
+
+
+    private void updateResetPasswordToken(String token, String email) {
+        User user = userRepository.findByEmail(email.strip()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        user.setResetPasswordToken(token);
+        userRepository.saveAndFlush(user);
+    }
+
+
+    @Override
+    public User getByResetPasswordToken(String token) {
+        return userRepository.findByResetPasswordToken(token).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
+
+    @Override
+    public void updatePassword(User user, String password) {
+        String encodedPassword = passwordEncoder.encode(password);
+        user.setPassword(encodedPassword);
+        user.setResetPasswordToken(null);
+        userRepository.saveAndFlush(user);
+    }
+
+    @Override
+    public void makeResetPasswordLnk(HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+        String email = request.getParameter("email");
+        String token = UUID.randomUUID().toString();
+        updateResetPasswordToken(token, email);
+        String resetPasswordLnk = CommonUtilities.getSiteUrl(request) + "/auth/reset_password?token=" + token;
+        emailService.sendEmail(email, resetPasswordLnk);
+    }
 }

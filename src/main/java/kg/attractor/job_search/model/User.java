@@ -46,4 +46,6 @@ public class User {
 
     @ManyToMany(fetch = FetchType.EAGER, mappedBy = "users", cascade = CascadeType.ALL)
     private List<Role> roles;
+
+    private String resetPasswordToken;
 }

@@ -27,15 +27,15 @@
                                             </#if>
                                         </span>
                                     <span class="badge bg-info text-white">
-                                            Категория: ${resume.categoryId!''}
+                                            Категория: ${resume.categoryName!''}
                                         </span>
                                 </div>
 
                                 <div class="mt-auto pt-3">
                                     <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                                        <button class="btn btn-outline-primary btn-sm me-md-2">
+                                        <a href = "/resumes/${resume.id}" class="btn btn-outline-primary btn-sm me-md-2">
                                             <i class="bi bi-eye"></i> Просмотр
-                                        </button>
+                                        </a>
                                         <button class="btn btn-primary btn-sm">
                                             <i class="bi bi-telephone"></i> Контакты
                                         </button>

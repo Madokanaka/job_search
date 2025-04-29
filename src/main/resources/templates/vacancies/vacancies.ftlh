@@ -70,17 +70,15 @@
                                         <div>
                                             <#if vacancy.categoryId??>
                                                 <span class="badge bg-info text-dark">
-                                                   Категория ${vacancy.categoryId}
+                                                   Категория ${vacancy.categoryName}
                                                 </span>
                                             </#if>
                                         </div>
                                         <div>
-<#--                                            <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">-->
-<#--                                                Подробнее-->
-<#--                                            </a>-->
-                                            <button  class="btn btn-outline-primary me-2">
+
+                                            <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">
                                                 Подробнее
-                                            </button>
+                                            </a>
 
                                             <#if accountType?? && accountType == "applicant">
                                                 <button class="btn btn-primary">

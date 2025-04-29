@@ -23,7 +23,8 @@
                                value="${(_csrf.token)!'csrf-token'}"/>
                     </#if>
 
-                    <input type="file" name="file" id="avatarInput" accept="image/*" style="display: none;" onchange="this.form.submit()"/>
+                    <input type="file" name="file" id="avatarInput" accept="image/*" style="display: none;"
+                           onchange="this.form.submit()"/>
 
                     <label for="avatarInput" class="d-inline-block position-relative" style="cursor: pointer;">
                         <img src="${user.avatar?has_content?then('/api/images/' + user.avatar, 'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_1280.png')}"
@@ -51,7 +52,8 @@
         <div class="col-md-5 row d-flex justify-content-between">
             <#if user.accountType == "applicant">
                 <div class="col-md-6">
-                    <a href="/resumes/create" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
+                    <a href="/resumes/create"
+                       class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
                         <span class="me-2">+</span> Создать резюме
                     </a>
                 </div>
@@ -64,12 +66,14 @@
 
             <#if user.accountType == "employer">
                 <div class="col-md-6">
-                    <a href="/vacancies/create" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
+                    <a href="/vacancies/create"
+                       class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
                         <span class="me-2">+</span> Создать вакансию
                     </a>
                 </div>
                 <div class="col-md-6">
-                    <a href="/resumes" class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
+                    <a href="/resumes"
+                       class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center">
                         <span class="me-2">+</span> Список резюме
                     </a>
                 </div>
@@ -84,13 +88,15 @@
                 <#list vacancies as vacancy>
                     <div class="col-md-4 mb-5">
                         <div class="card h-100">
-                            <div class="card-body">
-                                <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
-                                <p class="text-muted">Дата обновления: ${vacancy.updateTime.toLocalDate()}</p>
-                            </div>
+                            <a href="/vacancies/${vacancy.id}" class="text-decoration-none">
+                                <div class="card-body">
+                                    <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
+                                    <p class="text-muted">Дата обновления: ${vacancy.updateTime.toLocalDate()}</p>
+                                </div>
+                            </a>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <button class="btn btn-outline-primary w-50">Обновить</button>
+                            <a href="/profile" class="btn btn-outline-primary w-50">Обновить</a>
                             <a href="/vacancies/${vacancy.id}/edit" class="btn btn-primary w-50">Ред.</a>
                         </div>
                     </div>
@@ -106,15 +112,18 @@
         <div class="row g-3">
             <#if resumes?? && resumes?size gt 0>
                 <#list resumes as resume>
+
                     <div class="col-md-4 mb-5">
                         <div class="card vacancy-card h-100">
-                            <div class="card-body">
-                                <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
-                            </div>
+                            <a href="/resumes/${resume.id}" class="text-decoration-none">
+                                <div class="card-body">
+                                    <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
+                                    <p class="text-muted">Дата обновления: ${resume.update_time.toLocalDate()}</p>
+                                </div>
+                            </a>
                         </div>
                         <div class="d-flex justify-content-between">
-                            <button class="btn btn-outline-primary w-50">Обновить</button>
+                            <a href="/profile" class="btn btn-outline-primary w-50">Обновить</a>
                             <a href="/resumes/${resume.id}/edit" class="btn btn-primary w-50">Ред.</a>
                         </div>
                     </div>

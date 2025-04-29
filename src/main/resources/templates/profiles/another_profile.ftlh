@@ -38,13 +38,15 @@
             <#if vacancies?? && vacancies?size gt 0>
                 <#list vacancies as vacancy>
                     <div class="col-md-4 mb-5">
-                        <div class="card h-100">
-                            <div class="card-body">
-                                <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
-                                <p class="text-muted">Дата
-                                    обновления: ${vacancy.updateTime.toLocalDate()!'дд/мм/гггг'}</p>
+                        <a href="/vacancies/${vacancy.id}" class="text-decoration-none">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h6 class="vacancy-title">${vacancy.name!'Название вакансии'}</h6>
+                                    <p class="text-muted">Дата
+                                        обновления: ${vacancy.updateTime.toLocalDate()!'дд/мм/гггг'}</p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </#list>
             <#else>
@@ -59,13 +61,15 @@
             <#if resumes?? && resumes?size gt 0>
                 <#list resumes as resume>
                     <div class="col-md-4 mb-5">
-                        <div class="card vacancy-card h-100">
-                            <div class="card-body">
-                                <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
-                                <p class="text-muted">Дата
-                                    обновления: ${resume.update_time.toLocalDate()!'дд/мм/гггг'}</p>
+                        <a href="/resumes/${resume.id}" class="text-decoration-none">
+                            <div class="card vacancy-card h-100">
+                                <div class="card-body">
+                                    <h6 class="vacancy-title">${resume.name!'Название резюме'}</h6>
+                                    <p class="text-muted">Дата
+                                        обновления: ${resume.update_time.toLocalDate()!'дд/мм/гггг'}</p>
+                                </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </#list>
             <#else>

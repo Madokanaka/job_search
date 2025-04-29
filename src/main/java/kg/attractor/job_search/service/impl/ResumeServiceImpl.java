@@ -34,11 +34,6 @@ public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeRepository resumeRepository;
     private final CategoryRepository categoryRepository;
-    private final UserRepository userRepository;
-    private final ContactInfoRepository contactInfoRepository;
-    private final EducationInfoRepository educationInfoRepository;
-    private final WorkExperienceInfoRepository workExperienceInfoRepository;
-    private final ContactTypeRepository contactTypeRepository;
     private final UserService userService;
     private final CategoryService categoryService;
     private final ContactInfoService contactInfoService;
@@ -131,6 +126,16 @@ public class ResumeServiceImpl implements ResumeService {
     }
 
     @Override
+    public Resume getResumeModelById(Integer resumeId) {
+        log.info("Fetching resume with id={}", resumeId);
+
+        Resume resume = resumeRepository.findById(resumeId)
+                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+
+        return resume;
+    }
+
+    @Override
     public List<ResumeDto> getAllResumes() {
         log.info("Fetching all resumes");
         return resumeRepository.findAll().stream()
@@ -186,6 +191,7 @@ public class ResumeServiceImpl implements ResumeService {
                 .facebook(facebook)
                 .educationInfoList(new ArrayList<>(educationInfoService.getEducationInfoByResumeId(resume.getId())))
                 .workExperienceInfoList(new ArrayList<>(workExperienceInfoService.getWorkExperienceInfoByResumeId(resume.getId())))
+                .categoryName(categoryService.getCategoryNameById(resume.getCategory().getId()))
                 .build();
     }
 

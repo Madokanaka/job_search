@@ -30,6 +30,8 @@ public class ResumeDto {
     @Min(value = 1, message = "Категория должна быть положительной")
     private Integer categoryId;
 
+    private String categoryName;
+
     @Positive(message = "Зарплата должна быть положительной")
     @NotNull(message = "Поле зарплаты необходимо")
     private Double salary;
@@ -39,13 +41,7 @@ public class ResumeDto {
     private LocalDateTime created_date;
     private LocalDateTime update_time;
 
-    @Valid
-    @Builder.Default
-
     private List<EducationInfoDto> educationInfoList = new ArrayList<>();
-
-    @Valid
-    @Builder.Default
 
     private List<WorkExperienceInfoDto> workExperienceInfoList = new ArrayList<>();
 

@@ -78,9 +78,9 @@
 <#--                                            <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">-->
 <#--                                                Подробнее-->
 <#--                                            </a>-->
-                                            <button  class="btn btn-outline-primary me-2">
+                                            <a href="/vacancies/${vacancy.id}" class="btn btn-outline-primary me-2">
                                                 Подробнее
-                                            </button>
+                                            </a>
 
                                             <#if accountType?? && accountType == "applicant">
                                                 <button class="btn btn-primary">

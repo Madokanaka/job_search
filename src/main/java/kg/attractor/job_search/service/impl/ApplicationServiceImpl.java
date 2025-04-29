@@ -51,6 +51,8 @@ public class ApplicationServiceImpl implements ApplicationService {
         respondedApplicant.setVacancy(vacancyService.getVacancyModelById(vacancyId));
         respondedApplicant.setConfirmation(false);
 
+        respondedApplicantRepository.save(respondedApplicant);
+
         log.info("Response successfully saved: {}", respondedApplicant);
         return new RespondenApplicantDto().builder()
                 .resumeId(resumeId)

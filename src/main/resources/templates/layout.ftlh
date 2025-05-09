@@ -1,7 +1,7 @@
 <#import "spring.ftl" as spring>
 <#macro layout>
     <!doctype html>
-    <html lang="en">
+    <html lang="${.lang}">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport"
@@ -15,7 +15,7 @@
                 crossorigin="anonymous"></script>
         <script src="../static/scripts/main.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
-        <title>Document</title>
+        <title><@spring.message "title"/></title>
     </head>
     <body>
 
@@ -35,58 +35,75 @@
 
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5">
         <div class="container-fluid">
-            <a class="navbar-brand" href="/vacancies">Navbar</a>
+            <a class="navbar-brand" href="/vacancies"><@spring.message "navbar.brand"/></a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                     data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
+                    aria-expanded="false" aria-label="<@spring.message "navbar.toggle"/>">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                     <li class="nav-item">
-                        <a class="nav-link" href="/vacancies">Вакансии</a>
+                        <a class="nav-link" href="/vacancies"><@spring.message "navbar.vacancies"/></a>
                     </li>
                     <#if userPr??>
                         <#if userPr.authorities?seq_contains("APPLICANT")>
                             <li class="nav-item">
-                                <a class="nav-link" href="/companies">Компании</a>
+                                <a class="nav-link" href="/companies"><@spring.message "navbar.companies"/></a>
                             </li>
                         <#elseif userPr.authorities?seq_contains("EMPLOYER")>
                             <li class="nav-item">
-                                <a class="nav-link" href="/resumes">Резюме</a>
+                                <a class="nav-link" href="/resumes"><@spring.message "navbar.resumes"/></a>
                             </li>
                         </#if>
                     </#if>
+                    <li class="nav-item">
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                <@spring.message "layout.nav.lang.exchange"/>
+                            </button>
+                            <ul class="dropdown-menu z-3" aria-labelledby="dropdownMenuButton1">
+                                <li>
+                                    <a class="dropdown-item" href="?lang=en">
+                                        <img src="https://flagcdn.com/w320/gb.png" alt="English" class="me-2" style="width: 20px; height: 14px;">
+                                        <@spring.message "layout.nav.lang_en"/>
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="?lang=ru">
+                                        <img src="https://flagcdn.com/w320/ru.png" alt="Русский" class="me-2" style="width: 20px; height: 14px;">
+                                        <@spring.message "layout.nav.lang_ru"/>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+
                 </ul>
+
 
                 <#if userPr??>
                     <a href="/profile" class="text-light m-2 m-sm-0">
-                        Hello, ${name}:
+                        <@spring.message "navbar.greeting"/> ${name}:
                     </a>
                     <#if _csrf??>
                         <form action="/logout" method="post">
                             <input type="hidden" name="${(_csrf.parameterName)!'csrf'}"
                                    value="${(_csrf.token)!'--no-token--'}"/>
                             <button type="submit" class="btn btn-outline-info m-2"
-                                    id="logout">Logout
-                            </button>
+                                    id="logout"><@spring.message "navbar.logout"/></button>
                         </form>
                     <#else>
                         <a href="/logout" class="btn btn-outline-info m-2"
-                           id="logout">Logout</a>
+                           id="logout"><@spring.message "navbar.logout"/></a>
                     </#if>
                 <#else>
                     <a href="/auth/login"
-                       class="btn btn-outline-info m-2">Login</a>
+                       class="btn btn-outline-info m-2"><@spring.message "navbar.login"/></a>
                     <a href="/auth/register"
-                       class="btn btn-outline-info m-2">Register</a>
+                       class="btn btn-outline-info m-2"><@spring.message "navbar.register"/></a>
                 </#if>
-                <#--                <div class="d-flex align-items-center">-->
-                <#--                    <a href="/profile" class="btn btn-outline-light me-2">Профиль</a>-->
-                <#--                    <form action="/logout" method="post" class="m-0">-->
-                <#--                        <button type="submit" class="btn btn-danger">Выйти</button>-->
-                <#--                    </form>-->
-                <#--                </div>-->
             </div>
         </div>
     </nav>

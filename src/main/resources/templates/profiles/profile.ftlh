@@ -3,6 +3,7 @@
     <div class="profile-info text-center">
         <h1 class="mb-5">
             <@spring.message "profile.title"/>
+
             <#if user.accountType == "employer">
                 <@spring.message "profile.type.employer"/>
             <#elseif user.accountType == "applicant">
@@ -51,6 +52,34 @@
                         aria-label="<@spring.message "profile.edit.button.aria"/>">
                     <@spring.message "profile.edit.button"/>
                 </button>
+            </div>
+            <div class="language-selector ms-auto" style="max-width: 200px;">
+                <form action="/profile/language" method="post" class="d-flex align-items-center">
+                    <#if _csrf??>
+                        <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
+                               value="${(_csrf.token)!'csrf-token'}"/>
+                    </#if>
+                    <input type="hidden" name="userId" value="${user.id}"/>
+
+                    <label for="languageSelect" class="form-label me-2 mb-0">
+                        <i class="bi bi-translate"></i>
+                    </label>
+
+                    <select id="languageSelect" name="language" class="form-select form-select-sm">
+                        <option value="en"
+                                <#if user.languagePreference?? && user.languagePreference == "en">selected</#if>>
+                            <@spring.message "profile.language.en"/>
+                        </option>
+                        <option value="ru"
+                                <#if user.languagePreference?? && user.languagePreference == "ru">selected</#if>>
+                            <@spring.message "profile.language.ru"/>
+                        </option>
+                    </select>
+
+                    <button type="submit" class="btn btn-sm btn-outline-primary ms-2">
+                        <@spring.message "profile.language.submit"/>
+                    </button>
+                </form>
             </div>
         </div>
 
@@ -102,7 +131,8 @@
                                aria-label="<@spring.message "profile.vacancies.view.aria"/> ${vacancy.name!'<@spring.message "profile.vacancies.name.none"/>'}">
                                 <div class="card-body">
                                     <h6 class="vacancy-title">${vacancy.name!'<@spring.message "profile.vacancies.name.none"/>'}</h6>
-                                    <p class="text-muted"><@spring.message "profile.vacancies.updated"/>: ${vacancy.updateTime.toLocalDate()!'<@spring.message "profile.date.none"/>'}</p>
+                                    <p class="text-muted"><@spring.message "profile.vacancies.updated"/>
+                                        : ${vacancy.updateTime.toLocalDate()!'<@spring.message "profile.date.none"/>'}</p>
                                 </div>
                             </a>
                         </div>
@@ -138,7 +168,8 @@
                                aria-label="<@spring.message "profile.resumes.view.aria"/> ${resume.name!'<@spring.message "profile.resumes.name.none"/>'}">
                                 <div class="card-body">
                                     <h6 class="vacancy-title">${resume.name!'<@spring.message "profile.resumes.name.none"/>'}</h6>
-                                    <p class="text-muted"><@spring.message "profile.resumes.updated"/>: ${resume.update_time.toLocalDate()!'<@spring.message "profile.date.none"/>'}</p>
+                                    <p class="text-muted"><@spring.message "profile.resumes.updated"/>
+                                        : ${resume.update_time.toLocalDate()!'<@spring.message "profile.date.none"/>'}</p>
                                 </div>
                             </a>
                         </div>
@@ -180,22 +211,26 @@
                     </div>
                     <div class="modal-body">
                         <div class="form-group mb-3">
-                            <label class="form-label" for="form3Example1cg"><@spring.message "profile.edit.name.label"/></label>
+                            <label class="form-label"
+                                   for="form3Example1cg"><@spring.message "profile.edit.name.label"/></label>
                             <@spring.formInput "userEdit.name" 'id="form3Example1cg" class="form-control" value="${userEdit.name}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label" for="form3Example2cg"><@spring.message "profile.edit.surname.label"/></label>
+                            <label class="form-label"
+                                   for="form3Example2cg"><@spring.message "profile.edit.surname.label"/></label>
                             <@spring.formInput "userEdit.surname" 'id="form3Example2cg" class="form-control" value="${userEdit.surname}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label" for="form3Example3cg"><@spring.message "profile.edit.age.label"/></label>
+                            <label class="form-label"
+                                   for="form3Example3cg"><@spring.message "profile.edit.age.label"/></label>
                             <@spring.formInput "userEdit.age" 'id="form3Example3cg" class="form-control" value="${userEdit.age}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>
                         <div class="form-group mb-3">
-                            <label class="form-label" for="form3Example5cg"><@spring.message "profile.edit.phone.label"/></label>
+                            <label class="form-label"
+                                   for="form3Example5cg"><@spring.message "profile.edit.phone.label"/></label>
                             <@spring.formInput "userEdit.phoneNumber" 'id="form3Example5cg" class="form-control" value="${userEdit.phoneNumber}"' />
                             <@spring.showErrors "<br>" "error text-danger" />
                         </div>

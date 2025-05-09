@@ -10,7 +10,6 @@ import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
-import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.RoleService;
 import kg.attractor.job_search.service.UserService;
@@ -27,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -42,6 +42,9 @@ public class UserServiceImpl implements UserService {
     private final RoleService roleService;
     private final EmailService emailService;
     private final MessageSource messageSource;
+
+    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "ru");
+
 
     @Override
     @Transactional
@@ -71,6 +74,7 @@ public class UserServiceImpl implements UserService {
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
                 .roles(List.of(userRole))
+                .languagePreference("ru")
                 .build();
 
         try {
@@ -246,6 +250,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .avatar(user.getAvatar())
                 .accountType(user.getAccountType())
+                .languagePreference(user.getLanguagePreference())
                 .build();
     }
 
@@ -341,5 +346,24 @@ public class UserServiceImpl implements UserService {
         updateResetPasswordToken(token, email);
         String resetPasswordLnk = CommonUtilities.getSiteUrl(request) + "/auth/reset_password?token=" + token;
         emailService.sendEmail(email, resetPasswordLnk);
+    }
+
+    @Override
+    public void updateLanguagePreference(Integer userId, String languageCode) {
+        if (userId == null || userId <= 0) {
+            log.error("Неверный ID пользователя: {}", userId);
+            throw new IllegalArgumentException(messageSource.getMessage("error.invalid.userId", null, LocaleContextHolder.getLocale()));
+        }
+        if (languageCode == null || !SUPPORTED_LANGUAGES.contains(languageCode)) {
+            log.error("Неверный или неподдерживаемый код языка: {}", languageCode);
+            throw new IllegalArgumentException("Неподдерживаемый код языка: " + languageCode);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
+
+        user.setLanguagePreference(languageCode);
+        userRepository.save(user);
+        log.info("Языковые предпочтения обновлены на {} для пользователя ID {}", languageCode, userId);
     }
 }

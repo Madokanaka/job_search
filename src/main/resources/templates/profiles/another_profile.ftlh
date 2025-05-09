@@ -3,6 +3,7 @@
     <div class="profile-info text-center">
         <h1 class="mb-5">
             <@spring.message "another_profile.title"/>
+
             <#if user.accountType == "employer">
                 <@spring.message "another_profile.type.employer"/>
             <#elseif user.accountType == "applicant">

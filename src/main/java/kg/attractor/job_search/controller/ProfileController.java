@@ -1,5 +1,7 @@
 package kg.attractor.job_search.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import kg.attractor.job_search.dto.ResumeDto;
 import kg.attractor.job_search.dto.UserDto;
@@ -24,8 +26,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.LocaleResolver;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 @Controller
@@ -37,6 +42,7 @@ public class ProfileController {
     private final VacancyService vacancyService;
     private final ResumeService resumeService;
     private final ImageService imageService;
+    private final LocaleResolver localeResolver;
 
     @GetMapping()
     public String getUserProfile(@AuthenticationPrincipal User principal,
@@ -96,58 +102,75 @@ public class ProfileController {
         }
         model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
 
-        return"profiles/another_profile";
-}
-
-@PutMapping("")
-public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute @Valid UserEditDto userEditDto,
-                                BindingResult bindingResult, Model model) {
-    if (!bindingResult.hasErrors()) {
-        UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
-
-        model.addAttribute("user", user);
-        return "redirect:/profile";
-
+        return "profiles/another_profile";
     }
 
-    Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+    @PutMapping("")
+    public String updateUserProfile(@AuthenticationPrincipal User principal, @ModelAttribute @Valid UserEditDto userEditDto,
+                                    BindingResult bindingResult, Model model) {
+        if (!bindingResult.hasErrors()) {
+            UserDto user = userService.updateUserProfile(principal.getUsername(), userEditDto);
 
-    Optional<UserDto> userDto = userService.getUserById(userId);
-    if (userDto.isPresent()) {
+            model.addAttribute("user", user);
+            return "redirect:/profile";
+
+        }
+
+        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+
+        Optional<UserDto> userDto = userService.getUserById(userId);
+        if (userDto.isPresent()) {
+            model.addAttribute("user", userDto.get());
+            if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
+                vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
+                model.addAttribute("view", "vacancies");
+            }
+            if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
+                Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
+                resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
+                model.addAttribute("view", "resume");
+                model.addAttribute("showEditModal", true);
+
+            }
+        }
+        userEditDto.setAge(userDto.get().getAge());
+        model.addAttribute("userEdit", userEditDto);
+        return "profiles/profile";
+    }
+
+    @PostMapping("/avatar")
+    public String updateAvatar(@AuthenticationPrincipal User principal,
+                               @RequestParam("file") MultipartFile file,
+                               Model model) {
+
+        if (!file.isEmpty()) {
+            String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
+
+            imageService.uploadImage(principal, file);
+        }
+
+        Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
+
+        Optional<UserDto> userDto = userService.getUserById(userId);
         model.addAttribute("user", userDto.get());
-        if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-            Optional<List<VacancyDto>> vacancies = vacancyService.getVacanciesByUserId(userId);
-            vacancies.ifPresent(vacancyDtos -> model.addAttribute("vacancies", vacancyDtos));
-            model.addAttribute("view", "vacancies");
-        }
-        if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-            Optional<List<ResumeDto>> resumes = resumeService.getResumesByUserId(userId);
-            resumes.ifPresent(resumeDtos -> model.addAttribute("resumes", resumeDtos));
-            model.addAttribute("view", "resume");
-            model.addAttribute("showEditModal", true);
-
-        }
-    }
-    userEditDto.setAge(userDto.get().getAge());
-    model.addAttribute("userEdit", userEditDto);
-    return "profiles/profile";
-}
-
-@PostMapping("/avatar")
-public String updateAvatar(@AuthenticationPrincipal User principal,
-                           @RequestParam("file") MultipartFile file,
-                           Model model) {
-
-    if (!file.isEmpty()) {
-        String fileName = principal.getUsername() + "_avatar_" + file.getOriginalFilename();
-
-        imageService.uploadImage(principal, file);
+        return "redirect:/profile";
     }
 
-    Integer userId = userService.findUserByEmail(principal.getUsername()).get().getId();
-
-    Optional<UserDto> userDto = userService.getUserById(userId);
-    model.addAttribute("user", userDto.get());
-    return "redirect:/profile";
-}
+    @PostMapping("/language")
+    public String updateLanguagePreference(@RequestParam("userId") Integer userId,
+                                           @RequestParam("language") String languageCode,
+                                           HttpServletRequest request,
+                                           HttpServletResponse response,
+                                           RedirectAttributes redirectAttributes)    {
+        try {
+            userService.updateLanguagePreference(userId, languageCode);
+            redirectAttributes.addFlashAttribute("languageUpdated", true);
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", "Не удалось обновить язык: " + e.getMessage());
+        }
+        Locale newLocale = new Locale(languageCode);
+        localeResolver.setLocale(request, response, newLocale);
+        return "redirect:/profile";
+    }
 }

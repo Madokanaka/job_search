@@ -56,6 +56,9 @@ public class User {
 
     private String resetPasswordToken;
 
+    @Column(name = "language_preference", length = 10)
+    private String languagePreference;
+
     public void addRole(Role role) {
         this.roles.add(role);
         role.getUsers().add(this);

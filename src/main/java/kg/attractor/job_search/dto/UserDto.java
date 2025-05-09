@@ -52,4 +52,6 @@ public class UserDto {
             message = "{User.accountType.invalid}"
     )
     private String accountType;
+
+    private String languagePreference;
 }

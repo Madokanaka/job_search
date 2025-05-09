@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: 019 add column to users table
+      author: Seitek
+      changes:
+        - addColumn:
+            tableName: USERS
+            columns:
+              - column:
+                  name: language_preference
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+                  defaultValue: 'ru'

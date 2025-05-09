@@ -9,6 +9,8 @@ import kg.attractor.job_search.repository.EducationInfoRepository;
 import kg.attractor.job_search.service.EducationInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ import java.util.stream.Collectors;
 public class EducationInfoServiceImpl implements EducationInfoService {
 
     private final EducationInfoRepository educationInfoRepository;
+    private final MessageSource messageSource;
 
     @Override
     @Transactional
@@ -59,7 +62,7 @@ public class EducationInfoServiceImpl implements EducationInfoService {
 
         if (startDate == null || endDate == null) {
             log.error("Start date or end date is null for resumeId={}", resumeId);
-            throw new IllegalEducationDatesException("Start date and end date must be provided");
+            throw new IllegalEducationDatesException(messageSource.getMessage("error.education.dates.null", null, LocaleContextHolder.getLocale()));
         }
 
         LocalDate minDate = LocalDate.of(1900, 1, 1);
@@ -67,15 +70,15 @@ public class EducationInfoServiceImpl implements EducationInfoService {
 
         if (startDate.isBefore(minDate) || startDate.isAfter(maxDate)) {
             log.error("Invalid start date {} for resumeId={}", startDate, resumeId);
-            throw new IllegalEducationDatesException("Start date must be between 1900 and " + maxDate.getYear());
+            throw new IllegalEducationDatesException(messageSource.getMessage("error.education.startDate.invalid", new Object[]{minDate, maxDate.getYear()}, LocaleContextHolder.getLocale()));
         }
         if (endDate.isBefore(minDate) || endDate.isAfter(maxDate)) {
             log.error("Invalid end date {} for resumeId={}", endDate, resumeId);
-            throw new IllegalEducationDatesException("End date must be between 1900 and " + maxDate.getYear());
+            throw new IllegalEducationDatesException(messageSource.getMessage("error.education.endDate.invalid", new Object[]{minDate, maxDate.getYear()}, LocaleContextHolder.getLocale()));
         }
         if (endDate.isBefore(startDate)) {
             log.error("End date {} is before start date {} for resumeId={}", endDate, startDate, resumeId);
-            throw new IllegalEducationDatesException("End date must not be before start date");
+            throw new IllegalEducationDatesException(messageSource.getMessage("error.education.endBeforeStart", null, LocaleContextHolder.getLocale()));
         }
     }
 

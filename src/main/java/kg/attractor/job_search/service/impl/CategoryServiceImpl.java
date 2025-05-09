@@ -15,6 +15,8 @@ import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final MessageSource messageSource;
 
 
     @Override
@@ -73,6 +76,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public String getCategoryNameById(Integer categoryId) {
-        return categoryRepository.findNameById(categoryId).orElseThrow(() -> new CategoryNotFoundException("Category with id " + categoryId + " was not found"));
+        return categoryRepository.findNameById(categoryId).orElseThrow(() -> new CategoryNotFoundException(messageSource.getMessage("error.category.not.found", new Object[]{categoryId}, LocaleContextHolder.getLocale())));
     }
 }

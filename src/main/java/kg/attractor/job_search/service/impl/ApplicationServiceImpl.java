@@ -11,6 +11,8 @@ import kg.attractor.job_search.service.ResumeService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +24,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final RespondedApplicantRepository respondedApplicantRepository;
     private final ResumeService resumeService;
     private final VacancyService vacancyService;
+    private final MessageSource messageSource;
 
     @Override
     @Transactional
@@ -34,12 +37,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (vacancyCategory != resumeCategory) {
             log.warn("Category mismatch: resumeId={}, vacancyId={}", resumeId, vacancyId);
-            throw new BadRequestException("Vacancy's and resume's category are not the same");
+            throw new BadRequestException(messageSource.getMessage("error.category.mismatch", null, LocaleContextHolder.getLocale()));
         }
 
         if (respondedApplicantRepository.findByResumeIdAndVacancyId(resumeId, vacancyId).isPresent()) {
             log.warn("Duplicate application detected: resumeId={}, vacancyId={}", resumeId, vacancyId);
-            throw new RecordAlreadyExistsException("Application already exists");
+            throw new RecordAlreadyExistsException(messageSource.getMessage("error.application.exists", null, LocaleContextHolder.getLocale()));
         }
 
         RespondedApplicant respondedApplicant = new RespondedApplicant();

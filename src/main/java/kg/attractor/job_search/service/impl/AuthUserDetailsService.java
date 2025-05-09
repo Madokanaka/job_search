@@ -5,6 +5,8 @@ import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,11 +23,12 @@ import java.util.List;
 public class AuthUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final MessageSource messageSource;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+                .orElseThrow(() -> new UsernameNotFoundException(messageSource.getMessage("error.user.not.found", null, LocaleContextHolder.getLocale())));
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

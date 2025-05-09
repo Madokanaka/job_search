@@ -17,6 +17,8 @@ import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +41,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
     private final EmailService emailService;
+    private final MessageSource messageSource;
 
     @Override
     @Transactional
@@ -46,7 +49,7 @@ public class UserServiceImpl implements UserService {
         log.info("Registering user: {}", userDto.getEmail());
 
         if (userRepository.existsByEmail(userDto.getEmail().strip())) {
-            throw new RecordAlreadyExistsException("User with this email already exists");
+            throw new RecordAlreadyExistsException(messageSource.getMessage("error.already.exists", null, LocaleContextHolder.getLocale()));
         }
 
         validateAccountType(userDto.getAccountType());
@@ -85,16 +88,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("User with this email does not exist");
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found.withEmail", null, LocaleContextHolder.getLocale()));
                 });
     }
 
     @Override
     public User findUserModelByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    throw new UserNotFoundException("User with this email does not exist");
-                });
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withEmail", null, LocaleContextHolder.getLocale())));
     }
 
     @Override
@@ -115,7 +116,7 @@ public class UserServiceImpl implements UserService {
                 .filter(u -> "APPLICANT".equalsIgnoreCase(u.getAccountType()))
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("Could not find applicant with id " + userId);
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
     }
 
@@ -212,7 +213,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUserProfile(String email, UserEditDto userEditDto) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
 
         user.setName(userEditDto.getName());
         user.setSurname(userEditDto.getSurname());
@@ -313,7 +314,7 @@ public class UserServiceImpl implements UserService {
 
 
     private void updateResetPasswordToken(String token, String email) {
-        User user = userRepository.findByEmail(email.strip()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email.strip()).orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
         user.setResetPasswordToken(token);
         userRepository.saveAndFlush(user);
     }
@@ -321,7 +322,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByResetPasswordToken(String token) {
-        return userRepository.findByResetPasswordToken(token).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userRepository.findByResetPasswordToken(token).orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
     }
 
 

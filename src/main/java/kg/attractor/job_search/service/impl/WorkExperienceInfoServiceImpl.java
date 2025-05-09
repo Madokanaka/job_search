@@ -2,14 +2,14 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.WorkExperienceInfoDto;
 import kg.attractor.job_search.exception.IllegalYearsException;
-import kg.attractor.job_search.exception.ResumeNotFoundException;
 import kg.attractor.job_search.model.WorkExperienceInfo;
 import kg.attractor.job_search.model.Resume;
 import kg.attractor.job_search.repository.WorkExperienceInfoRepository;
-import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.WorkExperienceInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +22,8 @@ import java.util.stream.Collectors;
 public class WorkExperienceInfoServiceImpl implements WorkExperienceInfoService {
 
     private final WorkExperienceInfoRepository workExperienceInfoRepository;
+    private final MessageSource messageSource;
+
 
     @Override
     @Transactional
@@ -67,8 +69,9 @@ public class WorkExperienceInfoServiceImpl implements WorkExperienceInfoService 
         if (totalWorkYears > maxWorkYears) {
             log.error("Total work experience years {} exceeds maximum allowed {} for resumeId={}",
                     totalWorkYears, maxWorkYears, resume.getId());
-            throw new IllegalYearsException(
-                    "Total work experience years (" + totalWorkYears + ") cannot exceed " + maxWorkYears + " (age - 18)");
+            throw new IllegalYearsException(messageSource.getMessage("error.workExperience.exceedsMaxYears",
+                    new Object[]{totalWorkYears, maxWorkYears}, LocaleContextHolder.getLocale()));
+
         }
     }
 

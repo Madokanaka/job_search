@@ -12,6 +12,8 @@ import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.WorkExperienceInfoService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -39,6 +41,8 @@ public class ResumeServiceImpl implements ResumeService {
     private final ContactInfoService contactInfoService;
     private final EducationInfoService educationInfoService;
     private final WorkExperienceInfoService workExperienceInfoService;
+    private final MessageSource messageSource;
+
 
     @Override
     @Transactional
@@ -47,14 +51,14 @@ public class ResumeServiceImpl implements ResumeService {
 
         if (resumeDto == null || userId == null || userId <= 0) {
             log.warn("Invalid resumeDto or userId");
-            throw new BadRequestException("User ID or resume have invalid values");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.resume.or.user", null, LocaleContextHolder.getLocale()));
         }
 
         User user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
 
         Category category = categoryService.findById(resumeDto.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category ID not found in database"));
+                .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage("error.category.not.found", new Object[]{resumeDto.getCategoryId()}, LocaleContextHolder.getLocale())));
 
         Resume resume = new Resume();
         resume.setApplicant(user);
@@ -71,7 +75,6 @@ public class ResumeServiceImpl implements ResumeService {
         contactInfoService.createContactInfo(resumeDto, resume);
         educationInfoService.createEducationInfo(resumeDto.getEducationInfoList(), resume);
         workExperienceInfoService.createWorkExperienceInfo(resumeDto.getWorkExperienceInfoList(), resume);
-//        saveResumeDetails(resume.getId(), resumeDto, resume);
     }
 
     @Override
@@ -80,7 +83,7 @@ public class ResumeServiceImpl implements ResumeService {
         log.info("Deleting resume with id={}", resumeId);
 
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+                .orElseThrow(() -> new ResumeNotFoundException(messageSource.getMessage("error.resume.not.found", new Object[]{resumeId}, LocaleContextHolder.getLocale())));
 
         contactInfoService.deleteContactInfoByResumeId(resumeId);
         educationInfoService.deleteEducationInfoByResumeId(resumeId);
@@ -96,7 +99,7 @@ public class ResumeServiceImpl implements ResumeService {
         log.info("Editing resume with id={}", resumeId);
 
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+                .orElseThrow(() -> new ResumeNotFoundException(messageSource.getMessage("error.resume.not.found", new Object[]{resumeId}, LocaleContextHolder.getLocale())));
 
         resume.setName(resumeDto.getName());
         resume.setSalary(resumeDto.getSalary());
@@ -120,7 +123,7 @@ public class ResumeServiceImpl implements ResumeService {
         log.info("Fetching resume with id={}", resumeId);
 
         Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+                .orElseThrow(() -> new ResumeNotFoundException(messageSource.getMessage("error.resume.not.found", new Object[]{resumeId}, LocaleContextHolder.getLocale())));
 
         return convertToDto(resume);
     }
@@ -130,7 +133,7 @@ public class ResumeServiceImpl implements ResumeService {
         log.info("Fetching resume with id={}", resumeId);
 
         return resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
+                .orElseThrow(() -> new ResumeNotFoundException(messageSource.getMessage("error.resume.not.found", new Object[]{resumeId}, LocaleContextHolder.getLocale())));
     }
 
     @Override
@@ -147,11 +150,11 @@ public class ResumeServiceImpl implements ResumeService {
 
         if (userId == null || userId <= 0) {
             log.warn("Invalid userId={}", userId);
-            throw new BadRequestException("User ID has invalid value");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.userId", null, LocaleContextHolder.getLocale()));
         }
 
         User user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found in database"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", null, LocaleContextHolder.getLocale())));
 
         List<Resume> resumes = resumeRepository.findByApplicantId(user.getId());
 
@@ -268,7 +271,7 @@ public class ResumeServiceImpl implements ResumeService {
         Resume resume = getResumeModelById(resumeId);
 
         if (resume.getCategory() == null) {
-            throw new ResourceNotFoundException("Resume category is not set for id " + resumeId);
+            throw new ResourceNotFoundException(messageSource.getMessage("error.resume.category.not.found", new Object[]{resumeId}, LocaleContextHolder.getLocale()));
         }
 
         return resume.getCategory().getId();

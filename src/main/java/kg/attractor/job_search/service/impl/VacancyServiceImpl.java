@@ -14,6 +14,8 @@ import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +38,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     private final UserService userService;
     private final CategoryService categoryService;
+    private final MessageSource messageSource;
 
     @Override
     public void createVacancy(VacancyDto vacancyDto, Integer userId) {
@@ -43,19 +46,19 @@ public class VacancyServiceImpl implements VacancyService {
         log.info("Creating vacancy for user with ID {}", userId);
 
         User user = userService.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with id " + userId + " not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
 
         if (!"employer".equalsIgnoreCase(user.getAccountType())) {
             log.warn("User with ID {} is not an employer", userId);
-            throw new BadRequestException("User with id " + userId + " is not employer");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.user.type.employer", new Object[]{userId}, LocaleContextHolder.getLocale()));
         }
 
         Category category = categoryService.findById(vacancyDto.getCategoryId())
-                .orElseThrow(() -> new ResourceNotFoundException("Category with id " + vacancyDto.getCategoryId() + " not found"));
+                .orElseThrow(() -> new ResourceNotFoundException(messageSource.getMessage("error.category.not.found", new Object[]{vacancyDto.getCategoryId()}, LocaleContextHolder.getLocale())));
 
         if (vacancyDto.getExpFrom() >= vacancyDto.getExpTo() && vacancyDto.getExpFrom() != 0) {
             log.warn("Invalid experience range: from {} to {}", vacancyDto.getExpFrom(), vacancyDto.getExpTo());
-            throw new BadRequestException("Exp to should be greater than experience from");
+            throw new BadRequestException(messageSource.getMessage("error.vacancy.exp", null, LocaleContextHolder.getLocale()));
         }
 
         Vacancy vacancy = Vacancy.builder()
@@ -84,12 +87,12 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (optionalVacancy.isEmpty()) {
             log.warn("Vacancy with ID {} not found", vacancyId);
-            throw new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found");
+            throw new ResourceNotFoundException(messageSource.getMessage("error.vacancy.not.found", new Object[]{vacancyId}, LocaleContextHolder.getLocale()));
         }
 
         if (vacancyDto.getExpFrom() >= vacancyDto.getExpTo() && vacancyDto.getExpFrom() != 0) {
             log.warn("Invalid experience range for vacancy edit: from {} to {}", vacancyDto.getExpFrom(), vacancyDto.getExpTo());
-            throw new BadRequestException("Exp to should be greater than experience from");
+            throw new BadRequestException(messageSource.getMessage("error.vacancy.exp", null, LocaleContextHolder.getLocale()));
         }
 
         Vacancy vacancy = optionalVacancy.get();
@@ -149,7 +152,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (!categoryService.existsByCategoryId(categoryId)) {
             log.warn("Category with ID {} not found", categoryId);
-            throw new ResourceNotFoundException("Category not found in database");
+            throw new ResourceNotFoundException(messageSource.getMessage("error.category.not.found", new Object[]{categoryId}, LocaleContextHolder.getLocale()));
         }
 
         List<VacancyDto> vacancies = vacancyRepository.findByCategoryId(categoryId).stream()
@@ -158,7 +161,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (vacancies.isEmpty()) {
             log.warn("No vacancies found for category ID {}", categoryId);
-            throw new VacancyNotFoundException("Vacancies with category " + categoryId + " were not found");
+            throw new VacancyNotFoundException(messageSource.getMessage("error.vacancies.withCategory.notFound", new Object[]{categoryId}, LocaleContextHolder.getLocale()));
         }
 
         log.info("Retrieved {} vacancies for category ID {}", vacancies.size(), categoryId);
@@ -195,7 +198,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (vacancy.isEmpty()) {
             log.warn("Vacancy with ID {} not found", vacancyId);
-            throw new VacancyNotFoundException("Vacancy with ID " + vacancyId + " not found");
+            throw new VacancyNotFoundException(messageSource.getMessage("error.vacancy.not.found", new Object[]{vacancyId}, LocaleContextHolder.getLocale()));
         }
 
         log.info("Vacancy with ID {} retrieved successfully", vacancyId);
@@ -208,10 +211,10 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (vacancyId == null || vacancyId <= 0) {
             log.warn("Invalid vacancy ID: {}", vacancyId);
-            throw new BadRequestException("Invalid vacancy ID: " + vacancyId);
+            throw new BadRequestException(messageSource.getMessage("error.invalid.vacancyId", new Object[]{vacancyId}, LocaleContextHolder.getLocale()));
         }
 
-        Vacancy vacancy = vacancyRepository.findById(vacancyId).orElseThrow(() -> new VacancyNotFoundException("Vacancy with ID " + vacancyId + " not found"));
+        Vacancy vacancy = vacancyRepository.findById(vacancyId).orElseThrow(() -> new VacancyNotFoundException(messageSource.getMessage("error.vacancy.not.found", new Object[]{vacancyId}, LocaleContextHolder.getLocale())));
 
 
         log.info("Vacancy with ID {} retrieved successfully", vacancyId);
@@ -317,7 +320,7 @@ public class VacancyServiceImpl implements VacancyService {
 
     private void validateExperienceRange(VacancyDto vacancyDto) {
         if (vacancyDto.getExpTo() < vacancyDto.getExpFrom()) {
-            throw new IllegalArgumentException("Experience 'to' must be greater than or equal to 'from'");
+            throw new IllegalArgumentException(messageSource.getMessage("error.vacancy.exp", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -326,7 +329,7 @@ public class VacancyServiceImpl implements VacancyService {
         Vacancy vacancy = getVacancyModelById(vacancyId);
 
         if (vacancy.getCategory() == null) {
-            throw new ResourceNotFoundException("Vacancy category is not set for id " + vacancyId);
+            throw new ResourceNotFoundException(messageSource.getMessage("error.vacancy.category.not.found", new Object[]{vacancyId}, LocaleContextHolder.getLocale()));
         }
 
         return vacancy.getCategory().getId();

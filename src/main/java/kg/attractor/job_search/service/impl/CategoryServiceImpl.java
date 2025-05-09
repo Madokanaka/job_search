@@ -11,8 +11,12 @@ import kg.attractor.job_search.repository.CategoryRepository;
 import kg.attractor.job_search.repository.ResumeRepository;
 import kg.attractor.job_search.repository.VacancyRepository;
 import kg.attractor.job_search.service.CategoryService;
+import kg.attractor.job_search.service.ResumeService;
+import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,33 +30,9 @@ import java.util.stream.Collectors;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final MessageSource messageSource;
 
-    private final ResumeRepository resumeRepository;
-    private final VacancyRepository vacancyRepository;
 
-    @Override
-    public int getCategoryIdByResumeId(Integer resumeId) {
-        Resume resume = resumeRepository.findById(resumeId)
-                .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
-
-        if (resume.getCategory() == null) {
-            throw new ResourceNotFoundException("Resume category is not set for id " + resumeId);
-        }
-
-        return resume.getCategory().getId();
-    }
-
-    @Override
-    public int getCategoryIdByVacancyId(Integer vacancyId) {
-        Vacancy vacancy = vacancyRepository.findById(vacancyId)
-                .orElseThrow(() -> new ResourceNotFoundException("Vacancy with id " + vacancyId + " not found"));
-
-        if (vacancy.getCategory() == null) {
-            throw new ResourceNotFoundException("Vacancy category is not set for id " + vacancyId);
-        }
-
-        return vacancy.getCategory().getId();
-    }
     @Override
     public List<CategoryDto> findAll() {
         log.info("Fetching all categories");
@@ -96,6 +76,6 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public String getCategoryNameById(Integer categoryId) {
-        return categoryRepository.findNameById(categoryId).orElseThrow(() -> new CategoryNotFoundException("Category with id " + categoryId + " was not found"));
+        return categoryRepository.findNameById(categoryId).orElseThrow(() -> new CategoryNotFoundException(messageSource.getMessage("error.category.not.found", new Object[]{categoryId}, LocaleContextHolder.getLocale())));
     }
 }

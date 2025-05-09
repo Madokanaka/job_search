@@ -53,4 +53,6 @@ public interface UserService {
     void updatePassword(User user, String password);
 
     void makeResetPasswordLnk(HttpServletRequest request) throws MessagingException, UnsupportedEncodingException;
+
+    void updateLanguagePreference(Integer userId, String languageCode);
 }

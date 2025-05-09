@@ -1,12 +1,6 @@
 package kg.attractor.job_search.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,38 +13,45 @@ import lombok.NoArgsConstructor;
 public class UserDto {
     private Integer id;
 
-    @NotBlank(message = "Name cannot be empty")
-    @Size(max = 50, message = "Name must not exceed 50 characters")
+    @NotBlank(message = "{User.name.notBlank}")
+    @Size(max = 50, message = "{User.name.size}")
     private String name;
 
-    @NotBlank(message = "Surname cannot be empty")
-    @Size(max = 50, message = "Surname must not exceed 50 characters")
+    @NotBlank(message = "{User.surname.notBlank}")
+    @Size(max = 50, message = "{User.surname.size}")
     private String surname;
 
-    @NotNull(message = "Age cannot be empty")
-    @Min(value = 18, message = "Age must be at least 18")
-    @Max(value = 100, message = "Age cannot exceed 100")
+    @NotNull(message = "{User.age.notNull}")
+    @Min(value = 18, message = "{User.age.min}")
+    @Max(value = 100, message = "{User.age.max}")
     private Integer age;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Invalid email format")
+    @NotBlank(message = "{User.email.notBlank}")
+    @Email(message = "{User.email.invalid}")
     private String email;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 25, message = "Password must be between 6 and 25 characters long")
-    @Pattern(regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$", message = "Should contain at least one uppercase letter, one number")
+    @NotBlank(message = "{User.password.notBlank}")
+    @Size(min = 6, max = 25, message = "{User.password.size}")
+    @Pattern(
+            regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).+$",
+            message = "{User.password.pattern}"
+    )
     private String password;
 
-    @NotBlank(message = "PhoneNumber is required")
-    @Pattern(regexp = "\\+?[0-9]{10,20}", message = "Invalid phone number format")
+    @NotBlank(message = "{User.phoneNumber.notBlank}")
+    @Pattern(
+            regexp = "\\+?[0-9]{10,20}",
+            message = "{User.phoneNumber.invalid}"
+    )
     private String phoneNumber;
 
     private String avatar;
 
     @Pattern(
             regexp = "^(applicant|employer)$",
-            message = "Invalid account type"
+            message = "{User.accountType.invalid}"
     )
     private String accountType;
 
+    private String languagePreference;
 }

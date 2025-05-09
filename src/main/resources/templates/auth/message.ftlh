@@ -1,7 +1,7 @@
 <#import "../layout.ftlh" as main>
-<@main.layout>
+<@main.layout ; spring>
     <div class="text-center">
-        <h2>Reset your password!</h2>
+        <h2><@spring.message "message.title"/></h2>
         <p class="text-warning">${message}</p>
     </div>
 </@main.layout>

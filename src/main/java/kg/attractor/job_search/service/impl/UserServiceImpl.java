@@ -8,13 +8,16 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
-import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
+import kg.attractor.job_search.service.RoleService;
 import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -35,8 +39,12 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RolesRepository rolesRepository;
+    private final RoleService roleService;
     private final EmailService emailService;
+    private final MessageSource messageSource;
+
+    private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "ru");
+
 
     @Override
     @Transactional
@@ -44,16 +52,16 @@ public class UserServiceImpl implements UserService {
         log.info("Registering user: {}", userDto.getEmail());
 
         if (userRepository.existsByEmail(userDto.getEmail().strip())) {
-            throw new RecordAlreadyExistsException("User with this email already exists");
+            throw new RecordAlreadyExistsException(messageSource.getMessage("error.already.exists", null, LocaleContextHolder.getLocale()));
         }
 
         validateAccountType(userDto.getAccountType());
 
-        if (!rolesRepository.existsByRoleName(userDto.getAccountType().toUpperCase())) {
+        if (!roleService.existsByRoleName(userDto.getAccountType().toUpperCase())) {
             throw new BadRequestException("Invalid account type");
         }
 
-//        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
+        Role userRole = roleService.findByRoleName(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -65,6 +73,8 @@ public class UserServiceImpl implements UserService {
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
+                .roles(List.of(userRole))
+                .languagePreference("ru")
                 .build();
 
         try {
@@ -82,16 +92,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findByEmail(email)
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("User with this email does not exist");
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found.withEmail", null, LocaleContextHolder.getLocale()));
                 });
     }
 
     @Override
     public User findUserModelByEmail(String email) {
         return userRepository.findByEmail(email)
-                .orElseThrow(() -> {
-                    throw new UserNotFoundException("User with this email does not exist");
-                });
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withEmail", null, LocaleContextHolder.getLocale())));
     }
 
     @Override
@@ -112,7 +120,7 @@ public class UserServiceImpl implements UserService {
                 .filter(u -> "APPLICANT".equalsIgnoreCase(u.getAccountType()))
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("Could not find applicant with id " + userId);
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
     }
 
@@ -209,7 +217,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto updateUserProfile(String email, UserEditDto userEditDto) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
 
         user.setName(userEditDto.getName());
         user.setSurname(userEditDto.getSurname());
@@ -242,6 +250,7 @@ public class UserServiceImpl implements UserService {
                 .phoneNumber(user.getPhoneNumber())
                 .avatar(user.getAvatar())
                 .accountType(user.getAccountType())
+                .languagePreference(user.getLanguagePreference())
                 .build();
     }
 
@@ -310,7 +319,7 @@ public class UserServiceImpl implements UserService {
 
 
     private void updateResetPasswordToken(String token, String email) {
-        User user = userRepository.findByEmail(email.strip()).orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = userRepository.findByEmail(email.strip()).orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
         user.setResetPasswordToken(token);
         userRepository.saveAndFlush(user);
     }
@@ -318,7 +327,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User getByResetPasswordToken(String token) {
-        return userRepository.findByResetPasswordToken(token).orElseThrow(() -> new UserNotFoundException("User not found"));
+        return userRepository.findByResetPasswordToken(token).orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
     }
 
 
@@ -337,5 +346,24 @@ public class UserServiceImpl implements UserService {
         updateResetPasswordToken(token, email);
         String resetPasswordLnk = CommonUtilities.getSiteUrl(request) + "/auth/reset_password?token=" + token;
         emailService.sendEmail(email, resetPasswordLnk);
+    }
+
+    @Override
+    public void updateLanguagePreference(Integer userId, String languageCode) {
+        if (userId == null || userId <= 0) {
+            log.error("Неверный ID пользователя: {}", userId);
+            throw new IllegalArgumentException(messageSource.getMessage("error.invalid.userId", null, LocaleContextHolder.getLocale()));
+        }
+        if (languageCode == null || !SUPPORTED_LANGUAGES.contains(languageCode)) {
+            log.error("Неверный или неподдерживаемый код языка: {}", languageCode);
+            throw new IllegalArgumentException("Неподдерживаемый код языка: " + languageCode);
+        }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
+
+        user.setLanguagePreference(languageCode);
+        userRepository.save(user);
+        log.info("Языковые предпочтения обновлены на {} для пользователя ID {}", languageCode, userId);
     }
 }

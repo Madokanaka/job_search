@@ -1,9 +1,6 @@
 package kg.attractor.job_search.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,37 +8,37 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
-
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class VacancyDto {
     private Integer id;
-    @NotBlank(message = "Vacancy name cannot be empty")
+
+    @NotBlank(message = "{Vacancy.name.notBlank}")
     private String name;
 
     private String description;
 
-    @Min(value = 1, message = "Category must be a positive number")
-    @NotNull(message = "Category ID is required")
+    @Min(value = 1, message = "{Vacancy.categoryId.min}")
+    @NotNull(message = "{Vacancy.categoryId.notNull}")
     private Integer categoryId;
 
     private String categoryName;
 
-    @Positive(message = "Salary must be a positive number")
-    @NotNull(message = "Salary amount is required")
+    @Positive(message = "{Vacancy.salary.positive}")
+    @NotNull(message = "{Vacancy.salary.notNull}")
     private Double salary;
 
-    @NotNull(message = "Experience from is required")
-    @Min(value = 0, message = "Experience from must be at least 0")
+    @NotNull(message = "{Vacancy.expFrom.notNull}")
+    @Min(value = 0, message = "{Vacancy.expFrom.min}")
     private Integer expFrom;
 
-    @NotNull(message = "Experience to is required")
-    @Min(value = 0, message = "Experience to must be at least 0")
+    @NotNull(message = "{Vacancy.expTo.notNull}")
+    @Min(value = 0, message = "{Vacancy.expTo.min}")
     private Integer expTo;
 
-    public Integer authorId;
+    private Integer authorId;
 
     private LocalDateTime createdDate;
     private LocalDateTime updateTime;

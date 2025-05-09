@@ -1,12 +1,6 @@
 package kg.attractor.job_search.dto;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,20 +11,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEditDto {
-    @NotBlank(message = "Name cannot be empty")
-    @Size(max = 50, message = "Name must not exceed 50 characters")
+    @NotBlank(message = "{UserEdit.name.notBlank}")
+    @Size(max = 50, message = "{UserEdit.name.size}")
     private String name;
 
-    @NotBlank(message = "Surname cannot be empty")
-    @Size(max = 50, message = "Surname must not exceed 50 characters")
+    @NotBlank(message = "{UserEdit.surname.notBlank}")
+    @Size(max = 50, message = "{UserEdit.surname.size}")
     private String surname;
 
-    @NotNull(message = "Age cannot be empty")
-    @Min(value = 18, message = "Age must be at least 18")
-    @Max(value = 100, message = "Age cannot exceed 100")
+    @NotNull(message = "{UserEdit.age.notNull}")
+    @Min(value = 18, message = "{UserEdit.age.min}")
+    @Max(value = 100, message = "{UserEdit.age.max}")
     private Integer age;
 
-    @NotBlank(message = "PhoneNumber is required")
-    @Pattern(regexp = "\\+?[0-9]{10,20}", message = "Invalid phone number format")
+    @NotBlank(message = "{UserEdit.phoneNumber.notBlank}")
+    @Pattern(regexp = "\\+?[0-9]{10,20}", message = "{UserEdit.phoneNumber.invalid}")
     private String phoneNumber;
 }

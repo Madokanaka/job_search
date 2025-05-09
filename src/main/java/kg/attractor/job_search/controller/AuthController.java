@@ -3,12 +3,14 @@ package kg.attractor.job_search.controller;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import kg.attractor.job_search.dto.ResetPasswordDto;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.parameters.P;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -20,13 +22,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.UnsupportedEncodingException;
 
-
 @Controller
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
     private final UserService userService;
+    private final MessageSource messageSource; // Внедрение MessageSource
 
     @GetMapping("/register")
     public String showRegistrationPage(Model model) {
@@ -47,7 +49,7 @@ public class AuthController {
                                BindingResult bindingResult,
                                Model model) {
         if (userService.existsByEmail(userDto.getEmail())) {
-            bindingResult.rejectValue("email", "email.exists", "User with this email already exists");
+            bindingResult.rejectValue("email", "email.exists", messageSource.getMessage("error.email.exists", null, LocaleContextHolder.getLocale()));
         }
 
         if (bindingResult.hasErrors()) {
@@ -56,7 +58,6 @@ public class AuthController {
         }
 
         userService.registerUser(userDto);
-
         return "redirect:/auth/login";
     }
 
@@ -69,11 +70,11 @@ public class AuthController {
     public String processForgotPassword(HttpServletRequest request, Model model) {
         try {
             userService.makeResetPasswordLnk(request);
-            model.addAttribute("message", "Password reset link has been sent");
+            model.addAttribute("message", messageSource.getMessage("message.password.reset.link.sent", null, LocaleContextHolder.getLocale()));
         } catch (UserNotFoundException | UnsupportedEncodingException e) {
             model.addAttribute("error", e.getMessage());
         } catch (MessagingException e) {
-            model.addAttribute("error", "Error while sending email");
+            model.addAttribute("error", messageSource.getMessage("error.email.sending", null, LocaleContextHolder.getLocale()));
         }
         return "auth/forgot_password_form";
     }
@@ -81,27 +82,34 @@ public class AuthController {
     @GetMapping("reset_password")
     public String showResetPasswordPage(@RequestParam String token, Model model) {
         try {
-            userService.getByResetPasswordToken(token);
+            model.addAttribute("resetPasswordDto", new ResetPasswordDto());
             model.addAttribute("token", token);
         } catch (UserNotFoundException e) {
-            model.addAttribute("error", "Invalid token");
+            model.addAttribute("error", messageSource.getMessage("error.invalid.token", null, LocaleContextHolder.getLocale()));
         }
         return "auth/reset_password_form";
     }
 
     @PostMapping("reset_password")
-    public String processResetPassword(HttpServletRequest request, Model model) {
-        String token = request.getParameter("token");
-        String password = request.getParameter("password");
-        try {
-            User user = userService.getByResetPasswordToken(token);
-            userService.updatePassword(user, password);
-            model.addAttribute("message", "You have successfully changed your password");
-        } catch (UserNotFoundException e) {
-            model.addAttribute("error", "Invalid token");
+    public String processResetPassword(@Valid @ModelAttribute("resetPasswordDto") ResetPasswordDto resetPasswordDto,
+                                       BindingResult bindingResult,
+                                       Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("token", resetPasswordDto.getToken());
+            return "auth/reset_password_form";
         }
+
+        try {
+            User user = userService.getByResetPasswordToken(resetPasswordDto.getToken());
+            userService.updatePassword(user, resetPasswordDto.getPassword());
+            model.addAttribute("message", messageSource.getMessage("message.password.changed", null, LocaleContextHolder.getLocale()));
+        } catch (UserNotFoundException e) {
+            model.addAttribute("error", messageSource.getMessage("error.invalid.token", null, LocaleContextHolder.getLocale()));
+        } catch (Exception e) {
+            model.addAttribute("error", messageSource.getMessage("error.email.sending", null, LocaleContextHolder.getLocale()));
+        }
+
         return "/auth/message";
     }
-
 }
-

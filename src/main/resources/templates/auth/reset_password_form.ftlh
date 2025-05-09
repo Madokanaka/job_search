@@ -1,7 +1,7 @@
 <#import "../layout.ftlh" as main>
-<@main.layout>
+<@main.layout ; spring>
     <div class="text-center">
-        <h2>Reset Your Password</h2>
+        <h2><@spring.message "reset.password.title"/></h2>
         <#if error??>
             <b class="text-danger">${error}</b>
         </#if>
@@ -15,11 +15,18 @@
                         <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
                                value="${(_csrf.token)!'csrf-token'}"/>
                     </#if>
-                    <input type="hidden" name="token" value="${token!}">
-                    <input type="password" name="password" class="form-control"
-                           placeholder="Enter your new password" required autofocus/>
+                    <input type="hidden" name="token" value="${(resetPasswordDto.token)!token!''}">
+                    <div class="mb-3">
+                        <label class="form-label" for="passwordInput"><@spring.message "reset.password.label"/></label>
+                        <@spring.formInput "resetPasswordDto.password" 'id="passwordInput" class="form-control" placeholder="' + springMacroRequestContext.getMessage('reset.password.placeholder') + '" required autofocus' />
+                        <@spring.showErrors "<br>" "text-danger" />
+                    </div>
                     <p class="text-center">
-                        <button type="submit" class="btn btn-primary mt-3">Change Password</button>
+                        <button type="submit"
+                                class="btn btn-primary mt-3"
+                                aria-label="<@spring.message "reset.password.submit.aria"/>">
+                            <@spring.message "reset.password.submit"/>
+                        </button>
                     </p>
                 </form>
             </div>

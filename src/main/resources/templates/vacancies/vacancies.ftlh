@@ -99,19 +99,19 @@
                         <ul class="pagination">
                             <#if (currentPage > 0)>
                                 <li class="page-item">
-                                    <a class="page-link" href="/vacancies?page=${currentPage - 1}&size=6&sortBy=date">«</a>
+                                    <a class="page-link" href="/vacancies?page=${currentPage - 1}&size=6&sort=${sort}">«</a>
                                 </li>
                             </#if>
 
                             <#list 0..(totalPages - 1) as i>
                                 <li class="page-item <#if i == currentPage>active</#if>">
-                                    <a class="page-link" href="/vacancies?page=${i}&size=6&sortBy=date">${i + 1}</a>
+                                    <a class="page-link" href="/vacancies?page=${i}&size=6&sort=${sort}">${i + 1}</a>
                                 </li>
                             </#list>
 
                             <#if (currentPage?? && (currentPage + 1) < totalPages)>
                                 <li class="page-item">
-                                    <a class="page-link" href="/vacancies?page=${currentPage + 1}&size=6&sortBy=date">»</a>
+                                    <a class="page-link" href="/vacancies?page=${currentPage + 1}&size=6&sort=${sort}">»</a>
                                 </li>
                             </#if>
                         </ul>

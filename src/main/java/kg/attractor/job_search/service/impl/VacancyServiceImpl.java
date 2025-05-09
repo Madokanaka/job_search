@@ -122,7 +122,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (vacancies.isEmpty()) {
             log.warn("No vacancies found");
-            throw new ResourceNotFoundException("No vacancies found");
+            throw new ResourceNotFoundException(messageSource.getMessage("error.no.vacancies", null, LocaleContextHolder.getLocale()));
         }
 
         log.info("Retrieved {} vacancies", vacancies.size());
@@ -147,7 +147,7 @@ public class VacancyServiceImpl implements VacancyService {
 
         if (categoryId == null || categoryId <= 0) {
             log.warn("Invalid category ID: {}", categoryId);
-            throw new BadRequestException("Invalid category ID");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.category.id", null, LocaleContextHolder.getLocale()));
         }
 
         if (!categoryService.existsByCategoryId(categoryId)) {
@@ -189,10 +189,6 @@ public class VacancyServiceImpl implements VacancyService {
     public Optional<VacancyDto> getVacancyById(Integer vacancyId) {
         log.info("Retrieving vacancy by ID {}", vacancyId);
 
-        if (vacancyId == null || vacancyId <= 0) {
-            log.warn("Invalid vacancy ID: {}", vacancyId);
-            throw new BadRequestException("Invalid vacancy ID: " + vacancyId);
-        }
 
         Optional<Vacancy> vacancy = vacancyRepository.findById(vacancyId);
 

@@ -7,14 +7,13 @@ import lombok.Data;
 
 @Data
 public class ResetPasswordDto {
-    @NotBlank(message = "Token is required")
+    @NotBlank(message = "{reset.password.token.notBlank}")
     private String token;
 
-    @NotBlank(message = "Password is required")
-    @Size(min = 6, max = 25, message = "Password must be between 6 and 25 characters long")
+    @NotBlank(message = "{reset.password.password.notBlank}")
+    @Size(min = 6, max = 25, message = "{reset.password.password.size}")
     @Pattern(
-        regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$",
-        message = "Password must contain at least one uppercase letter, one lowercase letter, and one number"
-    )
+            regexp = "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]+$",
+            message = "{reset.password.password.pattern}")
     private String password;
 }

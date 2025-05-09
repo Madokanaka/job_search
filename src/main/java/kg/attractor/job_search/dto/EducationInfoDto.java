@@ -14,18 +14,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EducationInfoDto {
-    @NotBlank(message = "Institution name is required")
+    @NotBlank(message = "{education.info.institution.notBlank}")
     private String institution;
 
-    @NotBlank(message = "Program name is required")
+    @NotBlank(message = "{education.info.program.notBlank}")
     private String program;
 
-    @NotNull(message = "Start date is required")
+    @NotNull(message = "{education.info.startDate.notNull}")
     private LocalDate startDate;
 
-    @NotNull(message = "End date is required")
+    @NotNull(message = "{education.info.endDate.notNull}")
     private LocalDate endDate;
 
-    @NotBlank(message = "Degree is required")
+    @NotBlank(message = "{education.info.degree.notBlank}")
     private String degree;
 }

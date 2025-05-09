@@ -1,27 +1,24 @@
 package kg.attractor.job_search.dto;
 
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class WorkExperienceInfoDto {
-    @Min(value = 0, message = "Years of experience cannot be negative")
-    @NotNull(message = "Years of experience field is required")
+    @Min(value = 0, message = "{WorkExperienceInfo.years.min}")
+    @NotNull(message = "{WorkExperienceInfo.years.notNull}")
     private Integer years;
 
-    @NotBlank(message = "Company name is required")
+    @NotBlank(message = "{WorkExperienceInfo.companyName.notBlank}")
     private String companyName;
 
-    @NotBlank(message = "Position is required")
+    @NotBlank(message = "{WorkExperienceInfo.position.notBlank}")
     private String position;
 
     private String responsibilities;

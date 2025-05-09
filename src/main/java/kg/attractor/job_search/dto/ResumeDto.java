@@ -12,7 +12,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,17 +22,18 @@ import java.util.List;
 @AllArgsConstructor
 public class ResumeDto {
     private Integer id;
-    @NotBlank(message = "Имя резюме необходимо")
+
+    @NotBlank(message = "{resume.name.notBlank}")
     private String name;
 
-    @NotNull(message = "ID категории необходим")
-    @Min(value = 1, message = "Категория должна быть положительной")
+    @NotNull(message = "{resume.categoryId.notNull}")
+    @Min(value = 1, message = "{resume.categoryId.min}")
     private Integer categoryId;
 
     private String categoryName;
 
-    @Positive(message = "Зарплата должна быть положительной")
-    @NotNull(message = "Поле зарплаты необходимо")
+    @NotNull(message = "{resume.salary.notNull}")
+    @Positive(message = "{resume.salary.positive}")
     private Double salary;
 
     private Boolean isActive;
@@ -45,10 +45,10 @@ public class ResumeDto {
 
     private List<WorkExperienceInfoDto> workExperienceInfoList = new ArrayList<>();
 
-    @Email(message = "email должен быть правильного формата")
+    @Email(message = "{resume.contactEmail.email}")
     private String contactEmail;
 
-    @Pattern(regexp = "\\+?[0-9]{10,20}", message = "Invalid phone number format")
+    @Pattern(regexp = "\\+?[0-9]{10,20}", message = "{resume.phoneNumber.pattern}")
     private String phoneNumber;
 
     private String linkedIn;

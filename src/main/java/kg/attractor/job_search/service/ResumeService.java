@@ -28,4 +28,6 @@ public interface ResumeService {
     Page<ResumeDto> getAllResumesPaged(String pageNumber, String pageSize);
 
     Page<ResumeDto> getResumesByUserIdPaged(Integer userId, String page, String size);
+
+    int getCategoryIdByResumeId(Integer resumeId);
 }

@@ -2,9 +2,7 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.exception.BadRequestException;
-import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
-import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.model.RespondedApplicant;
 import kg.attractor.job_search.repository.RespondedApplicantRepository;
 import kg.attractor.job_search.service.ApplicationService;
@@ -21,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class ApplicationServiceImpl implements ApplicationService {
 
-    private final CategoryService categoryService;
     private final RespondedApplicantRepository respondedApplicantRepository;
     private final ResumeService resumeService;
     private final VacancyService vacancyService;
@@ -31,8 +28,8 @@ public class ApplicationServiceImpl implements ApplicationService {
     public RespondenApplicantDto respondToVacancy(Integer resumeId, Integer vacancyId) {
         log.info("Starting response to vacancy: resumeId={}, vacancyId={}", resumeId, vacancyId);
 
-        int vacancyCategory = categoryService.getCategoryIdByVacancyId(vacancyId);
-        int resumeCategory = categoryService.getCategoryIdByResumeId(resumeId);
+        int vacancyCategory = vacancyService.getCategoryIdByVacancyId(vacancyId);
+        int resumeCategory = resumeService.getCategoryIdByResumeId(resumeId);
         log.debug("Vacancy category: {}, Resume category: {}", vacancyCategory, resumeCategory);
 
         if (vacancyCategory != resumeCategory) {

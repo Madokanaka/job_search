@@ -321,5 +321,14 @@ public class VacancyServiceImpl implements VacancyService {
         }
     }
 
+    @Override
+    public int getCategoryIdByVacancyId(Integer vacancyId) {
+        Vacancy vacancy = getVacancyModelById(vacancyId);
 
+        if (vacancy.getCategory() == null) {
+            throw new ResourceNotFoundException("Vacancy category is not set for id " + vacancyId);
+        }
+
+        return vacancy.getCategory().getId();
+    }
 }

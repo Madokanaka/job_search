@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class ResumeServiceImpl implements ResumeService {
 
     private final ResumeRepository resumeRepository;
-    private final CategoryRepository categoryRepository;
+
     private final UserService userService;
     private final CategoryService categoryService;
     private final ContactInfoService contactInfoService;
@@ -53,7 +53,7 @@ public class ResumeServiceImpl implements ResumeService {
         User user = userService.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User with ID " + userId + " not found"));
 
-        Category category = categoryRepository.findById(resumeDto.getCategoryId())
+        Category category = categoryService.findById(resumeDto.getCategoryId())
                 .orElseThrow(() -> new ResourceNotFoundException("Category ID not found in database"));
 
         Resume resume = new Resume();
@@ -129,10 +129,8 @@ public class ResumeServiceImpl implements ResumeService {
     public Resume getResumeModelById(Integer resumeId) {
         log.info("Fetching resume with id={}", resumeId);
 
-        Resume resume = resumeRepository.findById(resumeId)
+        return resumeRepository.findById(resumeId)
                 .orElseThrow(() -> new ResumeNotFoundException("Resume with id " + resumeId + " not found"));
-
-        return resume;
     }
 
     @Override
@@ -191,7 +189,7 @@ public class ResumeServiceImpl implements ResumeService {
                 .facebook(facebook)
                 .educationInfoList(new ArrayList<>(educationInfoService.getEducationInfoByResumeId(resume.getId())))
                 .workExperienceInfoList(new ArrayList<>(workExperienceInfoService.getWorkExperienceInfoByResumeId(resume.getId())))
-                .categoryName(categoryService.getCategoryNameById(resume.getCategory().getId()))
+                .categoryName(resume.getCategory().getName())
                 .build();
     }
 
@@ -263,5 +261,16 @@ public class ResumeServiceImpl implements ResumeService {
             log.warn("Invalid size parameter: {}. Setting to default 6", size);
             return defaultValue;
         }
+    }
+
+    @Override
+    public int getCategoryIdByResumeId(Integer resumeId) {
+        Resume resume = getResumeModelById(resumeId);
+
+        if (resume.getCategory() == null) {
+            throw new ResourceNotFoundException("Resume category is not set for id " + resumeId);
+        }
+
+        return resume.getCategory().getId();
     }
 }

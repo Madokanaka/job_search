@@ -33,4 +33,5 @@ public interface VacancyService {
 
     Optional<VacancyDto> getVacancyById(Integer vacancyId);
 
+    int getCategoryIdByVacancyId(Integer vacancyId);
 }

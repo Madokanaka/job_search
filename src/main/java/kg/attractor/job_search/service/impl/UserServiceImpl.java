@@ -8,9 +8,11 @@ import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
+import kg.attractor.job_search.model.Role;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.RolesRepository;
 import kg.attractor.job_search.repository.UserRepository;
+import kg.attractor.job_search.service.RoleService;
 import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final RolesRepository rolesRepository;
+    private final RoleService roleService;
     private final EmailService emailService;
 
     @Override
@@ -49,11 +51,11 @@ public class UserServiceImpl implements UserService {
 
         validateAccountType(userDto.getAccountType());
 
-        if (!rolesRepository.existsByRoleName(userDto.getAccountType().toUpperCase())) {
+        if (!roleService.existsByRoleName(userDto.getAccountType().toUpperCase())) {
             throw new BadRequestException("Invalid account type");
         }
 
-//        Role userRole = rolesRepository.findByRoleName(userDto.getAccountType().toUpperCase());
+        Role userRole = roleService.findByRoleName(userDto.getAccountType().toUpperCase());
 
         User user = User.builder()
                 .name(userDto.getName())
@@ -65,6 +67,7 @@ public class UserServiceImpl implements UserService {
                 .accountType(userDto.getAccountType().toLowerCase())
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .enabled(true)
+                .roles(List.of(userRole))
                 .build();
 
         try {

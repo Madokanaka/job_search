@@ -1,5 +1,5 @@
 <#import "../layout.ftlh" as main>
-<@main.layout>
+<@main.layout ; spring>
     <div class="text-center">
         <h2>Reset Your Password</h2>
         <#if error??>
@@ -15,9 +15,12 @@
                         <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
                                value="${(_csrf.token)!'csrf-token'}"/>
                     </#if>
-                    <input type="hidden" name="token" value="${token!}">
-                    <input type="password" name="password" class="form-control"
-                           placeholder="Enter your new password" required autofocus/>
+                    <input type="hidden" name="token" value="${(resetPasswordDto.token)!token!''}">
+                    <div class="mb-3">
+                        <label class="form-label" for="passwordInput">New Password</label>
+                        <@spring.formInput "resetPasswordDto.password" 'id="passwordInput" class="form-control" placeholder="Enter your new password" required autofocus' />
+                        <@spring.showErrors "<br>" "text-danger" />
+                    </div>
                     <p class="text-center">
                         <button type="submit" class="btn btn-primary mt-3">Change Password</button>
                     </p>

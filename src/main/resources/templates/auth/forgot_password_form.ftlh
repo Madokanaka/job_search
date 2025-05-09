@@ -31,5 +31,5 @@
                 </form>
             </div>
         </div>
-    </div>F
+    </div>
 </@main.layout>

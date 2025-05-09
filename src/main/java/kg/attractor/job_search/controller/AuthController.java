@@ -3,6 +3,7 @@ package kg.attractor.job_search.controller;
 import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import kg.attractor.job_search.dto.ResetPasswordDto;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.User;
@@ -81,7 +82,7 @@ public class AuthController {
     @GetMapping("reset_password")
     public String showResetPasswordPage(@RequestParam String token, Model model) {
         try {
-            userService.getByResetPasswordToken(token);
+            model.addAttribute("resetPasswordDto", new ResetPasswordDto());
             model.addAttribute("token", token);
         } catch (UserNotFoundException e) {
             model.addAttribute("error", "Invalid token");
@@ -90,12 +91,18 @@ public class AuthController {
     }
 
     @PostMapping("reset_password")
-    public String processResetPassword(HttpServletRequest request, Model model) {
-        String token = request.getParameter("token");
-        String password = request.getParameter("password");
+    public String processResetPassword(@Valid @ModelAttribute("resetPasswordDto") ResetPasswordDto resetPasswordDto,
+                                       BindingResult bindingResult,
+                                       Model model) {
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("token", resetPasswordDto.getToken());
+            return "auth/reset_password_form";
+        }
+
         try {
-            User user = userService.getByResetPasswordToken(token);
-            userService.updatePassword(user, password);
+            User user = userService.getByResetPasswordToken(resetPasswordDto.getToken());
+            userService.updatePassword(user, resetPasswordDto.getPassword());
             model.addAttribute("message", "You have successfully changed your password");
         } catch (UserNotFoundException e) {
             model.addAttribute("error", "Invalid token");

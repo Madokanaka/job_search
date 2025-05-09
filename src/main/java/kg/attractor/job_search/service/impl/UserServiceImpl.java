@@ -16,6 +16,7 @@ import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -58,7 +59,7 @@ public class UserServiceImpl implements UserService {
         validateAccountType(userDto.getAccountType());
 
         if (!roleService.existsByRoleName(userDto.getAccountType().toUpperCase())) {
-            throw new BadRequestException("Invalid account type");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.account.type", null, LocaleContextHolder.getLocale()));
         }
 
         Role userRole = roleService.findByRoleName(userDto.getAccountType().toUpperCase());
@@ -81,7 +82,7 @@ public class UserServiceImpl implements UserService {
             userRepository.save(user);
         } catch (Exception e) {
             log.error("Error saving user", e);
-            throw new DatabaseOperationException("Error creating user");
+            throw new DatabaseOperationException(messageSource.getMessage("error.creating.user", null, LocaleContextHolder.getLocale()));
         }
 
         log.info("User registered: {}", user.getEmail());
@@ -130,7 +131,7 @@ public class UserServiceImpl implements UserService {
                 .filter(u -> "EMPLOYER".equalsIgnoreCase(u.getAccountType()))
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("Could not find employee with id " + userId);
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
     }
 
@@ -139,16 +140,14 @@ public class UserServiceImpl implements UserService {
         return userRepository.findById(userId)
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("Could not find user with id " + userId);
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
     }
 
     @Override
     public User getUserModelById(Integer userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    throw new UserNotFoundException("Could not find user with id " + userId);
-                });
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
     }
 
     @Override
@@ -157,22 +156,22 @@ public class UserServiceImpl implements UserService {
         try {
             userId = Integer.parseInt(userIdInString);
         } catch (NumberFormatException e) {
-            throw new BadRequestException("User ID must be a valid number");
+            throw new BadRequestException(messageSource.getMessage("error.valid.number", null, LocaleContextHolder.getLocale()));
         }
         return userRepository.findById(userId)
                 .map(this::convertToDto)
                 .or(() -> {
-                    throw new UserNotFoundException("Could not find user with id " + userId);
+                    throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
     }
 
     @Override
     public void editUserProfile(Integer userId, UserDto userDto) {
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
 
         if (!user.getEmail().equals(userDto.getEmail()) && userRepository.existsByEmail(userDto.getEmail())) {
-            throw new BadRequestException("User with this email already exists");
+            throw new BadRequestException(messageSource.getMessage("error.already.exists", null, LocaleContextHolder.getLocale()));
         }
 
         validateAccountType(userDto.getAccountType());
@@ -188,7 +187,7 @@ public class UserServiceImpl implements UserService {
         try {
             userRepository.save(user);
         } catch (Exception e) {
-            throw new DatabaseOperationException("Error updating user profile");
+            throw new DatabaseOperationException(messageSource.getMessage("error.updating.user", null, LocaleContextHolder.getLocale()));
         }
     }
 
@@ -256,7 +255,7 @@ public class UserServiceImpl implements UserService {
 
     private void validateAccountType(String type) {
         if (!("employer".equalsIgnoreCase(type) || "applicant".equalsIgnoreCase(type))) {
-            throw new BadRequestException("User role should be either employer or applicant");
+            throw new BadRequestException(messageSource.getMessage("error.invalid.account.type", null, LocaleContextHolder.getLocale()));
         }
     }
 

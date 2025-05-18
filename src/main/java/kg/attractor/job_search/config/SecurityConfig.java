@@ -36,7 +36,7 @@ public class SecurityConfig {
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/vacancies").permitAll()
-                        .requestMatchers("/profile", "/profile/edit").authenticated()
+                        .requestMatchers("/profile", "/profile/edit", "/profile/**").authenticated()
                         .requestMatchers("/vacancies/**", "/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
                         .requestMatchers("/resumes/create", "/resumes/{resumeId}/edit").hasAnyAuthority("ADMIN", "APPLICANT")
                         .anyRequest().permitAll());

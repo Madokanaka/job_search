@@ -32,6 +32,8 @@ public interface UserService {
 
     Optional<UserDto> getUserById(String userId);
 
+    UserDto getUserByIdForProfile(org.springframework.security.core.userdetails.User auth, Integer id);
+
     void editUserProfile(Integer userId, UserDto userDto);
 
     Optional<List<UserDto>> getApplicantsForVacancy(Integer vacancyId);

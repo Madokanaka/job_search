@@ -80,27 +80,27 @@ public class ProfileController {
                                         @RequestParam(defaultValue = "0") String page,
                                         @RequestParam(defaultValue = "6") String size,
                                         Model model,
-                                        @PathVariable String profileId) {
-        Optional<UserDto> userDto = userService.getUserById(profileId);
-        model.addAttribute("user", userDto.get());
+                                        @PathVariable Integer profileId) {
+        UserDto userDto = userService.getUserByIdForProfile(principal, profileId);
+        model.addAttribute("user", userDto);
         if (principal != null && Integer.valueOf(profileId).equals(userService.findUserByEmail(principal.getUsername()).get().getId())) {
             return "redirect:/profile";
         }
-        if ("employer".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-            Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.get().getId(), page, size);
+        if ("employer".equals(userDto.getAccountType()) || "admin".equals(userDto.getAccountType())) {
+            Page<VacancyDto> vacanciesPage = vacancyService.getVacanciesByUserIdPaged(userDto.getId(), page, size);
             model.addAttribute("vacancies", vacanciesPage.getContent());
             model.addAttribute("vacancyTotalPages", vacanciesPage.getTotalPages());
             model.addAttribute("vacancyCurrentPage", vacanciesPage.getNumber());
             model.addAttribute("view", "vacancies");
         }
-        if ("applicant".equals(userDto.get().getAccountType()) || "admin".equals(userDto.get().getAccountType())) {
-            Page<ResumeDto> resumePage = resumeService.getResumesByUserIdPaged(userDto.get().getId(), page, size);
+        if ("applicant".equals(userDto.getAccountType()) || "admin".equals(userDto.getAccountType())) {
+            Page<ResumeDto> resumePage = resumeService.getResumesByUserIdPaged(userDto.getId(), page, size);
             model.addAttribute("resumes", resumePage.getContent());
             model.addAttribute("resumeTotalPages", resumePage.getTotalPages());
             model.addAttribute("resumeCurrentPage", resumePage.getNumber());
             model.addAttribute("view", "resume");
         }
-        model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto.get()));
+        model.addAttribute("userEdit", userService.fromDtoToUserEditDto(userDto));
 
         return "profiles/another_profile";
     }

@@ -13,7 +13,6 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
                 integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
                 crossorigin="anonymous"></script>
-        <script src="../static/scripts/main.js"></script>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
         <title><@spring.message "title"/></title>
     </head>
@@ -57,29 +56,46 @@
                             </li>
                         </#if>
                     </#if>
-                    <li class="nav-item">
-                        <div class="dropdown">
-                            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
-                                    data-bs-toggle="dropdown" aria-expanded="false">
-                                <@spring.message "layout.nav.lang.exchange"/>
-                            </button>
-                            <ul class="dropdown-menu z-3" aria-labelledby="dropdownMenuButton1">
-                                <li>
+                    <li class="nav-item dropdown">
+                        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                            <@spring.message "layout.nav.lang.exchange"/>
+                        </button>
+                        <ul class="dropdown-menu z-3" aria-labelledby="dropdownMenuButton1">
+                            <li>
+                                <#if userPr??>
+                                    <a class="dropdown-item lang-select" href="#" data-lang="en">
+                                        <img src="https://flagcdn.com/w320/gb.png" alt="English" class="me-2" style="width: 20px; height: 14px;">
+                                        <@spring.message "layout.nav.lang_en"/>
+                                    </a>
+                                <#else>
                                     <a class="dropdown-item" href="?lang=en">
                                         <img src="https://flagcdn.com/w320/gb.png" alt="English" class="me-2" style="width: 20px; height: 14px;">
                                         <@spring.message "layout.nav.lang_en"/>
                                     </a>
-                                </li>
-                                <li>
+                                </#if>
+                            </li>
+                            <li>
+                                <#if userPr??>
+                                    <a class="dropdown-item lang-select" href="#" data-lang="ru">
+                                        <img src="https://flagcdn.com/w320/ru.png" alt="Русский" class="me-2" style="width: 20px; height: 14px;">
+                                        <@spring.message "layout.nav.lang_ru"/>
+                                    </a>
+                                <#else>
                                     <a class="dropdown-item" href="?lang=ru">
                                         <img src="https://flagcdn.com/w320/ru.png" alt="Русский" class="me-2" style="width: 20px; height: 14px;">
                                         <@spring.message "layout.nav.lang_ru"/>
                                     </a>
-                                </li>
-                            </ul>
-                        </div>
+                                </#if>
+                            </li>
+                        </ul>
+                        <form id="languageForm" action="/profile/language" method="post" style="display:none;">
+                            <#if _csrf??>
+                                <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}" value="${(_csrf.token)!'csrf-token'}"/>
+                            </#if>
+                            <input type="hidden" name="language" id="languageInput" value="">
+                        </form>
                     </li>
-
                 </ul>
 
 
@@ -111,6 +127,23 @@
     <div class="container min-vh-100 align-items-center justify-content-center mt-5">
         <#nested spring>
     </div>
+
+    <#if userPr??>
+        <script>
+            document.querySelectorAll('.lang-select').forEach(el => {
+                el.addEventListener('click', e => {
+                    e.preventDefault();
+
+                    const lang = e.currentTarget.getAttribute('data-lang');
+                    const form = document.getElementById('languageForm');
+                    const input = document.getElementById('languageInput');
+
+                    input.value = lang;
+                    form.submit();
+                });
+            });
+        </script>
+    </#if>
 
     </body>
     </html>

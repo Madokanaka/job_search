@@ -59,7 +59,6 @@
                         <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
                                value="${(_csrf.token)!'csrf-token'}"/>
                     </#if>
-                    <input type="hidden" name="userId" value="${user.id}"/>
 
                     <label for="languageSelect" class="form-label me-2 mb-0">
                         <i class="bi bi-translate"></i>

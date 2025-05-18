@@ -158,13 +158,13 @@ public class ProfileController {
     }
 
     @PostMapping("/language")
-    public String updateLanguagePreference(@RequestParam("userId") Integer userId,
+    public String updateLanguagePreference(@AuthenticationPrincipal User principal,
                                            @RequestParam("language") String languageCode,
                                            HttpServletRequest request,
                                            HttpServletResponse response,
                                            RedirectAttributes redirectAttributes)    {
         try {
-            userService.updateLanguagePreference(userId, languageCode);
+            userService.updateLanguagePreference(principal, languageCode);
             redirectAttributes.addFlashAttribute("languageUpdated", true);
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Не удалось обновить язык: " + e.getMessage());

@@ -41,8 +41,10 @@ public class ResumeDto {
     private LocalDateTime created_date;
     private LocalDateTime update_time;
 
+    @Valid
     private List<EducationInfoDto> educationInfoList = new ArrayList<>();
 
+    @Valid
     private List<WorkExperienceInfoDto> workExperienceInfoList = new ArrayList<>();
 
     @Email(message = "{resume.contactEmail.email}")

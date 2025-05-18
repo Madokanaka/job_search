@@ -1,5 +1,5 @@
-let workExperienceIndex = 0;
-let educationIndex = 0;
+let workExperienceIndex = document.querySelectorAll('.work-experience-section').length;
+let educationIndex = document.querySelectorAll('.education-section').length;
 
 function addWorkExperience() {
     const container = document.getElementById('workExperienceContainer');

@@ -2,6 +2,7 @@ package kg.attractor.job_search.controller;
 
 import kg.attractor.job_search.dto.ChatMessageDto;
 import kg.attractor.job_search.dto.UserDto;
+import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.service.ChatService;
 import kg.attractor.job_search.service.UserService;
@@ -29,7 +30,7 @@ public class ChatPageController {
     public String chatPage(@PathVariable String conversationId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal, Model model) {
         String[] ids = conversationId.split("-");
         if (ids.length != 2) {
-            throw new IllegalArgumentException("Invalid conversation ID");
+            throw new BadRequestException("Invalid conversation ID");
         }
         int id1 = Integer.parseInt(ids[0]);
         int id2 = Integer.parseInt(ids[1]);
@@ -41,6 +42,9 @@ public class ChatPageController {
 
         UserDto employer = userService.getUserById(employerId).get();
 
+        if (employer.getAccountType().equalsIgnoreCase(candidate.getAccountType())) {
+            throw new BadRequestException("You cannot chat with other " + employer.getAccountType());
+        }
         model.addAttribute("employer", employer);
         model.addAttribute("messages", chatService.getConversation(candidate.getId(), employerId));
         model.addAttribute("candidate", candidate);

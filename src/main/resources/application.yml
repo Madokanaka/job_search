@@ -52,6 +52,8 @@ logging:
         stat: error
       springframework:
         security: debug
+        web: debug
+        messaging: debug
     kg:
       attractor:
         quiz_platform: debug

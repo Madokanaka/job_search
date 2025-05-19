@@ -23,7 +23,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .formLogin(form -> form
                         .loginPage("/auth/login")
                         .loginProcessingUrl("/auth/login")
@@ -35,11 +35,18 @@ public class SecurityConfig {
                         .permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/chat/{employerId}").authenticated()
+                        .requestMatchers("/ws-chat/**").permitAll()
+                        .requestMatchers("/chat/**", "/webjars/**", "/js/**").permitAll()
                         .requestMatchers("/vacancies").permitAll()
                         .requestMatchers("/profile", "/profile/edit", "/profile/**").authenticated()
                         .requestMatchers("/vacancies/**", "/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
                         .requestMatchers("/resumes/create", "/resumes/{resumeId}/edit").hasAnyAuthority("ADMIN", "APPLICANT")
-                        .anyRequest().permitAll());
+                        .anyRequest().permitAll())
+                .csrf(csrf -> csrf.ignoringRequestMatchers(request -> {
+                    String path = request.getServletPath();
+                    return path.startsWith("/ws-chat/");
+                }));
         return http.build();
     }
 

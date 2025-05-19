@@ -1,9 +1,7 @@
 package kg.attractor.job_search.controller;
 
 import jakarta.validation.Valid;
-import kg.attractor.job_search.dto.EducationInfoDto;
 import kg.attractor.job_search.dto.ResumeDto;
-import kg.attractor.job_search.dto.WorkExperienceInfoDto;
 import kg.attractor.job_search.exception.IllegalEducationDatesException;
 import kg.attractor.job_search.exception.IllegalYearsException;
 import kg.attractor.job_search.service.ResumeService;
@@ -23,7 +21,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
+
 
 @Controller
 @RequestMapping("/resumes")

@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20-create-chat-messages-table
+      author: Seitek
+      changes:
+        - createTable:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: sender_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: receiver_id
+                  type: INTEGER
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content
+                  type: TEXT
+              - column:
+                  name: timestamp
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            baseTableName: chat_messages
+            baseColumnNames: sender_id
+            constraintName: fk_chat_messages_sender_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+        - addForeignKeyConstraint:
+            baseTableName: chat_messages
+            baseColumnNames: receiver_id
+            constraintName: fk_chat_messages_receiver_id
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+      rollback:
+        - dropTable:
+            tableName: chat_messages

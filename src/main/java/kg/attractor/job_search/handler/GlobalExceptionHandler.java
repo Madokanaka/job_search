@@ -3,6 +3,7 @@ package kg.attractor.job_search.handler;
 import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.NoAccessException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.service.ErrorService;
@@ -62,6 +63,14 @@ public class GlobalExceptionHandler {
     public String handleBadRequestException(Model model, HttpServletRequest request, BadRequestException e) {
         model.addAttribute("status", HttpStatus.BAD_REQUEST.value());
         model.addAttribute("reason", HttpStatus.BAD_REQUEST.getReasonPhrase());
+        model.addAttribute("details", request);
+        model.addAttribute("message", e.getMessage());
+        return "errors/error";    }
+
+    @ExceptionHandler(NoAccessException.class)
+    public String handleNoAccessException(Model model, HttpServletRequest request, NoAccessException e) {
+        model.addAttribute("status", HttpStatus.FORBIDDEN.value());
+        model.addAttribute("reason", HttpStatus.FORBIDDEN.getReasonPhrase());
         model.addAttribute("details", request);
         model.addAttribute("message", e.getMessage());
         return "errors/error";    }

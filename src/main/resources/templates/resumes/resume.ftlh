@@ -24,8 +24,24 @@
                         <section class="mb-4">
                             <h5 class="fw-bold text-primary"><@spring.message "resume.contact.title"/></h5>
                             <ul class="list-unstyled">
-                                <li><strong><@spring.message "resume.contact.email"/>:</strong> ${resume.contactEmail!'<@spring.message "resume.contact.none"/>'}</li>
-                                <li><strong><@spring.message "resume.contact.phone"/>:</strong> ${resume.phoneNumber!'<@spring.message "resume.contact.none"/>'}</li>
+                                <li>
+                                    <strong><@spring.message "resume.contact.email"/>:</strong>
+                                    <#if resume.contactEmail?? && (resume.contactEmail?has_content)>
+                                        ${resume.contactEmail}
+                                    <#else>
+                                        <@spring.message "resume.contact.none"/>
+                                    </#if>
+                                </li>
+
+                                <li>
+                                    <strong><@spring.message "resume.contact.phone"/>:</strong>
+                                    <#if resume.phoneNumber?? && (resume.phoneNumber?has_content)>
+                                        ${resume.phoneNumber}
+                                    <#else>
+                                        <@spring.message "resume.contact.none"/>
+                                    </#if>
+                                </li>
+
                                 <li><strong><@spring.message "resume.contact.linkedin"/>:</strong>
                                     <#if resume.linkedIn??>
                                         <a href="${resume.linkedIn}" target="_blank">${resume.linkedIn}</a>

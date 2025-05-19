@@ -6,6 +6,7 @@ import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.NoAccessException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.UserNotFoundException;
 import kg.attractor.job_search.model.Role;
@@ -16,7 +17,6 @@ import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.data.domain.Page;
@@ -163,6 +163,18 @@ public class UserServiceImpl implements UserService {
                 .or(() -> {
                     throw new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale()));
                 });
+    }
+
+    @Override
+    public UserDto getUserByIdForProfile(org.springframework.security.core.userdetails.User auth, Integer id) {
+        UserDto userToGet = getUserById(id).get();
+        if (auth.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ADMIN"))) {
+            return userToGet;
+        }
+        if (userToGet.getAccountType().equalsIgnoreCase("applicant") || userToGet.getAccountType().equalsIgnoreCase("admin")) {
+            throw new NoAccessException(messageSource.getMessage("error.no.access", null, LocaleContextHolder.getLocale()));
+        }
+        return userToGet;
     }
 
     @Override
@@ -348,21 +360,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateLanguagePreference(Integer userId, String languageCode) {
-        if (userId == null || userId <= 0) {
-            log.error("Неверный ID пользователя: {}", userId);
-            throw new IllegalArgumentException(messageSource.getMessage("error.invalid.userId", null, LocaleContextHolder.getLocale()));
+    public void updateLanguagePreference(org.springframework.security.core.userdetails.User principal, String languageCode) {
+        if (principal == null) {
+            log.error("Пользователь не авторизирован:");
+            throw new IllegalArgumentException(messageSource.getMessage("error.no.access", null, LocaleContextHolder.getLocale()));
         }
         if (languageCode == null || !SUPPORTED_LANGUAGES.contains(languageCode)) {
             log.error("Неверный или неподдерживаемый код языка: {}", languageCode);
             throw new IllegalArgumentException("Неподдерживаемый код языка: " + languageCode);
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found", new Object[]{userId}, LocaleContextHolder.getLocale())));
+        User user = userRepository.findByEmail(principal.getUsername().strip())
+                .orElseThrow(() -> new UserNotFoundException(messageSource.getMessage("error.user.not.found.withoutId", null, LocaleContextHolder.getLocale())));
 
         user.setLanguagePreference(languageCode);
         userRepository.save(user);
-        log.info("Языковые предпочтения обновлены на {} для пользователя ID {}", languageCode, userId);
+        log.info("Языковые предпочтения обновлены на {} для пользователя ID {}", languageCode, user.getId());
     }
 }

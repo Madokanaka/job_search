@@ -29,6 +29,26 @@
                             <h5 class="fw-bold text-primary"><@spring.message "vacancy.experience.title"/></h5>
                             <p><@spring.messageArgs code="vacancy.experience.range" args=[vacancy.expFrom, vacancy.expTo]/></p>
                         </section>
+                        <#assign known = SPRING_SECURITY_CONTEXT??>
+                        <#if known>
+                            <#assign
+                            userPr = SPRING_SECURITY_CONTEXT.authentication.principal
+                            name = userPr.getUsername()
+                            isApplicant = false
+                            >
+                            <#list userPr.authorities as auth>
+                                <#if auth.authority == "APPLICANT">
+                                    <#assign isApplicant = true>
+                                </#if>
+                            </#list>
+                            <#if isApplicant>
+                                <div class="mt-4">
+                                    <a href="/chat/start/${vacancy.authorId}" class="btn btn-primary">
+                                        <@spring.message "vacancy.contact.employer"/>
+                                    </a>
+                                </div>
+                            </#if>
+                        </#if>
                     </div>
                     <div class="col-lg-4">
                         <div class="card h-100 border-light shadow-sm">

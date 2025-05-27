@@ -38,9 +38,10 @@ public class SecurityConfig {
                         .requestMatchers("/chat/{employerId}").authenticated()
                         .requestMatchers("/ws-chat/**").permitAll()
                         .requestMatchers("/chat/**", "/webjars/**", "/js/**").permitAll()
-                        .requestMatchers("/vacancies").permitAll()
+                        .requestMatchers("/vacancies", "/vacancies/{vacancyId}").permitAll()
                         .requestMatchers("/profile", "/profile/edit", "/profile/**").authenticated()
-                        .requestMatchers("/vacancies/**", "/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
+                        .requestMatchers("/vacancies/**").hasAnyAuthority("ADMIN", "EMPLOYER")
+                        .requestMatchers("/resumes").hasAnyAuthority("ADMIN", "EMPLOYER")
                         .requestMatchers("/resumes/create", "/resumes/{resumeId}/edit").hasAnyAuthority("ADMIN", "APPLICANT")
                         .anyRequest().permitAll())
                 .csrf(csrf -> csrf.ignoringRequestMatchers(request -> {

@@ -28,7 +28,7 @@ import java.io.UnsupportedEncodingException;
 public class AuthController {
 
     private final UserService userService;
-    private final MessageSource messageSource; // Внедрение MessageSource
+    private final MessageSource messageSource;
 
     @GetMapping("/register")
     public String showRegistrationPage(Model model) {

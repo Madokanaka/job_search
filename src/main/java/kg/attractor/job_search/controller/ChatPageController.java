@@ -17,6 +17,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.List;
+
 @Controller
 @RequiredArgsConstructor
 public class ChatPageController {
@@ -49,7 +51,7 @@ public class ChatPageController {
         model.addAttribute("messages", chatService.getMessagesByChatRoom(chatRoomId));
         model.addAttribute("candidate", candidate);
         model.addAttribute("chatRoomId", chatRoomId);
-        return "chat";
+        return "chats/chat";
     }
 
     @MessageMapping("/chat.send")
@@ -79,5 +81,17 @@ public class ChatPageController {
         }
         ChatRoom chatRoom = chatService.getOrCreateChatRoom(candidate.getId(), otherUserId);
         return "redirect:/chat/" + chatRoom.getId();
+    }
+
+    @GetMapping("/chats")
+    public String chatsPage(@AuthenticationPrincipal org.springframework.security.core.userdetails.User principal, Model model) {
+        if (principal == null) {
+            return "redirect:/auth/login";
+        }
+        UserDto candidate = getCandidate(principal);
+        List<ChatRoomDto> chats = chatService.getUserChats(candidate.getId());
+        model.addAttribute("chats", chats);
+        model.addAttribute("candidate", candidate);
+        return "chats/chats";
     }
 }

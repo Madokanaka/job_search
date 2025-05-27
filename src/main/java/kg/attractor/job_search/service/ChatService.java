@@ -25,4 +25,7 @@ public interface ChatService {
 
     @Transactional(readOnly = true)
     boolean isChatParticipant(Long chatRoomId, String username);
+
+    @Transactional(readOnly = true)
+    List<ChatRoomDto> getUserChats(Integer userId);
 }

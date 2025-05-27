@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -83,5 +84,22 @@ public class ChatServiceImpl implements ChatService {
         UserDto user = userService.findUserByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
         return chatRoom.getUser1().getId().equals(user.getId()) || chatRoom.getUser2().getId().equals(user.getId());
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<ChatRoomDto> getUserChats(Integer userId) {
+        List<ChatRoom> chatRooms = chatRoomRepository.findByUser1IdOrUser2Id(userId, userId);
+        return chatRooms.stream()
+                .map(chatRoom -> {
+                    ChatRoomDto dto = toDto(chatRoom);
+                    Integer otherUserId = chatRoom.getUser1().getId().equals(userId) ? chatRoom.getUser2().getId() : chatRoom.getUser1().getId();
+                    UserDto otherUser = userService.getUserById(otherUserId)
+                            .orElseThrow(() -> new ResourceNotFoundException("Other user not found"));
+                    dto.setOtherUserEmail(otherUser.getEmail());
+                    dto.setOtherUserName(otherUser.getName() != null ? otherUser.getName() + " " + otherUser.getSurname() : otherUser.getEmail());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }

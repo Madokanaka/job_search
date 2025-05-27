@@ -55,6 +55,9 @@
                                 <a class="nav-link" href="/resumes"><@spring.message "navbar.resumes"/></a>
                             </li>
                         </#if>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/chats"><@spring.message "navbar.chats"/></a>
+                        </li>
                     </#if>
                     <li class="nav-item dropdown">
                         <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1"

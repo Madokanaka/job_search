@@ -1,4 +1,4 @@
-<#import "layout.ftlh" as main>
+<#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="container mt-4">
         <h2 class="mb-4">Chat with ${employer.name} ${employer.surname}</h2>

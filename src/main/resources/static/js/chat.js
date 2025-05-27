@@ -5,7 +5,7 @@ function connect() {
     stompClient = Stomp.over(socket);
     stompClient.connect({}, function(frame) {
         console.log('Connected: ' + frame);
-        stompClient.subscribe('/topic/chat/' + conversationId, function(message) {
+        stompClient.subscribe('/topic/chat/' + chatRoomId, function(message) {
             const messageDto = JSON.parse(message.body);
             showMessage(messageDto);
         });
@@ -19,15 +19,15 @@ function sendMessage() {
     const content = messageInput.value.trim();
     if (content && stompClient && stompClient.connected) {
         const messageDto = {
+            chatRoomId: chatRoomId,
             senderId: candidateId,
-            receiverId: employerId,
             content: content,
             timestamp: new Date().toISOString()
         };
         stompClient.send("/app/chat.send", {}, JSON.stringify(messageDto));
         messageInput.value = '';
     } else {
-        console.error('Cannot send message: STOMP client is not connected');
+        console.error('Cannot send message: STOMP client is not connected or content is empty');
     }
 }
 

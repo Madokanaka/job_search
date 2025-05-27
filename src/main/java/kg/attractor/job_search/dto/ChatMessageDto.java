@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 @Data
 public class ChatMessageDto {
+    private Long chatRoomId;
     private Integer senderId;
-    private Integer receiverId;
     private String content;
     private LocalDateTime timestamp;
 }

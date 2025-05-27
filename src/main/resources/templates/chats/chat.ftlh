@@ -1,4 +1,4 @@
-<#import "layout.ftlh" as main>
+<#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="container mt-4">
         <h2 class="mb-4">Chat with ${employer.name} ${employer.surname}</h2>
@@ -50,8 +50,7 @@
     <script src="/webjars/stomp-websocket/2.3.4/stomp.min.js"></script>
     <script>
         const candidateId = ${candidate.id};
-        const employerId = ${employerId};
-        const conversationId = candidateId < employerId ? candidateId + '-' + employerId : employerId + '-' + candidateId;
+        const chatRoomId = ${chatRoomId};
     </script>
-    <script src="../static/js/chat.js"></script>
+    <script src="/static/js/chat.js"></script>
 </@main.layout>

@@ -1,0 +1,52 @@
+databaseChangeLog:
+  - changeSet:
+      id: 021 create-chat-rooms-table
+      author: Seitek
+      changes:
+        - createTable:
+            tableName: chat_rooms
+            columns:
+              - column:
+                  name: id
+                  type: bigint
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user1_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_chat_room_user1
+                    references: users(id)
+              - column:
+                  name: user2_id
+                  type: int
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_chat_room_user2
+                    references: users(id)
+              - column:
+                  name: created_at
+                  type: datetime
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: update-chat-messages-table
+      author: grok
+      changes:
+        - dropColumn:
+            tableName: chat_messages
+            columnName: receiver_id
+        - addColumn:
+            tableName: chat_messages
+            columns:
+              - column:
+                  name: chat_room_id
+                  type: bigint
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_chat_message_chat_room
+                    references: chat_rooms(id)

@@ -6,12 +6,12 @@
         </div>
 
         <#if vacancies?? && vacancies?size gt 0>
-            <form method="get" action="/vacancies" class="mb-4 d-flex justify-content-end">
+            <form method="get" action="/vacancies" class="mb-4 d-flex justify-content-end" id="vacancyFilterForm">
                 <input type="hidden" name="page" value="${currentPage}" />
                 <input type="hidden" name="size" value="6" />
 
                 <label for="sort" class="me-2"><@spring.message "vacancies.sort.label"/></label>
-                <select name="sort" id="sort" class="form-select w-auto" onchange="this.form.submit()">
+                <select name="sort" id="sort" class="form-select w-auto" onchange="saveFilterAndSubmit()">
                     <option value="date" <#if (sort == "date")>selected</#if>><@spring.message "vacancies.sort.date"/></option>
                     <option value="responses" <#if (sort == "responses")>selected</#if>><@spring.message "vacancies.sort.responses"/></option>
                 </select>
@@ -121,4 +121,5 @@
             </div>
         </#if>
     </div>
+    <script src="/static/js/vacancies.js"></script>
 </@main.layout>

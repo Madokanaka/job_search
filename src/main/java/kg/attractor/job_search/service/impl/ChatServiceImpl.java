@@ -1,8 +1,11 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.ChatMessageDto;
+import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.model.ChatMessage;
+import kg.attractor.job_search.model.ChatRoom;
 import kg.attractor.job_search.repository.ChatMessageRepository;
+import kg.attractor.job_search.repository.ChatRoomRepository;
 import kg.attractor.job_search.service.ChatService;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,27 +19,45 @@ import java.util.List;
 public class ChatServiceImpl implements ChatService {
 
     private final ChatMessageRepository messageRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final UserService userService;
 
     @Transactional
     @Override
     public ChatMessage saveMessage(ChatMessageDto messageDto) {
         ChatMessage message = new ChatMessage();
+        message.setChatRoom(chatRoomRepository.findById(messageDto.getChatRoomId())
+                .orElseThrow(() -> new IllegalArgumentException("Chat room not found")));
         message.setSender(userService.getUserModelById(messageDto.getSenderId()));
-        message.setReceiver(userService.getUserModelById(messageDto.getReceiverId()));
         message.setContent(messageDto.getContent());
         return messageRepository.save(message);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<ChatMessage> getConversation(Integer userId1, Integer userId2) {
-        return messageRepository.findBySenderIdAndReceiverIdOrReceiverIdAndSenderId(
-            userId1, userId2, userId1, userId2);
+    public List<ChatMessage> getMessagesByChatRoom(Long chatRoomId) {
+        return messageRepository.findByChatRoomIdOrderByTimestampAsc(chatRoomId);
+    }
+
+    @Transactional
+    @Override
+    public ChatRoom getOrCreateChatRoom(Integer userId1, Integer userId2) {
+        return chatRoomRepository.findByUser1IdAndUser2IdOrUser2IdAndUser1Id(userId1, userId2)
+                .orElseGet(() -> {
+                    ChatRoom chatRoom = new ChatRoom();
+                    chatRoom.setUser1(userService.getUserModelById(userId1));
+                    chatRoom.setUser2(userService.getUserModelById(userId2));
+                    return chatRoomRepository.save(chatRoom);
+                });
     }
 
     @Override
-    public String getConversationId(Integer userId1, Integer userId2) {
-        return userId1 < userId2 ? userId1 + "-" + userId2 : userId2 + "-" + userId1;
+    public String getChatRoomId(Long chatRoomId) {
+        return String.valueOf(chatRoomId);
+    }
+
+    @Override
+    public ChatRoom findById(Long chatRoomId) {
+        return chatRoomRepository.findById(chatRoomId).orElseThrow(() -> new ResourceNotFoundException("Chat room not found"));
     }
 }

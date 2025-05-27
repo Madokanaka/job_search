@@ -1,6 +1,7 @@
 package kg.attractor.job_search.service;
 
 import kg.attractor.job_search.dto.ChatMessageDto;
+import kg.attractor.job_search.dto.ChatRoomDto;
 import kg.attractor.job_search.model.ChatMessage;
 import kg.attractor.job_search.model.ChatRoom;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,5 +21,5 @@ public interface ChatService {
 
     String getChatRoomId(Long chatRoomId);
 
-    ChatRoom findById(Long chatRoomId);
+    ChatRoomDto findById(Long chatRoomId);
 }

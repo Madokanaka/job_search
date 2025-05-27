@@ -1,6 +1,7 @@
 package kg.attractor.job_search.controller;
 
 import kg.attractor.job_search.dto.ChatMessageDto;
+import kg.attractor.job_search.dto.ChatRoomDto;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.exception.BadRequestException;
 import kg.attractor.job_search.model.ChatRoom;
@@ -27,13 +28,15 @@ public class ChatPageController {
     @GetMapping("/chat/{chatRoomId:[0-9]+}")
     public String chatPage(@PathVariable Long chatRoomId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal, Model model) {
         UserDto candidate = getCandidate(principal);
-        ChatRoom chatRoom = chatService.findById(chatRoomId);
+        ChatRoomDto chatRoom = chatService.findById(chatRoomId);
 
-        if (!chatRoom.getUser1().getId().equals(candidate.getId()) && !chatRoom.getUser2().getId().equals(candidate.getId())) {
+        if (!chatRoom.getUser1Id().equals(candidate.getId()) && !chatRoom.getUser2Id().equals(candidate.getId())) {
             throw new BadRequestException("You are not a participant of this chat room");
         }
 
-        UserDto otherUser = userService.getUserById(chatRoom.getUser1().getId().equals(candidate.getId()) ? chatRoom.getUser2().getId() : chatRoom.getUser1().getId()).get();
+        Integer otherUserId = chatRoom.getUser1Id().equals(candidate.getId()) ? chatRoom.getUser2Id() : chatRoom.getUser1Id();
+        UserDto otherUser = userService.getUserById(otherUserId)
+                .orElseThrow(() -> new BadRequestException("Other user not found"));
 
         if (otherUser.getAccountType().equalsIgnoreCase(candidate.getAccountType())) {
             throw new BadRequestException("You cannot chat with other " + otherUser.getAccountType());

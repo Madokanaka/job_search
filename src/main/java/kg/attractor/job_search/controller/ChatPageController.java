@@ -27,6 +27,9 @@ public class ChatPageController {
 
     @GetMapping("/chat/{chatRoomId:[0-9]+}")
     public String chatPage(@PathVariable Long chatRoomId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal, Model model) {
+        if (principal == null) {
+            return "redirect:/auth/login";
+        }
         UserDto candidate = getCandidate(principal);
         ChatRoomDto chatRoom = chatService.findById(chatRoomId);
 
@@ -62,6 +65,9 @@ public class ChatPageController {
 
     @GetMapping("/chat/start/{otherUserId:[0-9]+}")
     public String startChat(@PathVariable Integer otherUserId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+        if (principal == null) {
+            return "redirect:/auth/login";
+        }
         UserDto candidate = getCandidate(principal);
         if (candidate.getId().equals(otherUserId)) {
             throw new BadRequestException("Cannot start chat with yourself");

@@ -2,6 +2,7 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.ChatMessageDto;
 import kg.attractor.job_search.dto.ChatRoomDto;
+import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
 import kg.attractor.job_search.model.ChatMessage;
 import kg.attractor.job_search.model.ChatRoom;
@@ -72,5 +73,15 @@ public class ChatServiceImpl implements ChatService {
         dto.setUser2Id(chatRoom.getUser2().getId());
         dto.setCreatedAt(chatRoom.getCreatedAt());
         return dto;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public boolean isChatParticipant(Long chatRoomId, String username) {
+        ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
+                .orElseThrow(() -> new ResourceNotFoundException("Chat room not found"));
+        UserDto user = userService.findUserByEmail(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        return chatRoom.getUser1().getId().equals(user.getId()) || chatRoom.getUser2().getId().equals(user.getId());
     }
 }

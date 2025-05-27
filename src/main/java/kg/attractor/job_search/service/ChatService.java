@@ -22,4 +22,7 @@ public interface ChatService {
     String getChatRoomId(Long chatRoomId);
 
     ChatRoomDto findById(Long chatRoomId);
+
+    @Transactional(readOnly = true)
+    boolean isChatParticipant(Long chatRoomId, String username);
 }

@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const savedSort = localStorage.getItem('vacancySortFilter');
-    if (savedSort && (savedSort === 'date' || savedSort === 'responses')) {
+    if (savedSort && (savedSort === 'date' || savedSort === 'responses') && sortSelect.value !== savedSort) {
         sortSelect.value = savedSort;
         form.submit();
     }

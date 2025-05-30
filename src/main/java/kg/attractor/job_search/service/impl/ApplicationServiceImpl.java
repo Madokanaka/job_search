@@ -1,20 +1,22 @@
 package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.RespondenApplicantDto;
-import kg.attractor.job_search.exception.BadRequestException;
+import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.exception.CategoryMismatchException;
 import kg.attractor.job_search.exception.DuplicateApplicationException;
-import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.model.RespondedApplicant;
+import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.RespondedApplicantRepository;
 import kg.attractor.job_search.service.ApplicationService;
-import kg.attractor.job_search.service.CategoryService;
 import kg.attractor.job_search.service.ResumeService;
+import kg.attractor.job_search.service.UserService;
 import kg.attractor.job_search.service.VacancyService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +29,7 @@ public class ApplicationServiceImpl implements ApplicationService {
     private final ResumeService resumeService;
     private final VacancyService vacancyService;
     private final MessageSource messageSource;
+    private final UserService userService;
 
     @Override
     @Transactional
@@ -61,5 +64,46 @@ public class ApplicationServiceImpl implements ApplicationService {
                 .vacancyId(vacancyId)
                 .confirmation(false)
                 .build();
+    }
+
+    @Override
+    public Page<RespondenApplicantDto> getApplicationsByUser(org.springframework.security.core.userdetails.User principal, Pageable pageable) {
+        User user = userService.findUserModelByEmail(principal.getUsername());
+
+        Page<RespondedApplicant> applications;
+        if (user.getAccountType().equalsIgnoreCase("applicant")) {
+            applications = respondedApplicantRepository.findByResumeApplicantId(user.getId(), pageable);
+        } else if (user.getAccountType().equalsIgnoreCase("employer")) {
+            applications = respondedApplicantRepository.findByVacancyAuthorId(user.getId(), pageable);
+        } else {
+            applications = respondedApplicantRepository.findAll(pageable);
+        }
+
+        return applications.map(this::convertToDto);
+    }
+
+    private RespondenApplicantDto convertToDto(RespondedApplicant entity) {
+        User applicant = entity.getResume().getApplicant();
+        User employer = entity.getVacancy().getAuthor();
+
+
+        return RespondenApplicantDto.builder()
+                .id(entity.getId())
+                .resumeId(entity.getResume().getId())
+                .resumeName(entity.getResume().getName())
+                .vacancyId(entity.getVacancy().getId())
+                .vacancyName(entity.getVacancy().getName())
+                .applicantId(applicant.getId())
+                .applicantName(applicant.getName() + " " + applicant.getSurname())
+                .employerId(employer.getId())
+                .employerName(employer.getName() + " " + employer.getSurname())
+                .confirmation(entity.getConfirmation())
+                .build();
+    }
+
+    @Override
+    public String getUserRole(org.springframework.security.core.userdetails.User principal) {
+        UserDto user = userService.findUserByEmail(principal.getUsername()).get();
+        return user.getAccountType().toLowerCase();
     }
 }

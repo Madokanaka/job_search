@@ -92,10 +92,11 @@
                     </a>
                 </div>
                 <div class="col-md-6">
-                    <button class="btn btn-outline-primary h-100 w-100 mb-2"
-                            aria-label="<@spring.message "profile.responses.aria"/>">
-                        <span class="me-2"></span> <@spring.message "profile.responses"/>
-                    </button>
+                    <a href="/applications"
+                       class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center"
+                       aria-label="<@spring.message "profile.applications.aria"/>">
+                        <span class="me-2"></span> <@spring.message "profile.applications"/>
+                    </a>
                 </div>
             </#if>
 
@@ -107,11 +108,12 @@
                         <span class="me-2">+</span> <@spring.message "profile.create.vacancy"/>
                     </a>
                 </div>
+
                 <div class="col-md-6">
-                    <a href="/resumes"
+                    <a href="/applications"
                        class="btn btn-outline-primary h-100 w-100 mb-2 d-flex align-items-center justify-content-center"
-                       aria-label="<@spring.message "profile.resume.list.aria"/>">
-                        <span class="me-2">+</span> <@spring.message "profile.resume.list"/>
+                       aria-label="<@spring.message "profile.applications.aria"/>">
+                        <span class="me-2"></span> <@spring.message "profile.applications"/>
                     </a>
                 </div>
             </#if>

@@ -54,7 +54,7 @@ public interface UserService {
 
     void updatePassword(User user, String password);
 
-    void makeResetPasswordLnk(HttpServletRequest request) throws MessagingException, UnsupportedEncodingException;
+    String makeResetPasswordLnk(HttpServletRequest request);
 
     void updateLanguagePreference(org.springframework.security.core.userdetails.User principal, String languageCode);
 }

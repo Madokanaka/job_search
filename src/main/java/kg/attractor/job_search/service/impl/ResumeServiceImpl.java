@@ -277,4 +277,25 @@ public class ResumeServiceImpl implements ResumeService {
 
         return resume.getCategory().getId();
     }
+
+    @Override
+    public List<ResumeDto> getResumesByUserAndCategory(org.springframework.security.core.userdetails.User principal, Integer categoryId) {
+        log.info("Fetching resumes for userId={} and categoryId={}", principal.getUsername(), categoryId);
+        if (principal == null) {
+            throw new BadRequestException("User is not authenticated");
+        }
+
+        if (categoryService.findById(categoryId).isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("error.category.not.found", new Object[]{categoryId}, LocaleContextHolder.getLocale()));
+        }
+
+        Optional<UserDto> user = userService.findUserByEmail(principal.getUsername());
+
+        if (user.isEmpty()) {
+            throw new BadRequestException(messageSource.getMessage("error.user.not.found", new Object[]{principal.getUsername()}, LocaleContextHolder.getLocale()));
+        }
+
+        List<Resume> resumes = resumeRepository.findByApplicantIdAndCategoryId(user.get().getId(), categoryId);
+        return resumes.stream().map(this::convertToDto).collect(Collectors.toList());
+    }
 }

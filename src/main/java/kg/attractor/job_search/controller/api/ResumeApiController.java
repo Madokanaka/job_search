@@ -6,6 +6,7 @@ import kg.attractor.job_search.service.ResumeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -55,4 +56,14 @@ public class ResumeApiController {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Resumes not found for user");
     }
+
+    @GetMapping("/by-category/{categoryId}")
+    public ResponseEntity<List<ResumeDto>> getResumesByUserAndCategory(@PathVariable Integer categoryId,
+                                                                       @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal) {
+        List<ResumeDto> resumes = resumeService.getResumesByUserAndCategory(principal, categoryId);
+
+
+        return ResponseEntity.ok(resumes);
+    }
+
 }

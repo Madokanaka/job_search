@@ -30,4 +30,6 @@ public interface ResumeService {
     Page<ResumeDto> getResumesByUserIdPaged(Integer userId, String page, String size);
 
     int getCategoryIdByResumeId(Integer resumeId);
+
+    List<ResumeDto> getResumesByUserAndCategory(org.springframework.security.core.userdetails.User principal, Integer categoryId);
 }

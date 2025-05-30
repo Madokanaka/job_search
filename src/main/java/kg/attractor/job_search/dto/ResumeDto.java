@@ -40,6 +40,7 @@ public class ResumeDto {
 
     private LocalDateTime created_date;
     private LocalDateTime update_time;
+    private Integer authorId;
 
     @Valid
     private List<EducationInfoDto> educationInfoList = new ArrayList<>();

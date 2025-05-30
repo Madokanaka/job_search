@@ -1,20 +1,20 @@
 <#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="container mt-4">
-        <h2 class="mb-4">Chat with ${employer.name} ${employer.surname}</h2>
+        <h2 class="mb-4"><@spring.message "chat.title"/> ${employer.name} ${employer.surname}</h2>
 
         <div class="card mb-4">
             <div class="card-body">
                 <h5 class="card-title">${employer.name} ${employer.surname}</h5>
-                <p class="card-text"><strong>Email:</strong> ${employer.email}</p>
-                <p class="card-text"><strong>Phone:</strong> ${employer.phoneNumber!'-'}</p>
-                <p class="card-text"><strong>Account Type:</strong> ${employer.accountType}</p>
+                <p class="card-text"><strong><@spring.message "chat.employer.email"/>: </strong>${employer.email}</p>
+                <p class="card-text"><strong><@spring.message "chat.employer.phone"/>: </strong>${employer.phoneNumber!'-'}</p>
+                <p class="card-text"><strong><@spring.message "chat.employer.accountType"/>: </strong>${employer.accountType}</p>
             </div>
         </div>
 
         <div class="card">
             <div class="card-header bg-light">
-                <h5 class="mb-0">Conversation</h5>
+                <h5 class="mb-0"><@spring.message "chat.conversation"/></h5>
             </div>
             <div class="card-body" style="max-height: 400px; overflow-y: auto;" id="chatMessages">
                 <#if messages?? && messages?has_content>
@@ -39,8 +39,8 @@
             </div>
             <div class="card-footer">
                 <div class="input-group">
-                    <input type="text" class="form-control" id="messageInput" placeholder="Type your message...">
-                    <button class="btn btn-primary" onclick="sendMessage()">Send</button>
+                    <input type="text" class="form-control" id="messageInput" placeholder="<@spring.message 'chat.message.placeholder'/>">
+                    <button class="btn btn-primary" onclick="sendMessage()"><@spring.message "chat.send.button"/></button>
                 </div>
             </div>
         </div>

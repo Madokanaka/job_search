@@ -8,6 +8,8 @@ import kg.attractor.job_search.model.ChatRoom;
 import kg.attractor.job_search.service.ChatService;
 import kg.attractor.job_search.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -26,6 +28,7 @@ public class ChatPageController {
     private final UserService userService;
     private final ChatService chatService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final MessageSource messageSource;
 
     @GetMapping("/chat/{chatRoomId:[0-9]+}")
     public String chatPage(@PathVariable Long chatRoomId, @AuthenticationPrincipal org.springframework.security.core.userdetails.User principal, Model model) {
@@ -36,15 +39,19 @@ public class ChatPageController {
         ChatRoomDto chatRoom = chatService.findById(chatRoomId);
 
         if (!chatRoom.getUser1Id().equals(candidate.getId()) && !chatRoom.getUser2Id().equals(candidate.getId())) {
-            throw new BadRequestException("You are not a participant of this chat room");
+            throw new BadRequestException(messageSource.getMessage("chat.error.not.participant", null, LocaleContextHolder.getLocale()));
         }
 
         Integer otherUserId = chatRoom.getUser1Id().equals(candidate.getId()) ? chatRoom.getUser2Id() : chatRoom.getUser1Id();
         UserDto otherUser = userService.getUserById(otherUserId)
-                .orElseThrow(() -> new BadRequestException("Other user not found"));
+                .orElseThrow(() -> new BadRequestException(
+                        messageSource.getMessage("chat.error.other.user.not.found", null, LocaleContextHolder.getLocale())
+                ));
 
         if (otherUser.getAccountType().equalsIgnoreCase(candidate.getAccountType())) {
-            throw new BadRequestException("You cannot chat with other " + otherUser.getAccountType());
+            throw new BadRequestException(
+                    messageSource.getMessage("chat.error.same.account.type",
+                            new Object[]{otherUser.getAccountType()}, LocaleContextHolder.getLocale()));
         }
 
         model.addAttribute("employer", otherUser);
@@ -72,12 +79,16 @@ public class ChatPageController {
         }
         UserDto candidate = getCandidate(principal);
         if (candidate.getId().equals(otherUserId)) {
-            throw new BadRequestException("Cannot start chat with yourself");
+            throw new BadRequestException(
+                    messageSource.getMessage("chat.error.self.chat", null, LocaleContextHolder.getLocale()));
         }
         UserDto otherUser = userService.getUserById(otherUserId)
-                .orElseThrow(() -> new BadRequestException("User not found"));
+                .orElseThrow(() -> new BadRequestException(
+                        messageSource.getMessage("chat.error.user.not.found", null, LocaleContextHolder.getLocale())));
         if (otherUser.getAccountType().equalsIgnoreCase(candidate.getAccountType())) {
-            throw new BadRequestException("You cannot chat with other " + otherUser.getAccountType());
+            throw new BadRequestException(
+                    messageSource.getMessage("chat.error.same.account.type",
+                            new Object[]{otherUser.getAccountType()}, LocaleContextHolder.getLocale()));
         }
         ChatRoom chatRoom = chatService.getOrCreateChatRoom(candidate.getId(), otherUserId);
         return "redirect:/chat/" + chatRoom.getId();

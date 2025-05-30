@@ -80,7 +80,12 @@
                                             </a>
 
                                             <#if accountType?? && accountType == "applicant">
-                                                <button class="btn btn-primary">
+                                                <button class="btn btn-primary apply-btn"
+                                                        data-bs-toggle="modal"
+                                                        data-bs-target="#applyModal"
+                                                        data-vacancy-id="${vacancy.id}"
+                                                        data-category-id="${vacancy.categoryId}"
+                                                        data-employer-id="${vacancy.authorId}">
                                                     <@spring.message "vacancies.apply"/>
                                                 </button>
                                             </#if>
@@ -115,11 +120,41 @@
                     </nav>
                 </div>
             </div>
+            <div class="modal fade" id="applyModal" tabindex="-1" aria-labelledby="applyModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="applyModalLabel"><@spring.message "vacancies.apply.modal.title"/></h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="<@spring.message 'vacancies.apply.modal.close'/>"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form id="applyForm">
+                                <input type="hidden" id="vacancyId" name="vacancyId">
+                                <input type="hidden" id="employerId" name="employerId">
+                                <div class="mb-3">
+                                    <label for="resumeSelect" class="form-label"><@spring.message "vacancies.apply.modal.resume.label"/></label>
+                                    <select class="form-select" id="resumeSelect" name="resumeId" required>
+                                        <option value="" disabled selected><@spring.message "vacancies.apply.modal.resume.placeholder"/></option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary"><@spring.message "vacancies.apply.modal.submit"/></button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         <#else>
             <div class="alert alert-info" role="alert">
                 <@spring.message "vacancies.empty"/>
             </div>
         </#if>
     </div>
+    <script>
+        const messages = {
+            resumePlaceholder: '<@spring.message "vacancies.apply.modal.resume.placeholder"/>',
+            resumeEmpty: '<@spring.message "vacancies.apply.modal.resume.empty"/>',
+            error: '<@spring.message "vacancies.apply.modal.error"/>'
+        };
+    </script>
     <script src="/static/js/vacancies.js"></script>
 </@main.layout>

@@ -6,9 +6,6 @@
         <b class="text-danger text-center">${error}</b>
     </#if>
 
-    <#if message??>
-        <b class="text-warning text-center">${message}</b>
-    </#if>
 
     <div class="py-5 h-100">
         <div class="row d-flex align-items-center justify-content-center h-100">

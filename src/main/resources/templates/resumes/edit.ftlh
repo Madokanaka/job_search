@@ -1,9 +1,11 @@
 <#import "../layout.ftlh" as main>
 <@main.layout ; spring>
     <div class="container mt-4">
-        <h2 class="mb-4"><@spring.message "resume.create.title"/></h2>
+        <h2 class="mb-4"><@spring.message "resume.edit.title"/></h2>
 
-        <form action="/resumes/create" method="post" class="needs-validation" novalidate>
+        <form action="/resumes/${resumeDto.id}/edit" method="post" class="needs-validation" novalidate>
+            <input type="hidden" name="_method" value="PUT">
+
             <#if _csrf??>
                 <input type="hidden" name="${(_csrf.parameterName)!'csrf-param-name'}"
                        value="${(_csrf.token)!'csrf-token'}"/>

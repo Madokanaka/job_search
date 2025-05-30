@@ -2,7 +2,9 @@ package kg.attractor.job_search.handler;
 
 import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.job_search.exception.BadRequestException;
+import kg.attractor.job_search.exception.CategoryMismatchException;
 import kg.attractor.job_search.exception.DatabaseOperationException;
+import kg.attractor.job_search.exception.DuplicateApplicationException;
 import kg.attractor.job_search.exception.NoAccessException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.exception.ResourceNotFoundException;
@@ -17,6 +19,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 
 @ControllerAdvice
@@ -75,4 +79,17 @@ public class GlobalExceptionHandler {
         model.addAttribute("message", e.getMessage());
         return "errors/error";    }
 
+    @ExceptionHandler(CategoryMismatchException.class)
+    public ResponseEntity<Map<String, String>> handleCategoryMismatchException(CategoryMismatchException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DuplicateApplicationException.class)
+    public ResponseEntity<Map<String, String>> handleDuplicateApplicationException(DuplicateApplicationException ex) {
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
 }

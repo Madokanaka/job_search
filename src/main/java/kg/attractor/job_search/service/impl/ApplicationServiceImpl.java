@@ -2,6 +2,8 @@ package kg.attractor.job_search.service.impl;
 
 import kg.attractor.job_search.dto.RespondenApplicantDto;
 import kg.attractor.job_search.exception.BadRequestException;
+import kg.attractor.job_search.exception.CategoryMismatchException;
+import kg.attractor.job_search.exception.DuplicateApplicationException;
 import kg.attractor.job_search.exception.RecordAlreadyExistsException;
 import kg.attractor.job_search.model.RespondedApplicant;
 import kg.attractor.job_search.repository.RespondedApplicantRepository;
@@ -37,12 +39,12 @@ public class ApplicationServiceImpl implements ApplicationService {
 
         if (vacancyCategory != resumeCategory) {
             log.warn("Category mismatch: resumeId={}, vacancyId={}", resumeId, vacancyId);
-            throw new BadRequestException(messageSource.getMessage("error.category.mismatch", null, LocaleContextHolder.getLocale()));
+            throw new CategoryMismatchException(messageSource.getMessage("error.category.mismatch", null, LocaleContextHolder.getLocale()));
         }
 
         if (respondedApplicantRepository.findByResumeIdAndVacancyId(resumeId, vacancyId).isPresent()) {
             log.warn("Duplicate application detected: resumeId={}, vacancyId={}", resumeId, vacancyId);
-            throw new RecordAlreadyExistsException(messageSource.getMessage("error.application.exists", null, LocaleContextHolder.getLocale()));
+            throw new DuplicateApplicationException(messageSource.getMessage("error.application.exists", null, LocaleContextHolder.getLocale()));
         }
 
         RespondedApplicant respondedApplicant = new RespondedApplicant();

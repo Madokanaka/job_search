@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .permitAll())
                 .httpBasic(Customizer.withDefaults())
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/resumes/by-category/{categoryId}", "/api/respond").hasAuthority("APPLICANT")
                         .requestMatchers("/chat/{chatRoomId:[0-9]+}", "/chats").authenticated()
                         .requestMatchers("/chat/start/{otherUserId:[0-9]+}").hasAnyAuthority("APPLICANT", "EMPLOYER")
                         .requestMatchers("/ws-chat/**").permitAll()

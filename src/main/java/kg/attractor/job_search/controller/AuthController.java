@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.io.UnsupportedEncodingException;
 
@@ -67,14 +68,14 @@ public class AuthController {
     }
 
     @PostMapping("/forgot_password")
-    public String processForgotPassword(HttpServletRequest request, Model model) {
+    public String processForgotPassword(HttpServletRequest request, Model model, RedirectAttributes redirectAttributes){
         try {
-            userService.makeResetPasswordLnk(request);
-            model.addAttribute("message", messageSource.getMessage("message.password.reset.link.sent", null, LocaleContextHolder.getLocale()));
-        } catch (UserNotFoundException | UnsupportedEncodingException e) {
+            String token = userService.makeResetPasswordLnk(request);
+            redirectAttributes.addFlashAttribute("message", messageSource.getMessage("message.password.reset.message", null, LocaleContextHolder.getLocale()));
+            redirectAttributes.addFlashAttribute("token", token);
+            return "redirect:/auth/verify_token";
+        } catch (UserNotFoundException e) {
             model.addAttribute("error", e.getMessage());
-        } catch (MessagingException e) {
-            model.addAttribute("error", messageSource.getMessage("error.email.sending", null, LocaleContextHolder.getLocale()));
         }
         return "auth/forgot_password_form";
     }
@@ -111,5 +112,26 @@ public class AuthController {
         }
 
         return "/auth/message";
+    }
+
+    @GetMapping("/verify_token")
+    public String showVerifyTokenPage(Model model) {
+        return "auth/verify_token_form";
+    }
+
+    @PostMapping("/verify_token")
+    public String processVerifyToken(@RequestParam("token") String token, Model model) {
+        if (token == null || token.trim().isEmpty()) {
+            model.addAttribute("error", messageSource.getMessage("error.required.token", null, LocaleContextHolder.getLocale()));
+            return "auth/verify_token_form";
+        }
+
+        try {
+            userService.getByResetPasswordToken(token);
+            return "redirect:/auth/reset_password?token=" + token;
+        } catch (UserNotFoundException e) {
+            model.addAttribute("error", messageSource.getMessage("error.invalid.token", null, LocaleContextHolder.getLocale()));
+            return "auth/verify_token_form";
+        }
     }
 }

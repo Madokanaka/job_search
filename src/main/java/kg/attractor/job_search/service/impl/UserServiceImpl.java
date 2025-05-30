@@ -1,6 +1,5 @@
 package kg.attractor.job_search.service.impl;
 
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import kg.attractor.job_search.dto.UserDto;
 import kg.attractor.job_search.dto.UserEditDto;
@@ -14,7 +13,6 @@ import kg.attractor.job_search.model.User;
 import kg.attractor.job_search.repository.UserRepository;
 import kg.attractor.job_search.service.RoleService;
 import kg.attractor.job_search.service.UserService;
-import kg.attractor.job_search.util.CommonUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -26,7 +24,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -41,7 +38,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoleService roleService;
-    private final EmailService emailService;
     private final MessageSource messageSource;
 
     private static final List<String> SUPPORTED_LANGUAGES = Arrays.asList("en", "ru");
@@ -351,12 +347,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void makeResetPasswordLnk(HttpServletRequest request) throws MessagingException, UnsupportedEncodingException {
+    public String makeResetPasswordLnk(HttpServletRequest request) {
         String email = request.getParameter("email");
         String token = UUID.randomUUID().toString();
         updateResetPasswordToken(token, email);
-        String resetPasswordLnk = CommonUtilities.getSiteUrl(request) + "/auth/reset_password?token=" + token;
-        emailService.sendEmail(email, resetPasswordLnk);
+        return token;
     }
 
     @Override

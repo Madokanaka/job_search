@@ -116,6 +116,26 @@
                                         <span>${resume.update_time.toLocalDate()!'<@spring.message "resume.details.none"/>'}</span>
                                     </li>
                                 </ul>
+                                <#assign known = SPRING_SECURITY_CONTEXT??>
+                                <#if known>
+                                    <#assign
+                                    userPr = SPRING_SECURITY_CONTEXT.authentication.principal
+                                    name = userPr.getUsername()
+                                    isEmployer = false
+                                    >
+                                    <#list userPr.authorities as auth>
+                                        <#if auth.authority == "EMPLOYER">
+                                            <#assign isEmployer = true>
+                                        </#if>
+                                    </#list>
+                                    <#if isEmployer>
+                                        <div class="mt-4">
+                                            <a href="/chat/start/${resume.authorId}" class="btn btn-primary">
+                                                <@spring.message "vacancy.contact.employer"/>
+                                            </a>
+                                        </div>
+                                    </#if>
+                                </#if>
                             </div>
                         </div>
                     </div>

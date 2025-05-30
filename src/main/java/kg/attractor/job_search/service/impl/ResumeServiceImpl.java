@@ -186,6 +186,7 @@ public class ResumeServiceImpl implements ResumeService {
                 .update_time(resume.getUpdateTime())
                 .created_date(resume.getCreatedDate())
                 .contactEmail(email)
+                .authorId(resume.getApplicant().getId())
                 .phoneNumber(phone)
                 .linkedIn(linkedIn)
                 .telegram(telegram)

@@ -23,4 +23,13 @@ public class RespondenApplicantDto {
     private Integer vacancyId;
 
     private Boolean confirmation;
+
+    private String resumeName;
+    private String vacancyName;
+
+    private Integer applicantId;
+    private String applicantName;
+    private Integer employerId;
+    private String employerName;
+
 }
